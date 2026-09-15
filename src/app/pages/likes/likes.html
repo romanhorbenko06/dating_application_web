@@ -1,0 +1,257 @@
+<app-shell>
+  <header class="head">
+    <h1>Симпатії</h1>
+    <p>
+      @if (incoming().length > 0) {
+        Взаємних збігів: {{ matched().length }} · Чекають вашої відповіді: {{ incoming().length }}
+        · Надіслано: {{ waiting().length }}
+      } @else {
+        Нових симпатій немає · Взаємних збігів: {{ matched().length }}
+        · Надіслано: {{ waiting().length }}
+      }
+    </p>
+  </header>
+
+  @if (match(); as matchedNow) {
+    <section class="card card-ink match-banner enter">
+      <div class="confetti" aria-hidden="true">
+        @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
+          <span class="piece" [style.--i]="i"></span>
+        }
+      </div>
+      <span class="party">🎉</span>
+      <h2>Взаємна симпатія — {{ matchedNow.name }}!</h2>
+      <p>Фотографії тепер відкриті для вас обох, а між вами створено чат.</p>
+      <div class="match-actions">
+        <a class="btn-light" [routerLink]="['/chats', matchedNow.chatId]">Написати</a>
+        <a class="btn-ghost-light" [routerLink]="['/users', matchedNow.userId]">Переглянути анкету</a>
+      </div>
+    </section>
+  }
+
+  @if (error()) {
+    <p class="banner banner-error"><span class="banner-icon">✕</span> {{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <div class="grid wide">
+      @for (i of [1,2]; track i) {
+        <div class="card in-card">
+          <div class="skeleton sk-shot"></div>
+          <div style="flex: 1">
+            <div class="skeleton skeleton-line" style="width: 45%; height: 1.1rem"></div>
+            <div class="skeleton skeleton-line" style="width: 65%"></div>
+            <div class="skeleton skeleton-line" style="width: 100%; height: 2.2rem; margin-top: 1.4rem"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (incoming().length > 0) {
+    <!-- ══ Є вхідні симпатії: усе одним стовпцем ══ -->
+    <div class="sec-head">
+      <p class="strip-label">Вас вподобали</p>
+      <span class="pill-badge">
+        {{ incoming().length }} {{ incoming().length === 1 ? 'нова' : 'нові' }}
+      </span>
+    </div>
+
+    <div class="grid wide">
+      @for (item of incomingCards(); track item.request.requestId) {
+        <article class="card in-card enter">
+          <!-- Фото до метчу закрите — показуємо саме це, а не порожню плитку -->
+          <a class="shot" [routerLink]="['/users', item.userId]" aria-label="Відкрити анкету">
+            <span class="veil">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <rect x="3.4" y="7" width="9.2" height="6.2" rx="1.6" />
+                <path d="M5.6 7V5.4a2.4 2.4 0 0 1 4.8 0V7" />
+              </svg>
+            </span>
+            @if (item.photoCount > 0) {
+              <span class="shot-count">{{ item.photoCount }}</span>
+            }
+          </a>
+
+          <div class="in-body">
+            <div class="name-row">
+              <a class="name" [routerLink]="['/users', item.userId]">
+                {{ item.name }}@if (item.age !== null) {, {{ item.age }}}
+              </a>
+              @if (item.percent !== null) {
+                <small class="percent">{{ item.percent }}%</small>
+              }
+            </div>
+
+            <small class="sub">
+              {{ item.city || 'Місто не вказано' }}
+              @if (item.shared > 0) {
+                · {{ item.shared }} спільних тем
+              }
+            </small>
+
+            @if (item.request.message) {
+              <p class="quote">«{{ item.request.message }}»</p>
+            } @else {
+              <p class="plain-note">Вподобав(-ла) вашу анкету {{ agoLabel(item.request.createdAt) }}</p>
+            }
+
+            <div class="in-actions">
+              <button type="button" class="btn-soft" [disabled]="busyId() !== null"
+                      (click)="reject(item.request)">Відхилити</button>
+              <button type="button" class="btn-accent" [disabled]="busyId() !== null"
+                      (click)="accept(item.request)">Прийняти</button>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+
+    @if (matched().length > 0) {
+      <p class="strip-label spaced">Взаємні збіги — можна писати</p>
+      <div class="grid narrow">
+        @for (item of matched(); track item.chatId) {
+          <article class="match-card enter">
+            <a class="m-head" [routerLink]="['/users', item.userId]">
+              <span class="m-avatar">{{ initial(item.name) }}</span>
+              <span class="m-text">
+                <b>{{ item.name }}@if (item.age !== null) {, {{ item.age }}}</b>
+                <small>
+                  {{ item.city || 'Місто не вказано' }}
+                  @if (item.percent !== null) {
+                    · {{ item.percent }}% збігу
+                  }
+                </small>
+              </span>
+            </a>
+            <a class="m-cta" [routerLink]="['/chats', item.chatId]">Написати</a>
+          </article>
+        }
+      </div>
+    }
+
+    @if (waiting().length > 0) {
+      <p class="strip-label spaced">Ви вподобали — чекають відповіді</p>
+      <div class="grid narrow">
+        @for (request of waiting(); track request.requestId) {
+          <a class="wait-card" [routerLink]="['/users', request.toUserId]">
+            <span class="w-avatar">{{ initial(request.toUserName) }}</span>
+            <span class="w-text">
+              <b>{{ request.toUserName }}</b>
+              <small>Ще не відповіли · {{ agoLabel(request.createdAt) }}</small>
+            </span>
+          </a>
+        }
+      </div>
+    }
+  } @else {
+    <!-- ══ Вхідних немає: пояснюємо, що робити далі ══ -->
+    <div class="layout">
+      <div class="col-main">
+        <section class="hero enter">
+          <div class="glow" aria-hidden="true"></div>
+          <div class="hero-inner">
+            <span class="hero-icon">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 13.2S2.4 9.9 2.4 6.3A2.9 2.9 0 0 1 8 5.1a2.9 2.9 0 0 1 5.6 1.2c0 3.6-5.6 6.9-5.6 6.9z" />
+              </svg>
+            </span>
+            <h2>Нових симпатій поки немає</h2>
+            <p>
+              Тут з’являться люди, які вподобали вашу анкету. Найшвидший спосіб це змінити —
+              самому пройтись по стрічці: взаємність відкриває фото обом одночасно.
+            </p>
+            <div class="hero-actions">
+              <a class="btn-accent big" routerLink="/feed">Дивитись стрічку</a>
+              <a class="btn-glass" routerLink="/profile/edit">Доповнити анкету</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="card enter-2">
+          <p class="strip-label">Що підвищує шанси</p>
+          <div class="tips">
+            <div class="tip">
+              <b>{{ myPhotoCount() }} з {{ maxPhotos }}</b>
+              <small>світлин завантажено — вони відкриються одразу після взаємної симпатії</small>
+            </div>
+            <div class="tip">
+              <b>{{ myTagCount() }} з {{ tagTotal() }}</b>
+              <small>тем обрано — кожна нова тема піднімає вас у чужих стрічках</small>
+            </div>
+            <div class="tip">
+              <b>{{ completeness() }}%</b>
+              <small>заповненість анкети — порожні поля люди гортають повз</small>
+            </div>
+          </div>
+        </section>
+
+        @if (matched().length > 0) {
+          <p class="strip-label spaced-sm">Взаємні збіги — можна писати</p>
+          <div class="grid narrow">
+            @for (item of matched(); track item.chatId) {
+              <article class="match-card enter-3">
+                <a class="m-head" [routerLink]="['/users', item.userId]">
+                  <span class="m-avatar">{{ initial(item.name) }}</span>
+                  <span class="m-text">
+                    <b>{{ item.name }}@if (item.age !== null) {, {{ item.age }}}</b>
+                    <small>
+                      {{ item.city || 'Місто не вказано' }}
+                      @if (item.percent !== null) {
+                        · {{ item.percent }}% збігу
+                      }
+                    </small>
+                  </span>
+                </a>
+                <a class="m-cta" [routerLink]="['/chats', item.chatId]">Написати</a>
+              </article>
+            }
+          </div>
+        }
+      </div>
+
+      <aside class="col-side">
+        @if (waiting().length > 0) {
+          <section class="card enter-2">
+            <p class="strip-label">Ви вподобали — чекають відповіді</p>
+            <div class="wait-list">
+              @for (request of waitingPreview(); track request.requestId) {
+                <a class="wait-card" [routerLink]="['/users', request.toUserId]">
+                  <span class="w-avatar">{{ initial(request.toUserName) }}</span>
+                  <span class="w-text">
+                    <b>{{ request.toUserName }}</b>
+                    <small>{{ agoLabel(request.createdAt) }}</small>
+                  </span>
+                </a>
+              }
+            </div>
+            @if (waitingHidden() > 0) {
+              <p class="wait-more">{{ waitingHiddenLabel() }}</p>
+            }
+          </section>
+        }
+
+        <section class="card how-card enter-3">
+          <p class="strip-label">Як це працює</p>
+          <p>
+            Симпатія без відповіді нікого не сповіщає повторно. Щойно людина погодиться —
+            фото відкриються обом і з’явиться чат.
+          </p>
+        </section>
+      </aside>
+    </div>
+  }
+
+  @if (!loading() && declined().length > 0) {
+    <p class="strip-label spaced">Не склалось</p>
+    <div class="grid narrow">
+      @for (request of declined(); track request.requestId) {
+        <div class="wait-card muted-card">
+          <span class="w-avatar">{{ initial(request.toUserName) }}</span>
+          <span class="w-text">
+            <b>{{ request.toUserName }}</b>
+            <small>Симпатію відхилено</small>
+          </span>
+        </div>
+      }
+    </div>
+  }
+</app-shell>

@@ -1,0 +1,321 @@
+<div class="landing">
+  <!-- ── Шапка ── -->
+  <header class="site-header">
+    <a class="logo" routerLink="/about">znai<span>dy</span></a>
+
+    <nav class="site-nav">
+      <a href="#how" (click)="scrollTo($event, 'how')">Як це працює</a>
+      <a href="#why" (click)="scrollTo($event, 'why')">Чому інакше</a>
+      <a href="#safety" (click)="scrollTo($event, 'safety')">Безпека</a>
+      <a href="#faq" (click)="scrollTo($event, 'faq')">Питання</a>
+    </nav>
+
+    <div class="header-actions">
+      @if (isAdmin()) {
+        <a class="btn-accent sm" routerLink="/admin">До модерації</a>
+      } @else if (isLoggedIn()) {
+        <a class="btn-accent sm" routerLink="/feed">До стрічки</a>
+      } @else {
+        <a class="btn-ghost sm" routerLink="/login">Увійти</a>
+        <a class="btn-accent sm" routerLink="/register">Зареєструватись</a>
+      }
+    </div>
+  </header>
+
+  <!-- ── Герой ── -->
+  <section class="hero">
+    <span class="blob one" aria-hidden="true"></span>
+    <span class="blob two" aria-hidden="true"></span>
+
+    <div class="hero-grid">
+      <div class="hero-text">
+        <span class="pill">
+          <i aria-hidden="true"></i>фото відкриває лише взаємність
+        </span>
+
+        <h1>Де особистість важливіша<br />за зовнішність</h1>
+
+        <p class="lead">
+          znaidy ховає світлини, поки симпатія не стала взаємною. Тому першою заходить
+          розмова, а не селфі — і знайомство починається з характеру, цінностей
+          та спільних тем.
+        </p>
+
+        <div class="hero-btns">
+          @if (isAdmin()) {
+            <a class="btn-accent lg" routerLink="/admin">Перейти до модерації</a>
+          } @else if (isLoggedIn()) {
+            <a class="btn-accent lg" routerLink="/feed">Перейти до стрічки</a>
+            <a class="btn-ghost lg" routerLink="/profile">Моя анкета</a>
+          } @else {
+            <a class="btn-accent lg" routerLink="/register">Створити анкету — безкоштовно</a>
+            <a class="btn-ghost lg" href="#how" (click)="scrollTo($event, 'how')">
+              Як це працює
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.6 8h9.8M8.4 4l4 4-4 4" /></svg>
+            </a>
+          }
+        </div>
+
+        <p class="hero-note">Підтвердження пошти кодом · без рекламних блоків · скарги розглядає людина</p>
+
+        <dl class="stats">
+          <div><dt>118</dt><dd>тем для збігу</dd></div>
+          <div><dt>6</dt><dd>світлин в анкеті</dd></div>
+          <div><dt>0</dt><dd>рекламних блоків</dd></div>
+        </dl>
+      </div>
+
+      <!-- Дві картки: та сама анкета до і після взаємності -->
+      <div class="hero-visual" aria-hidden="true">
+        <div class="card-before">
+          <div class="shot locked">
+            <div class="veil">
+              <span class="lock">
+                <svg viewBox="0 0 16 16">
+                  <rect x="3.4" y="7" width="9.2" height="6.2" rx="1.6" />
+                  <path d="M5.6 7V5.4a2.4 2.4 0 0 1 4.8 0V7" />
+                </svg>
+              </span>
+              <small>Фото приховане<br />до взаємної симпатії</small>
+            </div>
+            <span class="sheen"></span>
+          </div>
+          <b class="name">Марія, 27</b>
+          <small class="meta">Львів · тривалі стосунки</small>
+          <div class="tags">
+            <span class="on">Музика</span>
+            <span class="on">Книги</span>
+            <span class="off">+2</span>
+          </div>
+        </div>
+
+        <span class="arrow">
+          <svg viewBox="0 0 16 16"><path d="M2.6 8h9.8M8.4 4l4 4-4 4" /></svg>
+        </span>
+
+        <div class="card-after">
+          <div class="shot open">
+            <span class="badge">ВЗАЄМНО</span>
+          </div>
+          <div class="after-row">
+            <span class="after-who">
+              <b class="name">Марія, 27</b>
+              <small class="meta">фото відкрито</small>
+            </span>
+            <span class="score"><b>78%</b><small>ЗБІГ</small></span>
+          </div>
+          <span class="fake-btn">Написати</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Три принципи ── -->
+  <section id="why" class="principles">
+    <article>
+      <span class="p-ico">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <rect x="3.4" y="7" width="9.2" height="6.2" rx="1.6" />
+          <path d="M5.6 7V5.4a2.4 2.4 0 0 1 4.8 0V7" />
+        </svg>
+      </span>
+      <h3>Фото — після взаємності</h3>
+      <p>До збігу сервер просто не віддає світлини. Не розмиття для вигляду, а реальне обмеження доступу.</p>
+    </article>
+    <article>
+      <span class="p-ico">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M8 2.4 9.5 6l3.6 1.4L9.5 8.9 8 12.5 6.5 8.9 2.9 7.4 6.5 6z" />
+        </svg>
+      </span>
+      <h3>Стрічка за інтересами</h3>
+      <p>Анкети ранжуються за кількістю спільних тем зі 118 доступних — випадкових людей у стрічці немає.</p>
+    </article>
+    <article>
+      <span class="p-ico">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M13.4 8.3c0 2.5-2.4 4.5-5.4 4.5-.7 0-1.4-.1-2-.3l-3 1.2.9-2.4A4.3 4.3 0 0 1 2.6 8.3c0-2.5 2.4-4.5 5.4-4.5s5.4 2 5.4 4.5z" />
+        </svg>
+      </span>
+      <h3>Чат лише за згодою</h3>
+      <p>Написати вам може тільки той, кого ви вподобали навзаєм. Ніяких повідомлень від незнайомців.</p>
+    </article>
+  </section>
+
+  <!-- ── Як це працює ── -->
+  <section id="how" class="how">
+    <div class="how-head">
+      <div>
+        <p class="eyebrow">Як це працює</p>
+        <h2>Три кроки — і розмова замість оцінювання</h2>
+      </div>
+      <p class="how-note">
+        Ніяких свайпів навперейми: анкети приходять по одній, щоб ви встигли їх прочитати.
+      </p>
+    </div>
+
+    <div class="steps">
+      <article class="step">
+        <b class="num">01</b>
+        <h3>Заповніть анкету</h3>
+        <p>
+          Розкажіть про себе, оберіть мету знайомства та інтереси. Світлини завантажуються
+          одразу — але їх ще ніхто не бачить.
+        </p>
+        <div class="chips">
+          <span>Про себе</span><span>Інтереси</span><span>Мета</span>
+        </div>
+      </article>
+
+      <article class="step">
+        <b class="num">02</b>
+        <h3>Читайте стрічку</h3>
+        <p>
+          Кожна анкета показує відсоток сумісності й теми, що збігаються з вашими.
+          Вподобали — людина дізнається одразу.
+        </p>
+        <div class="score-row">
+          <svg viewBox="0 0 60 60" aria-hidden="true">
+            <circle cx="30" cy="30" r="25" class="track" />
+            <circle cx="30" cy="30" r="25" class="value" transform="rotate(-90 30 30)" />
+          </svg>
+          <span>
+            <b>78% сумісності</b>
+            <small>4 спільні теми з 6</small>
+          </span>
+        </div>
+      </article>
+
+      <article class="step dark">
+        <b class="num">03</b>
+        <h3>Симпатія стала взаємною</h3>
+        <p>
+          Світлини відкриваються обом одночасно, а чат створюється сам.
+          Далі — тільки ваша розмова.
+        </p>
+        <div class="msg-row">
+          <span class="msg-ava" aria-hidden="true"></span>
+          <span>
+            <b>Марія</b>
+            <small>Теж обожнюю Маркеса!</small>
+          </span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── Теми ── -->
+  <section class="topics">
+    <div class="topics-text">
+      <p class="eyebrow">118 тем</p>
+      <h2>Збіг рахується за тим, що вам справді цікаво</h2>
+      <p>
+        Кожна обрана тема піднімає вашу анкету в стрічках людей із такими ж інтересами —
+        і показує, про що почати розмову.
+      </p>
+    </div>
+    <div class="topic-chips" aria-hidden="true">
+      <span class="on">Джаз</span>
+      <span>Гірські походи</span>
+      <span>Театр</span>
+      <span class="on">Книги</span>
+      <span>Настільні ігри</span>
+      <span>Живопис</span>
+      <span class="on">Подорожі</span>
+      <span>Кіно</span>
+      <span>Готування</span>
+      <span class="on">Природа</span>
+      <span>Йога</span>
+      <span>Фотографія</span>
+      <span class="rest">+106</span>
+    </div>
+  </section>
+
+  <!-- ── Безпека і питання ── -->
+  <div class="split">
+    <section id="safety" class="safety">
+      <p class="eyebrow">Безпека</p>
+      <h2>Спокійно — це теж функція</h2>
+
+      <div class="checks">
+        <div>
+          <span class="tick"><svg viewBox="0 0 16 16"><path d="m4 8.4 2.6 2.6L12 5.6" /></svg></span>
+          <span>
+            <b>Скарга з будь-якого екрана</b>
+            <small>Звернення потрапляє адміністратору, який може підтвердити порушення й заблокувати акаунт.</small>
+          </span>
+        </div>
+        <div>
+          <span class="tick"><svg viewBox="0 0 16 16"><path d="m4 8.4 2.6 2.6L12 5.6" /></svg></span>
+          <span>
+            <b>Блокування в один клік</b>
+            <small>Ефект симетричний: ви зникаєте одне в одного зі стрічки, а спільний чат розривається одразу.</small>
+          </span>
+        </div>
+        <div>
+          <span class="tick"><svg viewBox="0 0 16 16"><path d="m4 8.4 2.6 2.6L12 5.6" /></svg></span>
+          <span>
+            <b>Підтверджена пошта</b>
+            <small>Реєстрація завершується кодом із листа — це відсіює одноразові акаунти.</small>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="faq">
+      <p class="eyebrow">Питання</p>
+      <h2>Коротко про головне</h2>
+
+      <div class="qa">
+        <div>
+          <b>А якщо я передумаю після збігу?</b>
+          <small>Заблокуйте людину — чат зникне в обох, а фото знову стануть недоступними. Блокування можна зняти.</small>
+        </div>
+        <div>
+          <b>Чи бачить хтось мої фото без збігу?</b>
+          <small>Ні. До взаємної симпатії сервер віддає лише кількість світлин, а самі файли закриті перевіркою на взаємність.</small>
+        </div>
+        <div>
+          <b>Скільки коштує?</b>
+          <small>Знайомства, стрічка й чати безкоштовні. Платних «підвищень» у стрічці немає.</small>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── Фінальний заклик ── -->
+  <section class="cta">
+    <span class="glow" aria-hidden="true"></span>
+    <div class="cta-inner">
+      <h2>Знайомство, яке починається<br />з гарної розмови</h2>
+      <p>
+        Створіть анкету за кілька хвилин — і подивіться, скільком людям цікаво те саме, що й вам.
+      </p>
+      <div class="cta-btns">
+        @if (isAdmin()) {
+          <a class="btn-accent lg" routerLink="/admin">Перейти до модерації</a>
+        } @else if (isLoggedIn()) {
+          <a class="btn-accent lg" routerLink="/feed">Перейти до стрічки</a>
+          <a class="btn-glass lg" routerLink="/profile">Моя анкета</a>
+        } @else {
+          <a class="btn-accent lg" routerLink="/register">Зареєструватись</a>
+          <a class="btn-glass lg" routerLink="/login">Уже маю акаунт</a>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Підвал ── -->
+  <footer class="foot">
+    <span class="foot-logo">
+      <span class="logo">znai<span>dy</span></span>
+      <small>© 2026</small>
+    </span>
+    <nav class="foot-nav">
+      <a href="#why" (click)="scrollTo($event, 'why')">Чому інакше</a>
+      <a href="#how" (click)="scrollTo($event, 'how')">Як це працює</a>
+      <a href="#safety" (click)="scrollTo($event, 'safety')">Безпека</a>
+      <a href="#faq" (click)="scrollTo($event, 'faq')">Питання</a>
+    </nav>
+  </footer>
+</div>

@@ -1,0 +1,447 @@
+/* Стрічка сповіщень вужча за решту екранів — рядки не мають розтягуватись */
+.narrow {
+  max-width: 46rem;
+}
+
+/* ── Шапка ── */
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.15rem;
+}
+
+.head-text h1 {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.head-text p {
+  margin: 0;
+  font: 400 0.82rem/1.5 var(--font-ui);
+  color: #8b807a;
+}
+
+.head-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ghost-btn,
+.ink-btn {
+  padding: 0.58rem 0.9rem;
+  border-radius: 11px;
+  font: 600 0.78rem/1 var(--font-ui);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ghost-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: #2a2124;
+}
+
+.ghost-btn:hover {
+  background: var(--surface-2);
+}
+
+/* Увімкнений фільтр має бути видно без читання підпису */
+.ghost-btn.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.ink-btn {
+  border: 0;
+  background: var(--ink);
+  color: #fff;
+}
+
+.ink-btn:hover:not(:disabled) {
+  background: #33252b;
+}
+
+.ink-btn:disabled {
+  background: #faf6f3;
+  border: 1px solid #eee5df;
+  color: #c5bab4;
+  cursor: not-allowed;
+}
+
+.strip-label {
+  margin: 0 0 0.65rem;
+  font: 700 0.63rem/1 var(--font-ui);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #b3a7a0;
+}
+
+.strip-label.spaced {
+  margin-top: 1.4rem;
+}
+
+/* ── Стрічка ── */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.notif {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1.05rem;
+  border: 1px solid #eee5df;
+  border-radius: 16px;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.notif:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px -18px rgb(28 21 24 / 45%);
+  color: inherit;
+}
+
+/* Непрочитане повідомлення чи симпатія — рожевий відтінок */
+.notif.unread {
+  background: #fdf8fa;
+  border-color: #f6d8e3;
+}
+
+/* Взаємний збіг — головна подія в застосунку, тож темна картка */
+.notif.match {
+  border-color: transparent;
+  background: linear-gradient(120deg, #1c1518, #4d1f31);
+  color: #fff;
+}
+
+.ico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  border-radius: 12px;
+  background: #faf6f3;
+}
+
+.ico svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  fill: none;
+  stroke: #8b807a;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Заповнене серце малюємо заливкою, а не обведенням */
+.ico svg.solid {
+  fill: #fff;
+  stroke: none;
+}
+
+.notif.unread .ico {
+  background: var(--accent-soft);
+}
+
+.notif.unread .ico svg {
+  stroke: var(--accent);
+}
+
+.notif.match .ico {
+  background: rgb(255 255 255 / 12%);
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  flex: none;
+  border-radius: 11px;
+  background: linear-gradient(150deg, #f0bfd1, #a86e86);
+  color: #fff;
+  font: 600 0.85rem/1 var(--font-display);
+}
+
+.notif:nth-child(even) .who {
+  background: linear-gradient(150deg, #dfe7f5, #8095b8);
+}
+
+.notif:nth-child(3n) .who {
+  background: linear-gradient(150deg, #e8ddd0, #ab9276);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.body b {
+  display: block;
+  font: 600 0.86rem/1.3 var(--font-ui);
+  overflow-wrap: anywhere;
+}
+
+.body small {
+  font: 400 0.72rem/1.4 var(--font-ui);
+  color: #8b807a;
+}
+
+.notif.match .body small {
+  color: rgb(255 255 255 / 66%);
+}
+
+.dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.notif.match .dot {
+  background: #e8608f;
+}
+
+.more {
+  display: block;
+  width: 100%;
+  margin-top: 0.85rem;
+  padding: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: #7d726c;
+  font: 600 0.78rem/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.more:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.more:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ── Порожні стани ── */
+
+.quiet {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-color: #eee5df;
+}
+
+.quiet p {
+  margin: 0;
+  font: 400 0.85rem/1.5 var(--font-ui);
+  color: #8b807a;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 3.25rem 2.5rem;
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, #1c1518, #4d1f31);
+  color: #fff;
+  text-align: center;
+  margin-bottom: 0.9rem;
+}
+
+.glow {
+  position: absolute;
+  width: 26rem;
+  height: 26rem;
+  top: -12rem;
+  left: 50%;
+  margin-left: -13rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(214 51 108 / 42%), transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+}
+
+.hero-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.6rem;
+  height: 4.6rem;
+  margin: 0 auto 1.25rem;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 26px;
+  background: rgb(255 255 255 / 9%);
+  animation: float 6s ease-in-out infinite;
+}
+
+.hero-icon svg {
+  width: 1.85rem;
+  height: 1.85rem;
+  fill: none;
+  stroke: #f6b9cd;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hero h2 {
+  margin: 0 0 0.75rem;
+  font: 600 2rem/1.18 var(--font-display);
+  text-wrap: balance;
+}
+
+.hero p {
+  margin: 0 auto;
+  max-width: 27rem;
+  font: 400 0.88rem/1.7 var(--font-ui);
+  color: rgb(255 255 255 / 68%);
+  text-wrap: pretty;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.6rem;
+}
+
+.btn-accent,
+.btn-glass {
+  padding: 0.82rem 1.4rem;
+  border-radius: 13px;
+  font: 700 0.84rem/1 var(--font-ui);
+  text-decoration: none;
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 12px 26px -14px rgb(214 51 108 / 90%);
+}
+
+.btn-accent:hover {
+  background: var(--accent-strong);
+  color: #fff;
+}
+
+.btn-glass {
+  border: 1px solid rgb(255 255 255 / 22%);
+  background: rgb(255 255 255 / 8%);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-glass:hover {
+  background: rgb(255 255 255 / 16%);
+  color: #fff;
+}
+
+/* ── Три типи подій ── */
+
+.card {
+  border-color: #eee5df;
+}
+
+.kinds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+}
+
+.kind {
+  padding: 1.1rem;
+  border-radius: 14px;
+  background: #faf6f3;
+}
+
+.kind-ico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.7rem;
+  border-radius: 11px;
+  background: var(--accent-soft);
+}
+
+.kind-ico svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kind h3 {
+  margin: 0 0 0.3rem;
+  font: 600 0.88rem/1.3 var(--font-ui);
+}
+
+.kind p {
+  margin: 0;
+  font: 400 0.75rem/1.6 var(--font-ui);
+  color: #6e6259;
+}
+
+/* ── Адаптивність ── */
+
+@media (max-width: 34rem) {
+  .head-text h1 {
+    font-size: 1.2rem;
+  }
+
+  .head-actions {
+    width: 100%;
+  }
+
+  .head-actions button {
+    flex: 1;
+  }
+
+  .hero {
+    padding: 2.25rem 1.25rem;
+  }
+
+  .hero h2 {
+    font-size: 1.45rem;
+  }
+
+  .hero-actions a {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Іконку типу на вузькому екрані ховаємо — аватар і текст важливіші */
+  .ico {
+    display: none;
+  }
+}

@@ -1,0 +1,449 @@
+/* ── Шапка ── */
+
+.head {
+  margin-bottom: 1.15rem;
+}
+
+.head-text h1 {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.head-text p {
+  margin: 0;
+  font: 400 0.82rem/1.5 var(--font-ui);
+  color: #8b807a;
+}
+
+/* ── Лічильники ── */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.stat {
+  padding: 0.95rem 1.1rem;
+  border: 1px solid #eee5df;
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.stat b {
+  display: block;
+  font: 600 1.5rem/1 var(--font-display);
+}
+
+.stat small {
+  display: block;
+  margin-top: 0.3rem;
+  font: 500 0.72rem/1.4 var(--font-ui);
+  color: #8b807a;
+}
+
+.stat b.warn {
+  color: var(--warn-ink);
+}
+
+/* Нові скарги — те, що чекає рішення просто зараз */
+.stat.hot {
+  background: #fdf1f0;
+  border-color: #f2c4c0;
+}
+
+.stat.hot b {
+  color: var(--error);
+}
+
+.stat.hot small {
+  color: #a8564b;
+}
+
+.stat.ink {
+  background: var(--ink);
+  border-color: transparent;
+  color: #fff;
+}
+
+.stat.ink small {
+  color: rgb(255 255 255 / 62%);
+}
+
+/* ── Вкладки й фільтри ── */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+
+.tab {
+  padding: 0.55rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface);
+  color: #7d726c;
+  font: 600 0.76rem/1 var(--font-ui);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tab:hover {
+  background: var(--surface-2);
+}
+
+.tab.active {
+  border-color: transparent;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 700;
+}
+
+.sep {
+  width: 1px;
+  height: 1.35rem;
+  margin: 0 0.2rem;
+  background: var(--border);
+}
+
+.chip {
+  padding: 0.38rem 0.75rem;
+  border: 1px solid #eee5df;
+  border-radius: 999px;
+  background: var(--surface);
+  color: #7d726c;
+  font: 600 0.72rem/1.35 var(--font-ui);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.chip.on {
+  border-color: transparent;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ── Таблиця ── */
+
+.card {
+  border-color: #eee5df;
+}
+
+.table-card {
+  border: 1px solid #eee5df;
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* Шість колонок не стискаються нескінченно — на вузькому екрані даємо горизонтальний скрол */
+.table-scroll {
+  overflow-x: auto;
+}
+
+.grid-table {
+  min-width: 46rem;
+}
+
+.grid-head,
+.grid-row {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.6fr) 6rem 7.5rem;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* На вкладці заблокованих колонок менше */
+.grid-table.blocked .grid-head,
+.grid-table.blocked .grid-row {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) 7rem minmax(0, 1.6fr);
+}
+
+.grid-head {
+  padding: 0.75rem 1.15rem;
+  background: #faf6f3;
+  border-bottom: 1px solid #f2eae5;
+  font: 700 0.6rem/1.3 var(--font-ui);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #b3a7a0;
+}
+
+.grid-block {
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid #f6f0eb;
+}
+
+.grid-block:last-child {
+  border-bottom: none;
+}
+
+/* Нова скарга підсвічена — саме її має побачити модератор першою */
+.grid-block.fresh {
+  background: #fdf8fa;
+}
+
+.grid-row {
+  font: 500 0.78rem/1.45 var(--font-ui);
+}
+
+.grid-row a {
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+
+.grid-row a:hover {
+  color: var(--accent);
+}
+
+.cut {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reason {
+  min-width: 0;
+  color: #6e6259;
+  overflow-wrap: anywhere;
+}
+
+.faint {
+  color: #b3a7a0;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.status {
+  justify-self: start;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  font: 700 0.66rem/1.3 var(--font-ui);
+}
+
+/* ── Дії над скаргою ── */
+
+.row-actions {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.act {
+  padding: 0.48rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: #2a2124;
+  font: 600 0.72rem/1 var(--font-ui);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.act:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.act.primary {
+  border-color: transparent;
+  background: var(--ink);
+  color: #fff;
+}
+
+.act.primary:hover:not(:disabled) {
+  background: #33252b;
+}
+
+.act.danger {
+  border-color: #f2c4c0;
+  background: #fdf1f0;
+  color: var(--error);
+  font-weight: 700;
+}
+
+.act.danger:hover:not(:disabled) {
+  background: #fbe6e4;
+}
+
+.act:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.note {
+  margin: 0.85rem 0 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid #eee5df;
+  border-radius: 14px;
+  background: #faf6f3;
+  font: 400 0.75rem/1.6 var(--font-ui);
+  color: #8b807a;
+}
+
+/* ── Порожній стан ── */
+
+.blank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  padding: 2.25rem 1.25rem;
+}
+
+.blank-icon {
+  font-size: 1.9rem;
+  animation: float 3.5s ease-in-out infinite;
+}
+
+.blank b {
+  font: 600 1.05rem/1.25 var(--font-display);
+}
+
+.blank small {
+  font: 400 0.78rem/1.55 var(--font-ui);
+  color: #8b807a;
+}
+
+/* ── Модалки ── */
+
+.modal-box {
+  padding: 1.75rem;
+  border-radius: 20px;
+}
+
+.modal-ico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  margin-bottom: 1rem;
+  border-radius: 14px;
+  background: #fdf1f0;
+}
+
+.modal-ico svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: var(--error);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.modal-box h3 {
+  margin: 0 0 0.5rem;
+  font: 600 1.3rem/1.25 var(--font-display);
+}
+
+.modal-text {
+  margin: 0 0 1.1rem;
+  font: 400 0.82rem/1.65 var(--font-ui);
+  color: #6e6259;
+}
+
+.modal-text b {
+  color: var(--text);
+}
+
+.modal-box .field input {
+  padding: 0.68rem 0.85rem;
+  border-radius: 12px;
+  background: #faf6f3;
+}
+
+.modal-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0 0 1.1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--warn-border);
+  border-radius: 12px;
+  background: var(--warn-bg);
+  font: 500 0.75rem/1.5 var(--font-ui);
+  color: var(--warn-ink);
+}
+
+.modal-warn svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: none;
+  margin-top: 0.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 0;
+}
+
+.m-btn {
+  padding: 0.72rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: #2a2124;
+  font: 600 0.8rem/1 var(--font-ui);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.m-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.m-btn.danger {
+  border-color: transparent;
+  background: var(--error);
+  color: #fff;
+  font-weight: 700;
+}
+
+.m-btn.danger:hover:not(:disabled) {
+  background: #a5301f;
+}
+
+.m-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ── Адаптивність ── */
+
+@media (max-width: 34rem) {
+  .head-text h1 {
+    font-size: 1.2rem;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions .m-btn {
+    width: 100%;
+  }
+}
