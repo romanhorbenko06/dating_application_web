@@ -1,0 +1,70 @@
+.email {
+  margin: -0.9rem 0 1.3rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* Шість окремих клітинок — код видно як у листі */
+.code-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.7rem;
+}
+
+.code-box {
+  width: 3rem;
+  height: 3.4rem;
+  padding: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: var(--surface-2);
+}
+
+.code-box.filled {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.hint {
+  margin: 0 0 1.2rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--faint);
+}
+
+.switch {
+  margin: 1.2rem 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.link-accent {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link-accent:disabled {
+  color: var(--faint);
+  cursor: not-allowed;
+}
+
+form button {
+  padding: 0.85rem;
+}
+
+@media (max-width: 26rem) {
+  .code-box {
+    width: 2.5rem;
+    height: 3rem;
+    font-size: 1.25rem;
+  }
+}

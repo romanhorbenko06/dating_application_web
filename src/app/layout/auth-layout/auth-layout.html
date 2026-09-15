@@ -1,0 +1,19 @@
+<div class="auth-page">
+  <div class="glow" aria-hidden="true"></div>
+
+  <div class="auth-wrap">
+    <div class="auth-card enter" [class.wide]="wide()">
+      <a class="logo" routerLink="/about">znai<span>dy</span></a>
+
+      @if (icon()) {
+        <div class="icon-badge">{{ icon() }}</div>
+      }
+
+      <h1 [class.centered]="icon()">{{ heading() }}</h1>
+      @if (subheading()) {
+        <p class="sub" [class.centered]="icon()">{{ subheading() }}</p>
+      }
+      <ng-content />
+    </div>
+  </div>
+</div>
