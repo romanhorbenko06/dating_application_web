@@ -1,0 +1,83 @@
+.auth-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  /* Мʼякий рожевий серпанок згори, як у макеті */
+  background: radial-gradient(48rem 26rem at 50% -6rem, #fbe7ef 0%, var(--surface) 62%);
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.auth-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  min-height: 100vh;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 26rem;
+  padding: 2.1rem 2.2rem 2.3rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 45px rgb(28 21 24 / 9%);
+}
+
+.auth-card.wide {
+  max-width: 34rem;
+}
+
+/* Логотип живе всередині картки, як у макеті */
+.logo {
+  display: inline-block;
+  margin-bottom: 1.4rem;
+  font-family: var(--font-ui);
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.logo span {
+  color: var(--accent);
+}
+
+.icon-badge {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: var(--accent-soft);
+  font-size: 1.3rem;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+h1.centered,
+.sub.centered {
+  text-align: center;
+}
+
+.sub {
+  margin: 0 0 1.5rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+}

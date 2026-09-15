@@ -1,0 +1,45 @@
+<app-auth-layout
+  icon="✉"
+  heading="Перевірте пошту"
+  subheading="Ми надіслали шестизначний код на">
+
+  <p class="email">{{ email }}</p>
+
+  @if (error()) {
+    <p class="banner banner-error"><span class="banner-icon">✕</span> {{ error() }}</p>
+  }
+  @if (resent()) {
+    <p class="banner banner-accent"><span class="banner-icon">✓</span> Новий код надіслано</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="code-row">
+      @for (digit of digits(); track $index) {
+        <input
+          #box
+          type="text"
+          inputmode="numeric"
+          maxlength="6"
+          class="code-box"
+          [class.filled]="digit"
+          [value]="digit"
+          (input)="onDigit($index, $event)"
+          (keydown)="onKey($index, $event)"
+          [attr.aria-label]="'Цифра ' + ($index + 1)" />
+      }
+    </div>
+
+    <p class="hint">Код дійсний 15 хвилин</p>
+
+    <button type="submit" class="btn btn-block" [disabled]="form.invalid || loading()">
+      {{ loading() ? 'Перевіряємо…' : 'Підтвердити й увійти' }}
+    </button>
+  </form>
+
+  <p class="switch">
+    Не отримали лист?
+    <button type="button" class="link-accent" [disabled]="cooldown() > 0" (click)="resend()">
+      @if (cooldown() > 0) { Надіслати ще раз ({{ cooldownLabel() }}) } @else { Надіслати ще раз }
+    </button>
+  </p>
+</app-auth-layout>

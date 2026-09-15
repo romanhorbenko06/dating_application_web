@@ -1,0 +1,130 @@
+<div class="split">
+  <!-- ── Ліва темна панель: навіщо це все ── -->
+  <aside class="intro">
+    <a class="logo" routerLink="/about">znai<span>dy</span></a>
+
+    <div class="intro-body">
+      <h1>Спочатку — хто ви.<br />Фото зачекає.</h1>
+      <p>
+        Анкета — головний інструмент підбору. Що детальніше ви її заповните,
+        то точніші будуть збіги.
+      </p>
+
+      <ol class="steps">
+        <li class="done"><span class="num">1</span> Основна інформація</li>
+        <li><span class="num">2</span> Код підтвердження з пошти</li>
+      </ol>
+    </div>
+  </aside>
+
+  <!-- ── Права панель: форма ── -->
+  <main class="form-pane">
+    <div class="form-inner">
+      <h2>Створити акаунт</h2>
+      <p class="sub">Займе близько трьох хвилин</p>
+
+      <div class="progress">
+        <span class="seg done"></span>
+        <span class="seg"></span>
+      </div>
+      <p class="step-label">Крок 1 з 2</p>
+
+      @if (error()) {
+        <p class="banner banner-error"><span class="banner-icon">✕</span> {{ error() }}</p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field-row">
+          <label class="field">
+            <span>Ім’я</span>
+            <input type="text" formControlName="name" autocomplete="given-name" />
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <small class="field-error">Від 2 до 50 символів</small>
+            }
+          </label>
+
+          <label class="field">
+            <span>Дата народження</span>
+            <input type="date" formControlName="dateOfBirth" />
+            @if (form.controls.dateOfBirth.touched && form.controls.dateOfBirth.hasError('underage')) {
+              <small class="field-error">Реєстрація з 18 років</small>
+            }
+          </label>
+        </div>
+
+        <div class="field-row">
+          <label class="field">
+            <span>Стать</span>
+            <select formControlName="gender">
+              <option value="" disabled>Оберіть…</option>
+              @for (option of genders; track option[0]) {
+                <option [value]="option[0]">{{ option[1] }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Місто</span>
+            <input type="text" formControlName="city" autocomplete="address-level2" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Мета знайомства</span>
+          <select formControlName="datingGoal">
+            <option value="" disabled>Оберіть…</option>
+            @for (option of goals; track option[0]) {
+              <option [value]="option[0]">{{ option[1] }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Електронна пошта</span>
+          <input type="email" formControlName="email" autocomplete="email" placeholder="email@example.com" />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <small class="field-error">Введіть коректну адресу пошти</small>
+          }
+          @if (serverFieldErrors()['email']; as serverError) {
+            <small class="field-error">{{ serverError }}</small>
+          }
+        </label>
+
+        <div class="field-row">
+          <label class="field">
+            <span>Пароль</span>
+            <input type="password" formControlName="password" autocomplete="new-password" />
+            @if (form.controls.password.touched && form.controls.password.invalid) {
+              <small class="field-error">Щонайменше 8 символів</small>
+            }
+          </label>
+
+          <label class="field">
+            <span>Підтвердження</span>
+            <input type="password" formControlName="confirmPassword" autocomplete="new-password" />
+            @if (form.controls.confirmPassword.touched && form.hasError('passwordMismatch')) {
+              <small class="field-error">Паролі не збігаються</small>
+            }
+          </label>
+        </div>
+
+        <label class="field-checkbox">
+          <input type="checkbox" formControlName="acceptTerms" />
+          <span>
+            Погоджуюсь з
+            <!-- stopPropagation: клік усередині <label> інакше ще й перемикав би галочку -->
+            <a class="terms-link" [href]="termsUrl" target="_blank" rel="noopener noreferrer"
+               (click)="$event.stopPropagation()">умовами використання та політикою
+              конфіденційності</a>
+          </span>
+        </label>
+
+        <button type="submit" class="btn btn-block" [disabled]="form.invalid || loading()">
+          {{ loading() ? 'Надсилаємо код…' : 'Далі — підтвердження пошти' }}
+        </button>
+      </form>
+
+      <p class="switch">Вже маєте акаунт? <a routerLink="/login">Увійти</a></p>
+    </div>
+  </main>
+</div>
