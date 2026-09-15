@@ -1,0 +1,217 @@
+<app-shell>
+  <header class="head">
+    <div class="head-text">
+      <h1>Модерація</h1>
+      <p>Перевірка порушень правил спільноти</p>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat">
+      <b>{{ stats().total }}</b>
+      <small>усього скарг</small>
+    </div>
+    <div class="stat hot">
+      <b>{{ stats().pending }}</b>
+      <small>нових</small>
+    </div>
+    <div class="stat">
+      <b class="warn">{{ stats().reviewed }}</b>
+      <small>на розгляді</small>
+    </div>
+    <div class="stat ink">
+      <b>{{ stats().resolved }}</b>
+      <small>підтверджених</small>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button type="button" class="tab" [class.active]="tab() === 'complaints'"
+            (click)="switchTab('complaints')">Скарги</button>
+    <button type="button" class="tab" [class.active]="tab() === 'blocked'"
+            (click)="switchTab('blocked')">Заблоковані</button>
+
+    @if (tab() === 'complaints') {
+      <span class="sep" aria-hidden="true"></span>
+      @for (status of statuses; track status) {
+        <button type="button" class="chip" [class.on]="filter() === status"
+                (click)="setFilter(status)">
+          {{ status ? statusLabel(status) : 'Усі' }}
+        </button>
+      }
+    }
+  </div>
+
+  @if (notice()) {
+    <p class="banner banner-accent"><span class="banner-icon">✓</span> {{ notice() }}</p>
+  }
+  @if (error()) {
+    <p class="banner banner-error"><span class="banner-icon">✕</span> {{ error() }}</p>
+  }
+
+  @if (tab() === 'complaints') {
+    @if (loading()) {
+      <div class="card">
+        <div class="skeleton skeleton-line" style="width: 100%; height: 2rem"></div>
+        <div class="skeleton skeleton-line" style="width: 100%; height: 2rem"></div>
+        <div class="skeleton skeleton-line" style="width: 100%; height: 2rem; margin-bottom: 0"></div>
+      </div>
+    } @else if (complaints().length === 0) {
+      <section class="card blank">
+        <span class="blank-icon">✅</span>
+        <b>Скарг у цьому стані немає</b>
+        <small>Змініть фільтр, щоб побачити решту історії модерації.</small>
+      </section>
+    } @else {
+      <div class="table-card enter">
+        <div class="table-scroll">
+          <div class="grid-table">
+            <div class="grid-head">
+              <span>#</span><span>Від кого</span><span>На кого</span>
+              <span>Опис</span><span>Дата</span><span>Статус</span>
+            </div>
+
+            @for (complaint of complaints(); track complaint.complaintId) {
+              <div class="grid-block" [class.fresh]="complaint.status === 'PENDING'">
+                <div class="grid-row">
+                  <span class="faint">{{ complaint.complaintId }}</span>
+                  <a class="cut" [routerLink]="['/users', complaint.reporterId]">
+                    {{ complaint.reporterName }}
+                  </a>
+                  <a class="cut" [routerLink]="['/users', complaint.reportedUserId]">
+                    {{ complaint.reportedUserName }}
+                  </a>
+                  <span class="reason">{{ complaint.reason }}</span>
+                  <span class="faint nowrap">{{ when(complaint.createdAt) }}</span>
+                  <span class="status" [class]="statusClass(complaint.status)">
+                    {{ statusLabel(complaint.status) }}
+                  </span>
+                </div>
+
+                <!-- Дії доступні, поки скарга не дійшла до кінцевого стану -->
+                @if (complaint.status !== 'RESOLVED' && complaint.status !== 'REJECTED') {
+                  <div class="row-actions">
+                    @if (complaint.status === 'PENDING') {
+                      <button type="button" class="act" [disabled]="busyId() !== null"
+                              (click)="review(complaint)">На розгляд</button>
+                    }
+                    <button type="button" class="act primary" [disabled]="busyId() !== null"
+                            (click)="resolve(complaint)">Підтвердити</button>
+                    <button type="button" class="act" [disabled]="busyId() !== null"
+                            (click)="reject(complaint)">Безпідставна</button>
+                    <button type="button" class="act danger" (click)="startBan(complaint)">
+                      Заблокувати
+                    </button>
+                    <button type="button" class="act danger" (click)="startDelete(complaint)">
+                      Видалити
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  } @else {
+    @if (loading()) {
+      <div class="card">
+        <div class="skeleton skeleton-line" style="width: 100%; height: 2rem"></div>
+      </div>
+    } @else if (blocked().length === 0) {
+      <section class="card blank">
+        <span class="blank-icon">🕊️</span>
+        <b>Заблокованих акаунтів немає</b>
+        <small>Бан застосовується лише до підтверджених порушень.</small>
+      </section>
+    } @else {
+      <div class="table-card enter">
+        <div class="table-scroll">
+          <div class="grid-table blocked">
+            <div class="grid-head">
+              <span>Користувач</span><span>Пошта</span><span>Заблоковано</span><span>Причина</span>
+            </div>
+            @for (user of blocked(); track user.userId) {
+              <div class="grid-block">
+                <div class="grid-row">
+                  <b class="cut">{{ user.name }}</b>
+                  <span class="faint cut">{{ user.email }}</span>
+                  <span class="faint nowrap">{{ when(user.blockedAt) }}</span>
+                  <span class="reason">{{ user.blockReason || 'Причину не вказано' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      <p class="note">
+        Бан незворотний: ендпоінта для розблокування свідомо не існує — рішення модератора остаточне.
+      </p>
+    }
+  }
+
+  <!-- ── Модалка бану ── -->
+  @if (banTarget(); as target) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <span class="modal-ico danger">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 2.6 14.4 13.4H1.6z" /><path d="M8 6.6v3M8 11.4h.01" />
+          </svg>
+        </span>
+        <h3>Заблокувати акаунт?</h3>
+        <p class="modal-text">
+          Ви збираєтесь назавжди заблокувати <b>{{ target.name }}</b>. Користувач втратить доступ
+          до сервісу, активні сесії й відкриті чати розірвуться одразу.
+        </p>
+
+        <form [formGroup]="banForm" (ngSubmit)="confirmBan()">
+          <label class="field">
+            <span>Причина блокування</span>
+            <input type="text" formControlName="reason"
+                   placeholder="Побачить сам користувач при спробі входу" />
+            <small class="field-hint">Необов'язково, але допомагає пояснити рішення.</small>
+          </label>
+
+          <p class="modal-warn">
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <rect x="3.4" y="7" width="9.2" height="6.2" rx="1.6" />
+              <path d="M5.6 7V5.4a2.4 2.4 0 0 1 4.8 0V7" />
+            </svg>
+            Розблокування не передбачене — переконайтесь у рішенні.
+          </p>
+
+          <div class="modal-actions">
+            <button type="button" class="m-btn" (click)="closeModal()">Скасувати</button>
+            <button type="submit" class="m-btn danger" [disabled]="busyId() !== null">
+              Заблокувати назавжди
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- ── Модалка видалення ── -->
+  @if (deleteTarget(); as target) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <span class="modal-ico danger">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.8 4.6l.6 8.2h5.2l.6-8.2" />
+          </svg>
+        </span>
+        <h3>Видалити акаунт?</h3>
+        <p class="modal-text">
+          Акаунт <b>{{ target.name }}</b> буде стерто з бази разом із анкетою, фото, чатами
+          та історією скарг на нього. Для модерації зазвичай кращий бан — він зберігає докази.
+        </p>
+        <div class="modal-actions">
+          <button type="button" class="m-btn" (click)="closeModal()">Скасувати</button>
+          <button type="button" class="m-btn danger" [disabled]="busyId() !== null"
+                  (click)="confirmDelete()">Так, видалити</button>
+        </div>
+      </div>
+    </div>
+  }
+</app-shell>

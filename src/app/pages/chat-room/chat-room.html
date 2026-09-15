@@ -1,0 +1,257 @@
+<app-shell [wide]="true">
+  <div class="crumbs">
+    <a class="ghost-btn" routerLink="/chats">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.5 4 5.5 8l4 4" /></svg>
+      Усі чати
+    </a>
+    <span class="crumb-text">Чати · {{ companionName() }}</span>
+  </div>
+
+  @if (notice()) {
+    <p class="banner banner-accent"><span class="banner-icon">✓</span> {{ notice() }}</p>
+  }
+
+  <div class="chat-layout">
+    <section class="chat-window">
+      <header class="chat-head">
+        @if (mainPhoto(); as photo) {
+          <img class="head-ava" [src]="photo.dataUri" [srcset]="variants(photo)()?.srcset ?? ''"
+               sizes="40px" alt="" />
+        } @else {
+          <span class="head-ava letter">{{ initial(companionName()) }}</span>
+        }
+
+        <span class="head-who">
+          <b>
+            {{ companionName() }}@if (companionAge() !== null) {, {{ companionAge() }}}
+          </b>
+        </span>
+
+        <button type="button" class="head-btn" [class.on]="searching()" (click)="toggleSearch()"
+                aria-label="Пошук у переписці">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="7.2" cy="7.2" r="4.4" /><path d="m10.6 10.6 2.6 2.6" />
+          </svg>
+        </button>
+        <a class="head-btn text" [routerLink]="['/users', companionId()]">Анкета</a>
+      </header>
+
+      @if (searching()) {
+        <div class="search-bar">
+          <input type="search" [value]="searchQuery()" (input)="onSearch($event)"
+                 placeholder="Пошук серед завантажених повідомлень…" autofocus />
+          @if (searchQuery()) {
+            <small>Знайдено: {{ visibleMessages().length }}</small>
+          }
+        </div>
+      }
+
+      @if (error()) {
+        <p class="banner banner-error"><span class="banner-icon">✕</span> {{ error() }}</p>
+      }
+
+      @if (loading()) {
+        <div class="messages">
+          <div class="skeleton" style="width: 55%; height: 2.6rem; border-radius: 16px"></div>
+          <div class="skeleton" style="width: 42%; height: 2.6rem; border-radius: 16px; align-self: flex-end"></div>
+        </div>
+      } @else {
+        <div class="messages" #scroller>
+          @if (hasMore() && !searchQuery()) {
+            <button type="button" class="older" [disabled]="loadingOlder()" (click)="loadOlder()">
+              {{ loadingOlder() ? 'Завантажуємо…' : '↑ Показати давніші' }}
+            </button>
+          }
+
+          @if (messages().length === 0) {
+            <div class="blank">
+              <span class="blank-icon">✨</span>
+              <b>Повідомлень ще немає</b>
+              <small>Напишіть перший — ви вже сподобались одне одному.</small>
+            </div>
+          } @else if (visibleMessages().length === 0) {
+            <p class="day">Нічого не знайдено</p>
+          }
+
+          @for (message of visibleMessages(); track message.messageId; let i = $index) {
+            @if (startsNewDay(i)) {
+              <p class="day">{{ dayLabel(message.sentAt) }}</p>
+            }
+
+            <div class="row" [class.mine]="isMine(message)">
+              @if (!isMine(message)) {
+                @if (mainPhoto(); as photo) {
+                  <img class="row-ava" [src]="photo.dataUri" alt="" />
+                } @else {
+                  <span class="row-ava letter">{{ initial(message.senderName) }}</span>
+                }
+              }
+
+              <div class="bubble" [class.mine]="isMine(message)" [class.deleted]="message.isDeleted">
+                @if (message.isDeleted) {
+                  <p class="text del">Повідомлення видалено</p>
+                } @else if (editingId() === message.messageId) {
+                  <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="edit-form">
+                    <textarea formControlName="content" rows="2"></textarea>
+                    <div class="edit-actions">
+                      <button type="submit" class="btn btn-sm" [disabled]="editForm.invalid">Зберегти</button>
+                      <button type="button" class="btn btn-outline btn-sm" (click)="cancelEdit()">Скасувати</button>
+                    </div>
+                  </form>
+                } @else {
+                  <p class="text">{{ message.content }}</p>
+                }
+
+                <div class="meta">
+                  <span>{{ time(message.sentAt) }}</span>
+                  @if (message.editedAt && !message.isDeleted) {
+                    <span>· змінено</span>
+                  }
+                  @if (isMine(message) && !message.isDeleted) {
+                    <svg class="ticks" [class.read]="message.isRead" viewBox="0 0 16 16" aria-hidden="true">
+                      @if (message.isRead) {
+                        <path d="m2.4 8.4 2.4 2.4 4.4-5.2M7.2 10.8l.6.6 4.4-5.2" />
+                      } @else {
+                        <path d="m4 8.4 2.6 2.6L12 5.6" />
+                      }
+                    </svg>
+                    @if (editingId() !== message.messageId) {
+                      <button type="button" class="act" (click)="startEdit(message)">Змінити</button>
+                      <button type="button" class="act" (click)="remove(message)">Видалити</button>
+                    }
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <form class="composer" [formGroup]="form" (ngSubmit)="send()">
+          <textarea formControlName="content" rows="1" maxlength="2000"
+                    placeholder="Повідомлення…"></textarea>
+          <button type="submit" class="send" [disabled]="form.invalid || sending()"
+                  aria-label="Надіслати">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.6 8h9.8M8.4 4l4 4-4 4" /></svg>
+          </button>
+        </form>
+      }
+    </section>
+
+    <!-- ── Права колонка: хто по той бік ── -->
+    <aside class="side" [class.acting]="reporting() || confirmingBlock()">
+      <section class="card person-card">
+        <div class="ava-wrap">
+          @if (mainPhoto(); as photo) {
+            <img [src]="photo.dataUri" [srcset]="variants(photo)()?.srcset ?? ''"
+                 sizes="80px" alt="Фото {{ companionName() }}" />
+          } @else {
+            <span class="ava-big">{{ initial(companionName()) }}</span>
+          }
+          <span class="ava-mark" title="Взаємна симпатія">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 8.4 2.6 2.6L12 5.6" /></svg>
+          </span>
+        </div>
+
+        <b class="person-name">
+          {{ companionName() }}@if (companionAge() !== null) {, {{ companionAge() }}}
+        </b>
+        <small class="person-meta">
+          {{ companionCity() || 'Місто не вказано' }}
+          @if (companion(); as person) {
+            @if (person.datingGoal) {
+              · {{ goalLabel(person.datingGoal) }}
+            }
+          }
+        </small>
+
+        @if (matchPercent() !== null) {
+          <div class="score">
+            <svg viewBox="0 0 60 60" aria-hidden="true">
+              <circle cx="30" cy="30" r="25" class="track" />
+              <circle cx="30" cy="30" r="25" class="value"
+                      [attr.stroke-dashoffset]="donutOffset()" transform="rotate(-90 30 30)" />
+              <text x="30" y="35" text-anchor="middle">{{ matchPercent() }}</text>
+            </svg>
+            <span>
+              <b>Сумісність</b>
+              <small>{{ sharedTags().length }} спільних тем</small>
+            </span>
+          </div>
+        }
+
+        <a class="person-cta" [routerLink]="['/users', companionId()]">Відкрити анкету</a>
+      </section>
+
+      @if (sharedTags().length > 0) {
+        <section class="card tags-card">
+          <p class="strip-label">Спільні інтереси</p>
+          <div class="tag-row">
+            @for (tag of visibleSharedTags(); track tag.tagId) {
+              <span class="tag">{{ tag.tagName }}</span>
+            }
+            @if (hiddenSharedTagCount() > 0) {
+              <span class="tag tag-more">+{{ hiddenSharedTagCount() }}</span>
+            }
+          </div>
+        </section>
+      }
+
+      @if (companionPhotos().length > 0) {
+        <section class="card photos-card">
+          <p class="strip-label">Фото — {{ companionName() }}</p>
+          <a class="photo-strip" [routerLink]="['/users', companionId()]"
+             aria-label="Відкрити анкету з усіма фото">
+            @for (photo of companionPhotos().slice(0, 3); track photo.photoId) {
+              <img [src]="photo.dataUri" [srcset]="variants(photo)()?.srcset ?? ''"
+                   sizes="70px" alt="" />
+            }
+          </a>
+        </section>
+      }
+
+      <section class="card">
+        <p class="strip-label">Дії</p>
+
+        @if (reporting()) {
+          <form [formGroup]="reportForm" (ngSubmit)="submitReport()">
+            <label class="field">
+              <span>Причина скарги</span>
+              <textarea formControlName="reason" rows="2"></textarea>
+            </label>
+            <div class="side-actions">
+              <button type="submit" class="btn btn-sm" [disabled]="reportForm.invalid || busy()">
+                Надіслати
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" (click)="reporting.set(false)">
+                Скасувати
+              </button>
+            </div>
+          </form>
+        } @else if (confirmingBlock()) {
+          <p class="warn">
+            Заблокувати {{ companionName() }}? Чат зникне в обох, а анкети перестануть
+            показуватись одна одній.
+          </p>
+          <div class="side-actions">
+            <button type="button" class="btn btn-danger btn-sm" [disabled]="busy()" (click)="block()">
+              Заблокувати
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" (click)="confirmingBlock.set(false)">
+              Скасувати
+            </button>
+          </div>
+        } @else {
+          <div class="act-links">
+            <button type="button" class="link-btn" (click)="toggleSearch()">
+              {{ searching() ? 'Сховати пошук' : 'Пошук у переписці' }}
+            </button>
+            <button type="button" class="link-btn" (click)="reporting.set(true)">Поскаржитись</button>
+            <button type="button" class="link-btn danger" (click)="confirmingBlock.set(true)">
+              Заблокувати
+            </button>
+          </div>
+        }
+      </section>
+    </aside>
+  </div>
+</app-shell>

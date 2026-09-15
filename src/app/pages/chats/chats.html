@@ -1,0 +1,274 @@
+<app-shell>
+  @if (error()) {
+    <p class="banner banner-error"><span class="banner-icon">✕</span> {{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <div class="skeleton-wrap">
+      <header class="head">
+        <div class="head-text">
+          <h1>Чати</h1>
+          <p>Завантажуємо діалоги…</p>
+        </div>
+      </header>
+      <div class="list-card">
+        @for (i of [1,2,3]; track i) {
+          <div class="chat-row">
+            <div class="skeleton" style="width: 2.9rem; height: 2.9rem; border-radius: 14px"></div>
+            <div style="flex: 1">
+              <div class="skeleton skeleton-line" style="width: 30%"></div>
+              <div class="skeleton skeleton-line" style="width: 65%; margin-bottom: 0"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else if (rows().length > 0) {
+    <!-- ══ Є діалоги ══ -->
+    <header class="head">
+      <div class="head-text">
+        <h1>Чати</h1>
+        <p>{{ summary() }}</p>
+      </div>
+      <button type="button" class="head-btn" [disabled]="unreadRows().length === 0 || markingAll()"
+              (click)="markAllRead()">
+        {{ markingAll() ? 'Позначаємо…' : 'Прочитати всі' }}
+      </button>
+    </header>
+
+    <div class="layout">
+      <div class="col-main">
+        <div class="tools">
+          <input type="search" [value]="search()" (input)="onSearch($event)"
+                 placeholder="Пошук за іменем або текстом…" />
+          <div class="chips">
+            <button type="button" class="chip" [class.on]="filter() === 'all'"
+                    (click)="setFilter('all')">
+              Усі {{ rows().length }}
+            </button>
+            <button type="button" class="chip" [class.on]="filter() === 'unread'"
+                    [disabled]="unreadRows().length === 0" (click)="setFilter('unread')">
+              Непрочитані {{ unreadRows().length }}
+            </button>
+            <button type="button" class="chip" [class.on]="filter() === 'fresh'"
+                    [disabled]="freshRows().length === 0" (click)="setFilter('fresh')">
+              Нові збіги {{ freshRows().length }}
+            </button>
+          </div>
+        </div>
+
+        <div class="list-card">
+          <div class="list-head">
+            <p class="strip-label">Активні діалоги</p>
+            <span class="list-note">Спочатку нові</span>
+          </div>
+
+          @if (visibleRows().length === 0) {
+            <p class="nothing">
+              @if (search()) {
+                Нічого не знайдено за запитом «{{ search() }}».
+              } @else {
+                У цьому фільтрі порожньо.
+              }
+            </p>
+          }
+
+          @for (row of visibleRows(); track row.chat.chatId) {
+            <a class="chat-row" [class.unread]="row.unreadCount > 0"
+               [routerLink]="['/chats', row.chat.chatId]">
+              <span class="ava" [style.background]="avatarStyle(row.companionId)">
+                {{ initial(row.companionName) }}
+              </span>
+
+              <span class="info">
+                <span class="line">
+                  <b>{{ row.companionName }}</b>
+                  @if (percent(row); as match) {
+                    <span class="pill pill-match">{{ match }}%</span>
+                  }
+                  @if (!row.last) {
+                    <span class="pill">новий збіг</span>
+                  }
+                </span>
+                <span class="preview" [class.empty]="!row.last">{{ preview(row) }}</span>
+              </span>
+
+              <span class="aside-cell">
+                <i class="time">{{ when(row) }}</i>
+                @if (row.unreadCount > 0) {
+                  <span class="unread-badge">{{ row.unreadCount }}</span>
+                } @else if (!row.last) {
+                  <span class="pill pill-start">Почати</span>
+                } @else if (showTicks(row)) {
+                  <!-- Останнє слово за нами: галочка показує, чи його прочитали -->
+                  <svg class="ticks" [class.read]="isRead(row)" viewBox="0 0 16 16" aria-hidden="true">
+                    @if (isRead(row)) {
+                      <path d="m2.4 8.4 2.4 2.4 4.4-5.2M7.2 10.8l.6.6 4.4-5.2" />
+                    } @else {
+                      <path d="m4 8.4 2.6 2.6L12 5.6" />
+                    }
+                  </svg>
+                }
+              </span>
+            </a>
+          }
+        </div>
+
+        @if (hasMore()) {
+          <button type="button" class="btn btn-outline btn-block more-btn"
+                  [disabled]="loadingMore()" (click)="loadMore()">
+            {{ loadingMore() ? 'Завантажуємо…' : 'Показати ще' }}
+          </button>
+        }
+
+        <p class="foot-note">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.2" />
+            <path d="M8 7.4v3.4M8 5.2h.01" />
+          </svg>
+          Чат зникає, якщо один з учасників заблокує співрозмовника. Листування при цьому
+          перестає бути доступним обом.
+        </p>
+      </div>
+
+      <aside class="col-side">
+        @if (waitingRow(); as waiting) {
+          <section class="card focus-card">
+            <p class="strip-label">Потребує відповіді</p>
+            <div class="focus-who">
+              <span class="focus-ava" [style.background]="avatarStyle(waiting.companionId)"
+                    aria-hidden="true"></span>
+              <span class="focus-text">
+                <b>{{ waiting.companionName }}</b>
+                <small>чекає з {{ waitingSince() }}</small>
+              </span>
+            </div>
+            <a class="focus-cta" [routerLink]="['/chats', waiting.chat.chatId]">Відповісти</a>
+          </section>
+        }
+
+        @if (freshPreview().length > 0) {
+          <section class="card">
+            <p class="strip-label">Нові збіги без розмови</p>
+            <div class="fresh-grid">
+              @for (row of freshPreview(); track row.chat.chatId) {
+                <a class="fresh-item" [routerLink]="['/chats', row.chat.chatId]">
+                  <span class="fresh-ava" [style.background]="avatarStyle(row.companionId)"
+                        aria-hidden="true"></span>
+                  <b>{{ row.companionName }}</b>
+                </a>
+              }
+            </div>
+            <p class="side-note">Перше повідомлення помітно підвищує шанс на відповідь.</p>
+          </section>
+        }
+
+        @if (focusRow(); as focus) {
+          @if (focusTags().length > 0) {
+            <section class="card topics-card">
+              <p class="strip-label">Про що поговорити</p>
+              <!-- Ім'я через крапку, а не «з Марією»: відмінювати імена на клієнті нема чим -->
+              <p class="topics-lead">Спільні теми · {{ focus.companionName }}</p>
+              <div class="topics">
+                @for (tag of focusTags(); track tag.tagId) {
+                  <span class="topic">{{ tag.tagName }}</span>
+                }
+              </div>
+            </section>
+          }
+        }
+      </aside>
+    </div>
+
+  } @else {
+    <!-- ══ Діалогів немає ══ -->
+    <header class="head">
+      <div class="head-text">
+        <h1>Чати</h1>
+        <p>Поки що жодного діалогу</p>
+      </div>
+    </header>
+
+    <div class="layout">
+      <div class="col-main">
+        <section class="hero enter">
+          <div class="glow" aria-hidden="true"></div>
+          <div class="hero-inner">
+            <span class="hero-icon">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M13.4 8.3c0 2.5-2.4 4.5-5.4 4.5-.7 0-1.4-.1-2-.3l-3 1.2.9-2.4A4.3 4.3 0 0 1 2.6 8.3c0-2.5 2.4-4.5 5.4-4.5s5.4 2 5.4 4.5z" />
+              </svg>
+            </span>
+            <h2>Чатів поки немає</h2>
+            <p>
+              Діалог створюється автоматично, коли симпатія стає взаємною — окремо
+              починати переписку не потрібно.
+              @if (incoming().length > 0) {
+                {{ incoming().length }}
+                {{ incoming().length === 1 ? 'людина вже чекає' : 'людей уже чекають' }}
+                на вашу відповідь.
+              }
+            </p>
+            <div class="hero-actions">
+              <a class="btn-accent" routerLink="/likes">
+                До симпатій@if (incoming().length > 0) { ({{ incoming().length }})}
+              </a>
+              <a class="btn-glass" routerLink="/feed">Дивитись стрічку</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="card enter-2">
+          <p class="strip-label">Як з'являється чат</p>
+          <div class="steps">
+            <div class="step">
+              <b>01</b>
+              <h3>Ви вподобали анкету</h3>
+              <p>Людина бачить вашу симпатію, але фото ще приховані.</p>
+            </div>
+            <div class="step">
+              <b>02</b>
+              <h3>Симпатія стала взаємною</h3>
+              <p>Світлини відкриваються обом одночасно.</p>
+            </div>
+            <div class="step">
+              <b>03</b>
+              <h3>Діалог створено</h3>
+              <p>Чат з'являється тут сам — можна писати.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="col-side">
+        @if (waitingCards().length > 0) {
+          <section class="card waiting-card enter-2">
+            <p class="strip-label">Чекають вашої відповіді</p>
+            <div class="waiting-list">
+              @for (person of waitingCards(); track person.userId) {
+                <a class="waiting-row" [routerLink]="['/users', person.userId]">
+                  <i class="w-ava" aria-hidden="true"></i>
+                  <span class="w-text">
+                    <b>{{ person.name }}@if (person.age !== null) {, {{ person.age }}}</b>
+                    @if (person.percent !== null) {
+                      <small>{{ person.percent }}% збігу</small>
+                    }
+                  </span>
+                </a>
+              }
+            </div>
+            <a class="w-cta" routerLink="/likes">Переглянути симпатії</a>
+          </section>
+        }
+
+        <section class="card privacy-card enter-3">
+          <p class="strip-label">Про приватність</p>
+          <p>
+            Написати вам може лише той, з ким у вас взаємна симпатія. Чат зникає,
+            якщо хтось із двох заблокує співрозмовника.
+          </p>
+        </section>
+      </aside>
+    </div>
+  }
+</app-shell>

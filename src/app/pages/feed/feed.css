@@ -1,0 +1,1053 @@
+/* ── Шапка ── */
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.head-text h1 {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.head-text p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #8b807a;
+}
+
+.head-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface);
+  color: #2a2124;
+  font: 600 0.78rem/1 var(--font-ui);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ghost-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.ghost-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ghost-btn svg {
+  width: 0.88rem;
+  height: 0.88rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+/* ── Спільний дрібний заголовок ── */
+
+.strip-label {
+  margin: 0 0 0.65rem;
+  font: 700 0.63rem/1 var(--font-ui);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #b3a7a0;
+}
+
+/* ── Смуга «далі у стрічці» ── */
+
+.upcoming {
+  margin-bottom: 1.15rem;
+}
+
+/* auto-FILL, а не auto-fit: порожні колонки лишаються, тож картки не
+   роздуваються, коли кандидатів менше за чотири. Ширина треку ≈ як у макеті. */
+.up-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.65rem;
+}
+
+.up-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  padding: 0.5rem;
+  cursor: default;
+  border: 1px solid #eee5df;
+  border-radius: 14px;
+  background: var(--surface);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.up-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -16px rgb(28 21 24 / 55%);
+}
+
+.up-photo {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(150deg, #e3d5e8, #9f7fae);
+}
+
+.up-card:nth-child(2n) .up-photo {
+  background: linear-gradient(150deg, #d8e4e0, #7fa294);
+}
+
+.up-card:nth-child(3n) .up-photo {
+  background: linear-gradient(150deg, #e8ddd0, #ab9276);
+}
+
+.up-card:nth-child(4n) .up-photo {
+  background: linear-gradient(150deg, #dfe7f5, #8095b8);
+}
+
+/* Розмиття поверх — фото недоступне навіть на рівні API */
+.veil {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(9px);
+  background: rgb(30 14 22 / 24%);
+}
+
+.veil svg,
+.lock-circle svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.4;
+}
+
+.up-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.up-top b {
+  font: 600 0.74rem/1.2 var(--font-ui);
+}
+
+.pct {
+  font: 700 0.69rem/1 var(--font-ui);
+  color: var(--accent);
+}
+
+.up-meta {
+  font: 500 0.69rem/1.3 var(--font-ui);
+  color: var(--faint);
+}
+
+/* ── Дві колонки ── */
+
+/* Колонки тягнуться до однієї висоти: низ картки збігається з низом
+   темного блоку праворуч. Висоту задає та колонка, що вища. */
+.feed-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 1.1rem;
+  align-items: stretch;
+}
+
+.feed-main {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Порожня стрічка: права колонка вужча, тож блок «це всі анкети» ширший */
+.feed-layout.is-empty {
+  grid-template-columns: minmax(0, 1fr) 250px;
+}
+
+.feed-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  align-self: start;
+  position: sticky;
+  top: 1.5rem;
+}
+
+/* ── Картка кандидата ── */
+
+.candidate {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 0;
+  overflow: hidden;
+  border-color: #eee5df;
+  box-shadow: 0 2px 4px rgb(28 21 24 / 3%);
+}
+
+/* Верхня частина забирає зайву висоту, тож смуга дій лишається внизу картки */
+.candidate-top {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  flex: 1;
+}
+
+.photo-pane {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(150deg, #f4cad9, #b9819a 60%, #7d5265);
+  min-height: 25rem;
+}
+
+.pane-veil {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1rem;
+  text-align: center;
+  color: #fff;
+  backdrop-filter: blur(15px);
+  background: rgb(30 14 22 / 30%);
+}
+
+.pane-veil small {
+  font: 600 0.72rem/1.45 var(--font-ui);
+}
+
+.lock-circle {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 16%);
+  border: 1px solid rgb(255 255 255 / 38%);
+}
+
+.lock-circle svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+/* Світловий відблиск, що повільно проходить панеллю */
+.sheen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 20%), transparent);
+  animation: sheen 5s ease-in-out infinite;
+}
+
+@keyframes sheen {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(220%); }
+}
+
+.candidate-body {
+  padding: 1.6rem 1.75rem;
+  min-width: 0;
+}
+
+.top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.who {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.meta {
+  margin: 0.35rem 0 0.6rem;
+  font: 500 0.81rem/1.4 var(--font-ui);
+  color: #8b807a;
+}
+
+.pills {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.soft-chip {
+  padding: 0.25rem 0.62rem;
+  border: 1px solid #eee5df;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font: 600 0.72rem/1.35 var(--font-ui);
+  color: var(--muted);
+}
+
+/* ── Кільце сумісності ── */
+
+.match-box {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.62rem 0.88rem;
+  border-radius: 15px;
+  background: var(--accent-soft);
+}
+
+.donut {
+  width: 3.25rem;
+  height: 3.25rem;
+}
+
+.donut .track {
+  fill: none;
+  stroke: #f6cede;
+  stroke-width: 6;
+}
+
+.donut .value {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 157.1;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.donut text {
+  font: 700 0.94rem var(--font-ui);
+  fill: var(--accent-ink);
+}
+
+/* Знак відсотка дрібніший за число — щоб не сперечався з ним за увагу */
+.donut .sign {
+  font-size: 0.62rem;
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+.match-text b {
+  display: block;
+  font: 700 0.69rem/1.2 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.match-text small {
+  font: 500 0.69rem/1.3 var(--font-ui);
+  color: #b3768f;
+}
+
+/* ── Текст про себе ── */
+
+.quote {
+  margin: 1.2rem 0 0;
+  padding: 1.1rem 1.25rem;
+  border-radius: 14px;
+  border-left: 2px solid var(--accent);
+  background: var(--surface-2);
+  font: italic 500 0.91rem/1.65 var(--font-display);
+  color: #3a2d32;
+}
+
+.muted-quote {
+  font-style: normal;
+  color: var(--muted);
+}
+
+/* ── Теги ── */
+
+.interests {
+  gap: 0.3rem;
+  margin-top: 1rem;
+}
+
+.tag {
+  padding: 0.3rem 0.68rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font: 600 0.75rem/1.35 var(--font-ui);
+}
+
+.tag.shared {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ── Деталі ── */
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f2eae5;
+}
+
+.fields small {
+  display: block;
+  margin-bottom: 0.25rem;
+  font: 700 0.6rem/1 var(--font-ui);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #b3a7a0;
+}
+
+.fields b {
+  font: 600 0.81rem/1.3 var(--font-ui);
+}
+
+/* ── Нижня смуга дій ── */
+
+.actions-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.35rem 1.75rem 1.1rem;
+  background: var(--surface-2);
+  border-top: 1px solid #f2eae5;
+}
+
+/* Рішення — по центру смуги */
+.decision-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.act-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  flex: 0 1 19.5rem;
+  padding: 0.95rem 1.6rem;
+  border-radius: 14px;
+  font: 600 0.88rem/1 var(--font-ui);
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.18s ease, transform 0.16s ease, box-shadow 0.18s ease;
+}
+
+/* Обидві кнопки трохи піднімаються під курсором і «вдавлюються» при натисканні */
+.act-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.act-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.act-btn svg {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.act-btn svg {
+  width: 0.94rem;
+  height: 0.94rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.act-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.act-btn.skip {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: #2a2124;
+}
+
+.act-btn.skip:hover:not(:disabled) {
+  background: #fff;
+  border-color: #d6ccc6;
+  box-shadow: 0 8px 18px -12px rgb(28 21 24 / 55%);
+}
+
+/* Хрестик відвертається — маленький натяк «пропускаємо» */
+.act-btn.skip:hover:not(:disabled) svg {
+  transform: rotate(90deg);
+}
+
+.act-btn.like {
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 10px 22px -12px rgb(214 51 108 / 80%);
+}
+
+.act-btn.like:hover:not(:disabled) {
+  background: var(--accent-strong);
+  box-shadow: 0 16px 28px -14px rgb(214 51 108 / 95%);
+}
+
+.act-btn.like:hover:not(:disabled) svg {
+  transform: scale(1.18);
+}
+
+/* Світловий блік пробігає кнопкою при наведенні */
+.act-btn.like::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 28%), transparent);
+  transform: translateX(-160%);
+  pointer-events: none;
+}
+
+.act-btn.like:hover:not(:disabled)::after {
+  animation: like-sheen 0.75s ease;
+}
+
+@keyframes like-sheen {
+  to { transform: translateX(320%); }
+}
+
+.act-btn.like.bursting {
+  animation: pulse-ring 0.45s ease-out;
+}
+
+.burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: 1.5rem;
+  color: #fff;
+  pointer-events: none;
+  animation: heart-burst 0.45s ease-out forwards;
+}
+
+@keyframes heart-burst {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.6); }
+  60% { opacity: 1; transform: translate(-50%, -170%) scale(1.5); }
+  100% { opacity: 0; transform: translate(-50%, -260%) scale(1.1); }
+}
+
+/* Другорядні дії — рядком НИЖЧЕ кнопок, притиснуті до правого краю */
+.side-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.side-links a,
+.side-links button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: 500 0.75rem/1 var(--font-ui);
+  color: #8b807a;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.side-links .danger {
+  color: var(--error);
+}
+
+.drawer {
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid #f2eae5;
+}
+
+.inline-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+/* ── Права колонка ── */
+
+.side-card {
+  padding: 1.35rem;
+  border: 1px solid #eee5df;
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.side-card.dark {
+  background: var(--ink);
+  border-color: transparent;
+}
+
+.side-card.dark .strip-label {
+  color: #c78ba4;
+}
+
+.dark-text {
+  margin: 0;
+  font: 400 0.83rem/1.7 var(--font-ui);
+  color: rgb(255 255 255 / 68%);
+}
+
+.mini-field {
+  display: block;
+  margin-bottom: 0.95rem;
+}
+
+.mini-field > span {
+  display: block;
+  margin-bottom: 0.3rem;
+  font: 600 0.69rem/1 var(--font-ui);
+  color: var(--faint);
+}
+
+.mini-field select,
+.mini-field input[type='text'] {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  font: 500 0.78rem/1.3 var(--font-ui);
+}
+
+/* ── Повзунок віку: два інпути поверх спільної доріжки ── */
+
+.age-field {
+  margin-bottom: 1.2rem;
+}
+
+.age-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.age-label b {
+  font: 700 0.88rem/1 var(--font-ui);
+  color: var(--accent-ink);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.range {
+  position: relative;
+  height: 1.5rem;
+  margin-top: 0.55rem;
+}
+
+.range .track,
+.range .fill {
+  position: absolute;
+  top: 0.55rem;
+  height: 6px;
+  border-radius: 999px;
+}
+
+.range .track {
+  left: 0;
+  right: 0;
+  background: #eee5df;
+}
+
+.range .fill {
+  background: var(--accent);
+}
+
+.range input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  appearance: none;
+  pointer-events: none;
+}
+
+.range input::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--accent);
+  box-shadow: 0 2px 6px rgb(28 21 24 / 18%);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.range input::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--accent);
+  box-shadow: 0 2px 6px rgb(28 21 24 / 18%);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.pill-primary,
+.pill-outline {
+  width: 100%;
+  padding: 0.78rem;
+  border-radius: 11px;
+  font: 700 0.78rem/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.pill-primary {
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+}
+
+.pill-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pill-outline {
+  margin-top: 0.42rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.mobile-filters {
+  display: none;
+}
+
+@media (max-width: 68rem) {
+  .feed-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .feed-side {
+    position: static;
+    display: none;
+  }
+
+  .feed-side.open {
+    display: flex;
+  }
+}
+
+@media (max-width: 48rem) {
+  /* На телефоні черга — горизонтальна стрічка, інакше одна картка
+     займає весь екран і ховає головну анкету */
+  .up-row {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 0.3rem;
+    margin-inline: -0.25rem;
+    padding-inline: 0.25rem;
+  }
+
+  .up-card {
+    flex: 0 0 9.5rem;
+    scroll-snap-align: start;
+  }
+
+  .candidate-top {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-pane {
+    min-height: 12rem;
+  }
+
+  .side-links {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 34rem) {
+  .act-btn {
+    flex: 1 1 100%;
+  }
+
+  .actions-bar {
+    padding: 1.1rem 1.15rem 0.9rem;
+  }
+
+  .name {
+    font-size: 1.3rem;
+  }
+
+  .candidate-body {
+    padding: 1.15rem;
+  }
+}
+
+/* ═══ Порожня стрічка ═══ */
+
+.done-hero {
+  margin-bottom: 0.85rem;
+  padding: 3.2rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+  padding: 3.2rem 2.5rem;
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, #1c1518, #4d1f31);
+  color: #fff;
+  text-align: center;
+}
+
+/* Рожеве сяйво згори — єдиний акцент на темному тлі */
+.done-glow {
+  position: absolute;
+  width: 26rem;
+  height: 26rem;
+  top: -12rem;
+  left: 50%;
+  margin-left: -13rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(214 51 108 / 42%), transparent 70%);
+  pointer-events: none;
+}
+
+.done-inner {
+  position: relative;
+}
+
+.done-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.6rem;
+  height: 4.6rem;
+  margin: 0 auto 1.25rem;
+  border-radius: 26px;
+  background: rgb(255 255 255 / 9%);
+  border: 1px solid rgb(255 255 255 / 16%);
+  animation: float 6s ease-in-out infinite;
+}
+
+.done-icon svg {
+  width: 1.85rem;
+  height: 1.85rem;
+  fill: none;
+  stroke: #f6b9cd;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.done-hero h2 {
+  margin: 0 0 0.75rem;
+  font: 600 2rem/1.18 var(--font-display);
+}
+
+.done-hero p {
+  max-width: 27rem;
+  margin: 0 auto;
+  font: 400 0.88rem/1.7 var(--font-ui);
+  color: rgb(255 255 255 / 68%);
+}
+
+.done-actions {
+  display: flex;
+  gap: 0.62rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.6rem;
+}
+
+.btn-wide {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.82rem 1.4rem;
+  border: 0;
+  border-radius: 13px;
+  background: var(--accent);
+  color: #fff;
+  font: 700 0.84rem/1 var(--font-ui);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 12px 26px -14px rgb(214 51 108 / 90%);
+  transition: transform 0.16s ease, background 0.18s ease;
+}
+
+.btn-wide:hover {
+  transform: translateY(-2px);
+}
+
+.btn-wide.ghost {
+  background: rgb(255 255 255 / 8%);
+  border: 1px solid rgb(255 255 255 / 22%);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.done-note {
+  margin: 1.1rem 0 0 !important;
+  font: 500 0.72rem/1 var(--font-ui) !important;
+  color: rgb(255 255 255 / 42%) !important;
+}
+
+/* ── Дві підказки ── */
+
+.tips {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem;
+}
+
+.tip-card {
+  padding: 1.25rem 1.35rem;
+  border: 1px solid #eee5df;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.tip-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  margin-bottom: 0.8rem;
+  border-radius: 11px;
+  background: var(--accent-soft);
+}
+
+.tip-icon svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.tip-card h3 {
+  margin: 0 0 0.4rem;
+  font: 600 0.94rem/1.3 var(--font-ui);
+}
+
+.tip-card p {
+  margin: 0 0 0.8rem;
+  font: 400 0.78rem/1.6 var(--font-ui);
+  color: #6e6259;
+}
+
+.tip-tags {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.tip-tags span {
+  padding: 0.3rem 0.68rem;
+  border: 1px solid #eee5df;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font: 600 0.72rem/1.35 var(--font-ui);
+  color: var(--muted);
+}
+
+.tip-link {
+  font: 600 0.75rem/1 var(--font-ui);
+  text-decoration: none;
+}
+
+/* ── Пропущені ── */
+
+.skipped-card {
+  margin-top: 0.85rem;
+  padding: 1.35rem 1.5rem;
+  border: 1px solid #eee5df;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.skipped-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.skipped-head .strip-label {
+  margin-bottom: 0.85rem;
+}
+
+.skipped-card .up-card {
+  background: var(--surface-2);
+  cursor: pointer;
+}
+
+.small {
+  font-size: 0.75rem;
+}
+
+/* ── Картка «поки чекаєте» ── */
+
+.side-card.waiting {
+  background: var(--accent-soft);
+  border-color: #f6d8e3;
+}
+
+.side-card.waiting .strip-label {
+  color: #b3768f;
+}
+
+.side-card.waiting p {
+  margin: 0 0 0.8rem;
+  font: 400 0.78rem/1.6 var(--font-ui);
+  color: var(--accent-ink);
+}
+
+.as-link {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}

@@ -1,0 +1,1072 @@
+/* ════════════════════════════════════════════════════════════
+   Лендинг — єдиний екран без бічної панелі. Тому всі стилі
+   тут локальні: сторінка сама собі оболонка.
+   ════════════════════════════════════════════════════════════ */
+
+.landing {
+  /* Секції тягнуться на всю ширину, а вміст тримається в центральній колонці.
+     max() дає бічний відступ на вузькому екрані й центрує на широкому. */
+  --pad-x: max(1.5rem, (100% - 75rem) / 2);
+}
+
+/* ── Спільні кнопки ── */
+
+.btn-accent,
+.btn-ghost,
+.btn-glass {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: 14px;
+  font-family: var(--font-ui);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease, border-color 0.15s ease;
+}
+
+.btn-accent {
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 16px 32px -14px rgb(214 51 108 / 75%);
+}
+
+.btn-accent:hover {
+  background: var(--accent-strong);
+  color: #fff;
+}
+
+.btn-ghost {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: #2a2124;
+  font-weight: 600;
+}
+
+.btn-ghost:hover {
+  background: var(--surface-2);
+  color: #2a2124;
+}
+
+.btn-glass {
+  border: 1px solid rgb(255 255 255 / 24%);
+  background: rgb(255 255 255 / 9%);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-glass:hover {
+  background: rgb(255 255 255 / 18%);
+  color: #fff;
+}
+
+.sm {
+  padding: 0.62rem 1.05rem;
+  border-radius: 11px;
+  font-size: 0.78rem;
+}
+
+.lg {
+  padding: 0.95rem 1.75rem;
+  font-size: 0.9rem;
+}
+
+.btn-ghost svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Трохи повітря над секцією, до якої прокрутились по якорю */
+#why,
+#how,
+#safety,
+#faq {
+  scroll-margin-top: 1rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  font: 700 0.66rem/1 var(--font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #b3768f;
+}
+
+/* ── Шапка ── */
+
+.site-header {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 1.1rem var(--pad-x);
+  background: var(--surface);
+  border-bottom: 1px solid #f0e8e3;
+}
+
+.logo {
+  font-family: var(--font-ui);
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.logo span {
+  color: var(--accent);
+}
+
+.site-header .logo {
+  margin-right: auto;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.5rem;
+  font: 500 0.8rem/1 var(--font-ui);
+}
+
+.site-nav a {
+  color: #7d726c;
+  text-decoration: none;
+}
+
+.site-nav a:hover {
+  color: var(--accent);
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── Герой ── */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 3.75rem var(--pad-x) 3.5rem;
+  background: linear-gradient(168deg, #fdf6f9 0%, #fff 46%, #faf6f3 100%);
+}
+
+/* Кольорові плями, що повільно дрейфують — глибина без картинок */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.blob.one {
+  width: 32rem;
+  height: 32rem;
+  top: -14rem;
+  left: -8.75rem;
+  background: radial-gradient(circle, rgb(214 51 108 / 16%), transparent 68%);
+  animation: drift 16s ease-in-out infinite;
+}
+
+.blob.two {
+  width: 26rem;
+  height: 26rem;
+  bottom: -13.75rem;
+  right: -6.25rem;
+  background: radial-gradient(circle, rgb(159 127 174 / 14%), transparent 70%);
+  animation: drift 19s ease-in-out infinite reverse;
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(14px, -12px); }
+}
+
+.hero-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+  gap: 2.75rem;
+  align-items: center;
+}
+
+.hero-text {
+  min-width: 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid #f1d6e0;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent-ink);
+  font: 700 0.69rem/1 var(--font-ui);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.pill i {
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: blink 2.2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+.hero-text h1 {
+  margin: 1.1rem 0 1rem;
+  font: 600 3.35rem/1.04 var(--font-display);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.lead {
+  margin: 0 0 1.85rem;
+  max-width: 28rem;
+  font: 400 1rem/1.7 var(--font-ui);
+  color: #6e6259;
+  text-wrap: pretty;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.hero-note {
+  margin: 0.95rem 0 0;
+  font: 500 0.75rem/1.5 var(--font-ui);
+  color: #b3a7a0;
+}
+
+.stats {
+  display: flex;
+  gap: 1.6rem;
+  flex-wrap: wrap;
+  margin: 2.1rem 0 0;
+  padding-top: 1.6rem;
+  border-top: 1px solid #f0e5e0;
+}
+
+.stats div {
+  min-width: 0;
+}
+
+.stats dt {
+  font: 600 1.7rem/1 var(--font-display);
+}
+
+.stats dd {
+  margin: 0.15rem 0 0;
+  font: 500 0.72rem/1.45 var(--font-ui);
+  color: #9a8f89;
+}
+
+/* ── Візуал: анкета до і після взаємності ── */
+
+.hero-visual {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-before,
+.card-after {
+  width: 15.6rem;
+  padding: 1rem;
+  border-radius: 22px;
+  background: var(--surface);
+}
+
+.card-before {
+  border: 1px solid #eee5df;
+  box-shadow: 0 22px 48px -26px rgb(28 21 24 / 40%);
+  transform: rotate(-3deg);
+}
+
+.card-after {
+  border: 1px solid #f1d6e0;
+  box-shadow: 0 26px 56px -24px rgb(214 51 108 / 45%);
+  transform: rotate(3deg);
+  animation: floaty 8s ease-in-out infinite;
+}
+
+@keyframes floaty {
+  0%, 100% { transform: rotate(3deg) translateY(0); }
+  50% { transform: rotate(3deg) translateY(-9px); }
+}
+
+.shot {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.shot.locked {
+  background: linear-gradient(150deg, #f4cad9, #b9819a 58%, #7d5265);
+}
+
+.shot.open {
+  background: linear-gradient(150deg, #f0bfd1, #a86e86 60%, #6f4356);
+}
+
+.veil {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.9rem;
+  text-align: center;
+  color: #fff;
+  background: rgb(30 14 22 / 32%);
+  backdrop-filter: blur(15px);
+}
+
+.lock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid rgb(255 255 255 / 42%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 17%);
+}
+
+.lock svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.4;
+}
+
+.veil small {
+  font: 600 0.69rem/1.45 var(--font-ui);
+}
+
+.sheen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3.5rem;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 26%), transparent);
+  animation: sheen 5s ease-in-out infinite;
+}
+
+@keyframes sheen {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(320%); }
+}
+
+.badge {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgb(28 21 24 / 50%);
+  color: #fff;
+  font: 700 0.59rem/1 var(--font-ui);
+  letter-spacing: 0.07em;
+}
+
+.name {
+  display: block;
+  margin-top: 0.75rem;
+  font: 600 1.05rem/1.2 var(--font-display);
+}
+
+.meta {
+  display: block;
+  margin-top: 0.2rem;
+  font: 500 0.72rem/1.4 var(--font-ui);
+  color: #9a8f89;
+}
+
+.tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-top: 0.65rem;
+}
+
+.tags span {
+  padding: 0.25rem 0.62rem;
+  border-radius: 999px;
+  font: 700 0.66rem/1.35 var(--font-ui);
+}
+
+.tags .on {
+  background: var(--accent);
+  color: #fff;
+}
+
+.tags .off {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+/* Стрілка «до → після» лежить між картками й перекриває їхні краї */
+.arrow {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: none;
+  margin: 0 -0.9rem;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 12px 24px -10px rgb(28 21 24 / 60%);
+}
+
+.arrow svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: #f6b9cd;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.after-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.after-who {
+  min-width: 0;
+}
+
+.after-who .name {
+  margin-top: 0;
+}
+
+.score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: none;
+  padding: 0.3rem 0.62rem;
+  border-radius: 11px;
+  background: var(--accent-soft);
+}
+
+.score b {
+  font: 600 0.94rem/1 var(--font-display);
+  color: var(--accent);
+}
+
+.score small {
+  font: 700 0.5rem/1.6 var(--font-ui);
+  letter-spacing: 0.08em;
+  color: #b3768f;
+}
+
+.fake-btn {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.62rem;
+  border-radius: 11px;
+  background: var(--accent);
+  color: #fff;
+  font: 700 0.75rem/1 var(--font-ui);
+  text-align: center;
+}
+
+/* ── Три принципи ── */
+
+.principles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  background: var(--ink);
+  color: #fff;
+  padding-inline: var(--pad-x);
+}
+
+.principles article {
+  padding: 1.75rem 2rem;
+  border-right: 1px solid rgb(255 255 255 / 9%);
+}
+
+.principles article:first-child {
+  padding-left: 0;
+}
+
+.principles article:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.p-ico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  margin-bottom: 0.8rem;
+  border-radius: 11px;
+  background: rgb(214 51 108 / 22%);
+}
+
+.p-ico svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: #f6b9cd;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.principles h3 {
+  margin: 0 0 0.4rem;
+  font: 600 0.97rem/1.3 var(--font-ui);
+}
+
+.principles p {
+  margin: 0;
+  font: 400 0.78rem/1.65 var(--font-ui);
+  color: rgb(255 255 255 / 62%);
+}
+
+/* ── Як це працює ── */
+
+.how {
+  padding: 3.25rem var(--pad-x);
+  background: var(--surface);
+}
+
+.how-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+}
+
+.how-head > div {
+  min-width: 0;
+  max-width: 32rem;
+}
+
+.how h2,
+.topics h2,
+.safety h2,
+.faq h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.how h2 {
+  font-size: 2.13rem;
+  line-height: 1.16;
+}
+
+.how-note {
+  margin: 0;
+  max-width: 20.6rem;
+  font: 400 0.84rem/1.7 var(--font-ui);
+  color: #8b807a;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.step {
+  padding: 1.6rem;
+  border: 1px solid #eee5df;
+  border-radius: var(--radius);
+  background: #faf6f3;
+}
+
+.step.dark {
+  border-color: transparent;
+  background: linear-gradient(150deg, #1c1518, #4d1f31);
+  color: #fff;
+}
+
+.num {
+  display: block;
+  font: 600 2.13rem/1 var(--font-display);
+  color: var(--accent);
+}
+
+.step.dark .num {
+  color: #e8608f;
+}
+
+.step h3 {
+  margin: 0.85rem 0 0.45rem;
+  font: 600 1rem/1.3 var(--font-ui);
+}
+
+.step p {
+  margin: 0 0 0.85rem;
+  font: 400 0.81rem/1.65 var(--font-ui);
+  color: #6e6259;
+}
+
+.step.dark p {
+  color: rgb(255 255 255 / 66%);
+}
+
+.chips {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.chips span {
+  padding: 0.25rem 0.62rem;
+  border: 1px solid #eee5df;
+  border-radius: 999px;
+  background: var(--surface);
+  font: 600 0.69rem/1.35 var(--font-ui);
+  color: #7d726c;
+}
+
+.score-row,
+.msg-row {
+  display: flex;
+  align-items: center;
+  gap: 0.62rem;
+  padding: 0.62rem 0.75rem;
+  border-radius: 12px;
+}
+
+.score-row {
+  border: 1px solid #eee5df;
+  background: var(--surface);
+}
+
+.score-row svg {
+  width: 2.1rem;
+  height: 2.1rem;
+  flex: none;
+}
+
+.score-row .track {
+  fill: none;
+  stroke: #f6cede;
+  stroke-width: 8;
+}
+
+/* 157.1 — довжина кола радіуса 25; 34.6 лишає видимими ті самі 78% */
+.score-row .value {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 157.1;
+  stroke-dashoffset: 34.6;
+}
+
+.score-row b {
+  display: block;
+  font: 700 0.69rem/1.3 var(--font-ui);
+  color: var(--accent-ink);
+}
+
+.score-row small {
+  font: 500 0.69rem/1.35 var(--font-ui);
+  color: #9a8f89;
+}
+
+.msg-row {
+  border: 1px solid rgb(255 255 255 / 13%);
+  background: rgb(255 255 255 / 8%);
+}
+
+.msg-ava {
+  width: 1.9rem;
+  height: 1.9rem;
+  flex: none;
+  border-radius: 10px;
+  background: linear-gradient(150deg, #f0bfd1, #a86e86);
+}
+
+.msg-row b {
+  display: block;
+  font: 600 0.72rem/1.3 var(--font-ui);
+}
+
+.msg-row small {
+  font: 400 0.69rem/1.35 var(--font-ui);
+  color: rgb(255 255 255 / 60%);
+}
+
+/* ── Теми ── */
+
+.topics {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  gap: 2.1rem;
+  align-items: center;
+  padding: 2.75rem var(--pad-x);
+  background: #faf6f3;
+  border-top: 1px solid #f0e8e3;
+  border-bottom: 1px solid #f0e8e3;
+}
+
+.topics-text {
+  min-width: 0;
+}
+
+.topics h2 {
+  margin-bottom: 0.75rem;
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+.topics-text p:last-child {
+  margin: 0;
+  font: 400 0.84rem/1.7 var(--font-ui);
+  color: #6e6259;
+  text-wrap: pretty;
+}
+
+.topic-chips {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.topic-chips span {
+  padding: 0.45rem 0.88rem;
+  border: 1px solid #eee5df;
+  border-radius: 999px;
+  background: var(--surface);
+  color: #7d726c;
+  font: 600 0.78rem/1.35 var(--font-ui);
+}
+
+.topic-chips .on {
+  border-color: transparent;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+.topic-chips .rest {
+  border-style: dashed;
+  border-color: #dfd2cb;
+  background: #faf6f3;
+  color: #9a8f89;
+}
+
+/* ── Безпека і питання ── */
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  background: var(--surface);
+  padding-inline: var(--pad-x);
+}
+
+.safety {
+  padding: 2.9rem 2.5rem 2.9rem 0;
+  border-right: 1px solid #f0e8e3;
+}
+
+.faq {
+  padding: 2.9rem 0 2.9rem 2.5rem;
+}
+
+/* Бежеве тло правої колонки має доходити до краю екрана, а не до колонки */
+.split {
+  background: linear-gradient(90deg, var(--surface) 50%, #faf6f3 50%);
+}
+
+.safety h2,
+.faq h2 {
+  margin-bottom: 1.25rem;
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.checks > div {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.tick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.62rem;
+  height: 1.62rem;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent-soft);
+}
+
+.tick svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.checks b,
+.qa b {
+  display: block;
+  font: 600 0.84rem/1.35 var(--font-ui);
+}
+
+.checks small,
+.qa small {
+  display: block;
+  margin-top: 0.2rem;
+  font: 400 0.78rem/1.6 var(--font-ui);
+  color: #6e6259;
+}
+
+.qa {
+  display: flex;
+  flex-direction: column;
+  gap: 0.62rem;
+}
+
+.qa > div {
+  padding: 1rem 1.1rem;
+  border: 1px solid #eee5df;
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+/* ── Фінальний заклик ── */
+
+.cta {
+  position: relative;
+  overflow: hidden;
+  padding: 3.5rem var(--pad-x);
+  background: linear-gradient(125deg, #1c1518, #4d1f31);
+  color: #fff;
+  text-align: center;
+}
+
+.cta .glow {
+  position: absolute;
+  width: 32rem;
+  height: 32rem;
+  top: -15.6rem;
+  left: 50%;
+  margin-left: -16rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(214 51 108 / 42%), transparent 70%);
+  pointer-events: none;
+}
+
+.cta-inner {
+  position: relative;
+}
+
+.cta h2 {
+  margin: 0 0 0.85rem;
+  font: 600 2.38rem/1.16 var(--font-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.cta p {
+  margin: 0 auto 1.75rem;
+  max-width: 27.5rem;
+  font: 400 0.9rem/1.7 var(--font-ui);
+  color: rgb(255 255 255 / 68%);
+}
+
+.cta-btns {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Підвал ── */
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding: 1.5rem var(--pad-x);
+  background: var(--ink);
+  border-top: 1px solid rgb(255 255 255 / 9%);
+}
+
+.foot-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: auto;
+}
+
+.foot-logo .logo {
+  font-size: 1rem;
+  color: #fff;
+}
+
+.foot-logo small {
+  margin-left: 0.35rem;
+  font: 500 0.72rem/1 var(--font-ui);
+  color: rgb(255 255 255 / 40%);
+}
+
+.foot-nav {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  font: 500 0.75rem/1 var(--font-ui);
+}
+
+.foot-nav a {
+  color: rgb(255 255 255 / 60%);
+  text-decoration: none;
+}
+
+.foot-nav a:hover {
+  color: #fff;
+}
+
+/* ════ Адаптивність ════ */
+
+@media (max-width: 64rem) {
+  .hero-grid,
+  .topics {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-text h1 {
+    font-size: 2.6rem;
+  }
+
+  .principles,
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .principles article {
+    border-right: none;
+    border-bottom: 1px solid rgb(255 255 255 / 9%);
+  }
+
+  .split {
+    grid-template-columns: 1fr;
+    background: var(--surface);
+  }
+
+  .safety {
+    border-right: none;
+    border-bottom: 1px solid #f0e8e3;
+    padding: 2.9rem 0;
+  }
+
+  /* Бежеве тло тягнемо за межі колонки, щоб воно доходило до краю екрана */
+  .faq {
+    padding: 2.9rem 0;
+    margin-inline: calc(var(--pad-x) * -1);
+    padding-inline: var(--pad-x);
+    background: #faf6f3;
+  }
+
+  .principles article:first-child,
+  .principles article:last-child {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .site-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 40rem) {
+  .landing {
+    --pad-x: 1.15rem;
+  }
+
+  .hero {
+    padding-top: 2.25rem;
+    padding-bottom: 2.25rem;
+  }
+
+  .hero-text h1 {
+    font-size: 2rem;
+  }
+
+  .hero-btns a,
+  .cta-btns a {
+    width: 100%;
+  }
+
+  /* Дві картки поруч на телефоні не вміщаються — лишаємо лише результат */
+  .card-before,
+  .arrow {
+    display: none;
+  }
+
+  .card-after {
+    width: 100%;
+    max-width: 17rem;
+    transform: none;
+    animation: none;
+  }
+
+  .how h2,
+  .cta h2 {
+    font-size: 1.6rem;
+  }
+
+  .stats {
+    gap: 1.1rem;
+  }
+}

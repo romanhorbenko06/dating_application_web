@@ -1,0 +1,160 @@
+<app-shell>
+  <div class="narrow">
+    <header class="head">
+      <div class="head-text">
+        <h1>Сповіщення</h1>
+        <p>{{ summary() }}</p>
+      </div>
+
+      <div class="head-actions">
+        @if (items().length > 0 || unreadOnly()) {
+          <button type="button" class="ghost-btn" [class.on]="unreadOnly()" (click)="toggleUnreadOnly()">
+            {{ unreadOnly() ? 'Показати всі' : 'Лише непрочитані' }}
+          </button>
+        }
+        <button type="button" class="ink-btn" [disabled]="unreadCount() === 0" (click)="markAllRead()">
+          Прочитати всі
+        </button>
+      </div>
+    </header>
+
+    @if (error()) {
+      <p class="banner banner-error"><span class="banner-icon">✕</span> {{ error() }}</p>
+    }
+
+    @if (loading()) {
+      <div class="list">
+        @for (i of [1,2,3]; track i) {
+          <div class="card notif">
+            <div class="skeleton" style="width: 2.25rem; height: 2.25rem; border-radius: 12px"></div>
+            <div style="flex: 1">
+              <div class="skeleton skeleton-line" style="width: 55%"></div>
+              <div class="skeleton skeleton-line" style="width: 25%; margin-bottom: 0"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (items().length === 0) {
+      <!-- ══ Порожньо ══ -->
+      @if (unreadOnly()) {
+        <section class="card quiet">
+          <p>Непрочитаних сповіщень немає.</p>
+          <button type="button" class="ghost-btn" (click)="toggleUnreadOnly()">Показати всі</button>
+        </section>
+      } @else {
+        <section class="hero enter">
+          <div class="glow" aria-hidden="true"></div>
+          <div class="hero-inner">
+            <span class="hero-icon">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M4 7a4 4 0 0 1 8 0c0 3 1.1 4 1.1 4H2.9S4 10 4 7z" />
+                <path d="M6.6 13.2a1.6 1.6 0 0 0 2.8 0" />
+              </svg>
+            </span>
+            <h2>Тут поки тихо</h2>
+            <p>
+              Ми сповістимо вас про нову симпатію, взаємний збіг і повідомлення в чаті.
+              Повідомлення з одного діалогу згортаємо в один запис, щоб не завалювати список.
+            </p>
+            <div class="hero-actions">
+              <a class="btn-accent" routerLink="/feed">Дивитись стрічку</a>
+              <a class="btn-glass" routerLink="/likes">До симпатій</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="card enter-2">
+          <p class="strip-label">Про що ми повідомляємо</p>
+          <div class="kinds">
+            <div class="kind">
+              <span class="kind-ico">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M8 13.2S2.4 9.9 2.4 6.3A2.9 2.9 0 0 1 8 5.1a2.9 2.9 0 0 1 5.6 1.2c0 3.6-5.6 6.9-5.6 6.9z" />
+                </svg>
+              </span>
+              <h3>Нова симпатія</h3>
+              <p>Хтось вподобав вашу анкету й чекає на відповідь.</p>
+            </div>
+            <div class="kind">
+              <span class="kind-ico">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <rect x="3.4" y="7" width="9.2" height="6.2" rx="1.6" />
+                  <path d="M5.6 7V5.4a2.4 2.4 0 0 1 4.8 0V7" />
+                </svg>
+              </span>
+              <h3>Взаємний збіг</h3>
+              <p>Фото відкрились обом, чат створено автоматично.</p>
+            </div>
+            <div class="kind">
+              <span class="kind-ico">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M13.4 8.3c0 2.5-2.4 4.5-5.4 4.5-.7 0-1.4-.1-2-.3l-3 1.2.9-2.4A4.3 4.3 0 0 1 2.6 8.3c0-2.5 2.4-4.5 5.4-4.5s5.4 2 5.4 4.5z" />
+                </svg>
+              </span>
+              <h3>Повідомлення</h3>
+              <p>Нові репліки з чату — по одному запису на діалог.</p>
+            </div>
+          </div>
+        </section>
+      }
+    } @else {
+      <!-- ══ Є сповіщення ══ -->
+      @if (todayItems().length > 0) {
+        <p class="strip-label">Сьогодні</p>
+        <div class="list">
+          @for (item of todayItems(); track item.notificationId) {
+            <ng-container *ngTemplateOutlet="card; context: { $implicit: item }" />
+          }
+        </div>
+      }
+
+      @if (earlierItems().length > 0) {
+        <p class="strip-label spaced">Раніше</p>
+        <div class="list">
+          @for (item of earlierItems(); track item.notificationId) {
+            <ng-container *ngTemplateOutlet="card; context: { $implicit: item }" />
+          }
+        </div>
+      }
+
+      @if (hasMore()) {
+        <button type="button" class="more" [disabled]="loadingMore()" (click)="loadMore()">
+          {{ loadingMore() ? 'Завантажуємо…' : 'Показати ще' }}
+        </button>
+      }
+    }
+  </div>
+
+  <!-- Одна картка на всі три секції — розмітка не має двоїтись -->
+  <ng-template #card let-item>
+    <a class="notif" [class.match]="item.type === 'NEW_MATCH'" [class.unread]="!item.isRead"
+       [routerLink]="link(item)">
+      <span class="ico" [attr.data-type]="item.type">
+        @if (item.type === 'NEW_MATCH') {
+          <svg viewBox="0 0 16 16" aria-hidden="true" class="solid">
+            <path d="M8 13.4S2.2 9.9 2.2 6.2A2.95 2.95 0 0 1 8 5a2.95 2.95 0 0 1 5.8 1.2c0 3.7-5.8 7.2-5.8 7.2z" />
+          </svg>
+        } @else if (item.type === 'NEW_LIKE') {
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 13.2S2.4 9.9 2.4 6.3A2.9 2.9 0 0 1 8 5.1a2.9 2.9 0 0 1 5.6 1.2c0 3.6-5.6 6.9-5.6 6.9z" />
+          </svg>
+        } @else {
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M13.4 8.3c0 2.5-2.4 4.5-5.4 4.5-.7 0-1.4-.1-2-.3l-3 1.2.9-2.4A4.3 4.3 0 0 1 2.6 8.3c0-2.5 2.4-4.5 5.4-4.5s5.4 2 5.4 4.5z" />
+          </svg>
+        }
+      </span>
+
+      <span class="who">{{ initial(item.actorName) }}</span>
+
+      <span class="body">
+        <b>{{ text(item) }}</b>
+        <small>{{ hint(item) }} · {{ when(item.createdAt) }}</small>
+      </span>
+
+      @if (!item.isRead) {
+        <i class="dot" aria-label="Непрочитане"></i>
+      }
+    </a>
+  </ng-template>
+</app-shell>

@@ -1,0 +1,364 @@
+<app-shell>
+  <header class="head">
+    <div class="head-text">
+      <h1>Стрічка анкет</h1>
+      <p>Найрелевантніші — першими, за спільними інтересами</p>
+    </div>
+    <div class="head-actions">
+      <button type="button" class="ghost-btn" (click)="filtersOpen.set(!filtersOpen())">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.6 4.4h10.8M4.6 8h6.8M6.6 11.6h2.8" /></svg>
+        Фільтри
+        @if (activeFilterCount() > 0) {
+          <span class="count-badge">{{ activeFilterCount() }}</span>
+        }
+      </button>
+      <button type="button" class="ghost-btn" [disabled]="loading()" (click)="refresh()">Оновити</button>
+    </div>
+  </header>
+
+  @if (notice()) {
+    <p class="banner banner-accent"><span class="banner-icon">{{ noticeIcon() }}</span> {{ notice() }}</p>
+  }
+  @if (error()) {
+    <p class="banner banner-error"><span class="banner-icon">✕</span> {{ error() }}</p>
+  }
+
+  @if (upcoming().length > 0) {
+    <section class="upcoming">
+      <p class="strip-label">Далі у стрічці</p>
+      <div class="up-row">
+        @for (item of upcoming(); track item.profile.userId) {
+          <button type="button" class="up-card" (click)="notYet(item.profile.name)">
+            <span class="up-photo">
+              <span class="veil">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <rect x="3.4" y="7" width="9.2" height="6.2" rx="1.6" />
+                  <path d="M5.6 7V5.4a2.4 2.4 0 0 1 4.8 0V7" />
+                </svg>
+              </span>
+            </span>
+            <span class="up-top">
+              <b>{{ item.profile.name }}</b>
+              @if (item.percent !== null) {
+                <small class="pct">{{ item.percent }}%</small>
+              }
+            </span>
+            <small class="up-meta">{{ ageOf(item.profile) }} · {{ item.profile.city || '—' }}</small>
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  <div class="feed-layout" [class.is-empty]="exhausted()">
+    <div class="feed-main">
+      @if (loading()) {
+        <article class="card candidate">
+          <div class="skeleton photo-pane"></div>
+          <div class="candidate-body">
+            <div class="skeleton skeleton-line" style="width: 45%; height: 1.7rem"></div>
+            <div class="skeleton skeleton-line" style="width: 62%"></div>
+            <div class="skeleton skeleton-line" style="width: 100%; height: 4.5rem; margin-top: 1.2rem"></div>
+          </div>
+        </article>
+      } @else if (exhausted()) {
+      <!-- Стрічку вичерпано: пояснюємо чому й даємо шляхи побачити більше -->
+      <section class="done-hero enter">
+      <span class="done-glow" aria-hidden="true"></span>
+      <div class="done-inner">
+      <span class="done-icon">
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="8" cy="8" r="6.2" />
+      <path d="M10.6 5.4 6.9 6.9 5.4 10.6l3.7-1.5z" />
+      </svg>
+      </span>
+      <h2>Наразі це всі анкети</h2>
+      <p>
+      Ви переглянули всіх, хто підходить під ваші фільтри. Нові учасники
+      з'являються щодня — а поки що є кілька способів побачити більше.
+      </p>
+      <div class="done-actions">
+      <button type="button" class="btn-wide" (click)="resetFilters()">Розширити фільтри</button>
+      <a class="btn-wide ghost" routerLink="/profile/edit">Додати інтереси</a>
+      </div>
+      </div>
+      </section>
+
+        <div class="tips">
+          <section class="tip-card">
+            <span class="tip-icon">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.6 4.4h10.8M4.6 8h6.8M6.6 11.6h2.8" /></svg>
+            </span>
+            <h3>Пом'якшіть фільтри</h3>
+            @if (activeFilterCount() > 0) {
+              <p>Зараз діють обмеження — без них бекенд підбере ширше коло людей.</p>
+              <div class="tip-tags">
+                @if (minAgeValue() > 18 || maxAgeValue() < 120) {
+                  <span>Вік {{ minAgeValue() }}–{{ maxAgeValue() }}</span>
+                }
+                @if (filterForm.value.city) { <span>{{ filterForm.value.city }}</span> }
+                @if (filterForm.value.gender) { <span>{{ genderLabel($any(filterForm.value.gender)) }}</span> }
+                @if (filterForm.value.datingGoal) { <span>{{ goalLabel($any(filterForm.value.datingGoal)) }}</span> }
+              </div>
+            } @else {
+              <p>Фільтри вже вимкнені — стрічка показує всіх доступних учасників.</p>
+            }
+          </section>
+
+          <section class="tip-card">
+            <span class="tip-icon">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4 9.5 6l3.6 1.4L9.5 8.9 8 12.5 6.5 8.9 2.9 7.4 6.5 6z" /></svg>
+            </span>
+            <h3>Додайте інтереси</h3>
+            <p>
+              У вас обрано {{ tagsChosen() }} тем зі 118. Кожна нова тема додає збігів
+              і піднімає вашу анкету в чужих стрічках.
+            </p>
+            <a class="tip-link" routerLink="/profile/edit">Обрати теми →</a>
+          </section>
+        </div>
+
+        @if (skipped().length > 0) {
+          <section class="skipped-card">
+            <div class="skipped-head">
+              <p class="strip-label">Ви пропустили — можна переглянути ще раз</p>
+              @if (skippedTotal() > skipped().length) {
+                <span class="muted small">показано {{ skipped().length }} з {{ skippedTotal() }}</span>
+              }
+            </div>
+            <div class="up-row">
+              @for (item of skipped(); track item.profile.userId) {
+                <a class="up-card muted-card" [routerLink]="['/users', item.profile.userId]">
+                  <span class="up-photo">
+                    <span class="veil">
+                      <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <rect x="3.4" y="7" width="9.2" height="6.2" rx="1.6" />
+                        <path d="M5.6 7V5.4a2.4 2.4 0 0 1 4.8 0V7" />
+                      </svg>
+                    </span>
+                  </span>
+                  <span class="up-top">
+                    <b>{{ item.profile.name }}</b>
+                    @if (item.percent !== null) {
+                      <small class="pct">{{ item.percent }}%</small>
+                    }
+                  </span>
+                  <small class="up-meta">{{ ageOf(item.profile) }} · {{ item.profile.city || '—' }}</small>
+                </a>
+              }
+            </div>
+          </section>
+        }
+      } @else {
+        @for (candidate of cardList(); track candidate.userId) {
+          <article class="card candidate enter">
+            <div class="candidate-top">
+              <!-- Фото до взаємної симпатії не існує навіть на рівні API -->
+              <div class="photo-pane">
+                <div class="pane-veil">
+                  <span class="lock-circle">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <rect x="3.4" y="7" width="9.2" height="6.2" rx="1.6" />
+                      <path d="M5.6 7V5.4a2.4 2.4 0 0 1 4.8 0V7" />
+                    </svg>
+                  </span>
+                  <small>Фото відкриється,<br />щойно симпатія стане взаємною</small>
+                </div>
+                <span class="sheen" aria-hidden="true"></span>
+              </div>
+
+              <div class="candidate-body">
+                <div class="top-row">
+                  <div class="who">
+                    <h2 class="name">{{ candidate.name }}@if (age(candidate) !== empty) {, {{ age(candidate) }}}</h2>
+                    <p class="meta">
+                      {{ candidate.city || 'Місто не вказано' }} · {{ goalLabel(candidate.datingGoal) }}
+                      @if (candidate.educationLevel) { · {{ educationLabel(candidate.educationLevel) }} }
+                    </p>
+                    <div class="pills">
+                      <span class="soft-chip">{{ genderLabel(candidate.gender) }}</span>
+                      @if (candidate.temperament) {
+                        <span class="soft-chip">{{ temperamentLabel(candidate.temperament) }}</span>
+                      }
+                      @if (candidate.childrenStatus) {
+                        <span class="soft-chip">{{ childrenLabel(candidate.childrenStatus) }}</span>
+                      }
+                    </div>
+                  </div>
+
+                  @if (matchPercent() !== null) {
+                    <div class="match-box">
+                      <svg class="donut" viewBox="0 0 60 60" aria-hidden="true">
+                        <circle cx="30" cy="30" r="25" class="track" />
+                        <circle cx="30" cy="30" r="25" class="value"
+                                [attr.stroke-dashoffset]="donutOffset()" transform="rotate(-90 30 30)" />
+                        <text x="30" y="35" text-anchor="middle">{{ matchPercent()
+                          }}<tspan class="sign">%</tspan></text>
+                      </svg>
+                      <span class="match-text">
+                        <b>Сумісність</b>
+                        <small>{{ sharedTags().length }} спільні теми<br />з {{ myTagCount() }} ваших</small>
+                      </span>
+                    </div>
+                  }
+                </div>
+
+                @if (candidate.characterisation) {
+                  <p class="quote">«{{ candidate.characterisation }}»</p>
+                } @else {
+                  <p class="quote muted-quote">Ця людина ще не розповіла про себе.</p>
+                }
+
+                @if (tags().length > 0) {
+                  <div class="tag-row interests">
+                    @for (tag of tags(); track tag.tagId) {
+                      <span class="tag" [class.shared]="sharedTags().includes(tag)">{{ tag.tagName }}</span>
+                    }
+                  </div>
+                }
+
+                <div class="fields">
+                  <span><small>Освіта</small><b>{{ educationLabel(candidate.educationLevel) }}</b></span>
+                  <span><small>Темперамент</small><b>{{ temperamentLabel(candidate.temperament) }}</b></span>
+                  <span><small>Діти</small><b>{{ childrenLabel(candidate.childrenStatus) }}</b></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Нижня смуга: рішення по центру, другорядні дії — рядком нижче праворуч -->
+            <div class="actions-bar">
+              <div class="decision-row">
+                <button type="button" class="act-btn skip" [disabled]="busy()" (click)="skip()">
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.4 4.4l7.2 7.2M11.6 4.4l-7.2 7.2" /></svg>
+                  Пропустити
+                </button>
+                <button type="button" class="act-btn like" [class.bursting]="burst()"
+                        [disabled]="busy()" (click)="like()">
+                  <svg viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M8 13.2S2.4 9.9 2.4 6.3A2.9 2.9 0 0 1 8 5.1a2.9 2.9 0 0 1 5.6 1.2c0 3.6-5.6 6.9-5.6 6.9z" />
+                  </svg>
+                  Вподобати
+                  @if (burst()) {
+                    <span class="burst" aria-hidden="true">♥</span>
+                  }
+                </button>
+              </div>
+
+              <div class="side-links">
+                <a [routerLink]="['/users', candidate.userId]">Відкрити анкету</a>
+                <button type="button" (click)="reporting.set(true)">Поскаржитись</button>
+                <button type="button" class="danger" (click)="confirmingBlock.set(true)">Заблокувати</button>
+              </div>
+            </div>
+
+            @if (reporting()) {
+              <form class="drawer" [formGroup]="reportForm" (ngSubmit)="submitReport()">
+                <label class="field">
+                  <span>Причина скарги</span>
+                  <textarea formControlName="reason" rows="3"
+                            placeholder="Опишіть, що не так із цією анкетою"></textarea>
+                </label>
+                <div class="inline-actions">
+                  <button type="submit" class="btn btn-sm" [disabled]="reportForm.invalid || busy()">Надіслати</button>
+                  <button type="button" class="btn btn-outline btn-sm" (click)="reporting.set(false)">Скасувати</button>
+                </div>
+              </form>
+            } @else if (confirmingBlock()) {
+              <div class="drawer">
+                <p class="banner banner-warn">
+                  <span class="banner-icon">⚠️</span>
+                  <span>Заблокувати анкету — {{ candidate.name }}? Ви зникнете одне в одного зі стрічки, чатів і фото.</span>
+                </p>
+                <div class="inline-actions">
+                  <button type="button" class="btn btn-danger btn-sm" [disabled]="busy()" (click)="blockUser()">
+                    Так, заблокувати
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm" (click)="confirmingBlock.set(false)">
+                    Скасувати
+                  </button>
+                </div>
+              </div>
+            }
+          </article>
+        }
+      }
+    </div>
+
+    <aside class="feed-side" [class.open]="filtersOpen()">
+      <section class="side-card">
+        <p class="strip-label">Фільтри</p>
+        <form [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+          <label class="mini-field">
+            <span>Стать</span>
+            <select formControlName="gender">
+              <option value="">Будь-яка</option>
+              @for (option of genders; track option[0]) {
+                <option [value]="option[0]">{{ option[1] }}</option>
+              }
+            </select>
+          </label>
+
+          <div class="mini-field age-field">
+            <span class="age-label">Вік <b>{{ minAgeValue() }} — {{ maxAgeValue() }}</b></span>
+            <!-- Два повзунки поверх спільної доріжки: заповнений відрізок рахується з їхніх значень -->
+            <div class="range">
+              <span class="track"></span>
+              <span class="fill" [style.left.%]="rangeLeft()" [style.right.%]="rangeRight()"></span>
+              <input type="range" min="18" max="120" formControlName="minAge" aria-label="Вік від" />
+              <input type="range" min="18" max="120" formControlName="maxAge" aria-label="Вік до" />
+            </div>
+          </div>
+
+          <label class="mini-field">
+            <span>Місто</span>
+            <input type="text" formControlName="city" placeholder="Будь-яке" />
+          </label>
+
+          <label class="mini-field">
+            <span>Мета знайомства</span>
+            <select formControlName="datingGoal">
+              <option value="">Будь-яка</option>
+              @for (option of goals; track option[0]) {
+                <option [value]="option[0]">{{ option[1] }}</option>
+              }
+            </select>
+          </label>
+
+          @if (filterForm.invalid) {
+            <small class="field-error">Вік — від 18 до 120 років</small>
+          }
+
+          <button type="submit" class="pill-primary" [disabled]="filterForm.invalid">Застосувати</button>
+          <button type="button" class="pill-outline" (click)="resetFilters()">Скинути</button>
+        </form>
+      </section>
+
+      @if (exhausted() && incomingCount() > 0) {
+        <section class="side-card waiting">
+          <p class="strip-label">Поки чекаєте</p>
+          <p>
+            {{ incomingCount() }} @if (incomingCount() === 1) { людина вподобала } @else { людей вподобали }
+            вас і чекає на відповідь. Це найшвидший шлях до збігу.
+          </p>
+          <a class="pill-primary as-link" routerLink="/likes">До симпатій</a>
+        </section>
+      }
+
+      <section class="side-card dark">
+        @if (exhausted()) {
+          <p class="strip-label">Чому стрічка порожня</p>
+          <p class="dark-text">
+            Кожну анкету показуємо один раз. Ті, кого ви пропустили, лишаються доступними
+            за посиланням, а нові учасники з'являються щодня.
+          </p>
+        } @else {
+          <p class="strip-label">Як влаштована стрічка</p>
+          <p class="dark-text">
+            Анкети приходять по одній і відсортовані за кількістю спільних тем.
+            Фотографії недоступні, поки симпатія не стане взаємною.
+          </p>
+        }
+      </section>
+    </aside>
+  </div>
+</app-shell>
