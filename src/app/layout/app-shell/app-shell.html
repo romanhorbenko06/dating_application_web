@@ -1,0 +1,65 @@
+<div class="shell" [class.menu-open]="menuOpen()">
+  <div class="mobile-bar">
+    <a class="logo" [routerLink]="isAdmin() ? '/admin' : '/feed'">znai<span>dy</span></a>
+    <button type="button" class="burger" (click)="menuOpen.set(!menuOpen())"
+            [attr.aria-label]="menuOpen() ? 'Закрити меню' : 'Відкрити меню'">
+      {{ menuOpen() ? '✕' : '☰' }}
+    </button>
+  </div>
+
+  <aside class="sidebar">
+    <a class="logo desktop-logo" [routerLink]="isAdmin() ? '/admin' : '/feed'">znai<span>dy</span></a>
+
+    <nav class="side-nav" (click)="menuOpen.set(false)">
+      @if (isAdmin()) {
+        <!-- Адміністратор не має анкети й не бере участі в знайомствах, тож
+             стрічка, симпатії, чати та сповіщення для нього порожні за визначенням -->
+        <a routerLink="/admin" routerLinkActive="active">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4"/><path d="M6 5h11l-2 3.5L17 12H6"/></svg>
+          Модерація
+        </a>
+      } @else {
+      <a routerLink="/feed" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 5-5 2.2 2.2-5z"/></svg>
+        Стрічка
+      </a>
+      <a routerLink="/likes" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.6-7 9-7 9z"/></svg>
+        Симпатії
+      </a>
+      <a routerLink="/chats" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a7 7 0 0 1-7 7H8l-4 3v-4.6A7 7 0 0 1 11 5h2a7 7 0 0 1 7 7z"/></svg>
+        Чати
+      </a>
+      <a routerLink="/notifications" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 13 6 9z"/><path d="M10 18a2 2 0 0 0 4 0"/></svg>
+        Сповіщення
+        @if (unreadCount() > 0) {
+          <span class="count-badge">{{ unreadCount() }}</span>
+        }
+      </a>
+      <a routerLink="/profile" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 19.5c1.4-3.2 4-4.8 7-4.8s5.6 1.6 7 4.8"/></svg>
+        Моя анкета
+      </a>
+
+      }
+    </nav>
+
+    <div class="side-foot">
+      <div class="me">
+        <span class="avatar avatar-sm">{{ initial() }}</span>
+        <span class="me-text">
+          <b>{{ user()?.name || '—' }}</b>
+          <button type="button" class="link-btn" (click)="logout()">вийти</button>
+        </span>
+      </div>
+
+      <a routerLink="/about" class="foot-link">Про застосунок</a>
+    </div>
+  </aside>
+
+  <main class="content" [class.wide]="wide()">
+    <ng-content />
+  </main>
+</div>

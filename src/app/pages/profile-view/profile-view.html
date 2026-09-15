@@ -1,0 +1,312 @@
+<app-shell>
+  <div class="top-row">
+    <a class="ghost-btn" routerLink="/feed">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.5 4 5.5 8l4 4" /></svg>
+      До стрічки
+    </a>
+  </div>
+
+  @if (error()) {
+    <p class="banner banner-error"><span class="banner-icon">✕</span> {{ error() }}</p>
+  }
+  @if (notice()) {
+    <p class="banner banner-accent"><span class="banner-icon">♡</span> {{ notice() }}</p>
+  }
+
+  @if (loading()) {
+    <div class="card">
+      <div class="skeleton" style="width: 8rem; height: 8rem; border-radius: 16px"></div>
+      <div class="skeleton skeleton-line" style="width: 30%; margin-top: 1rem; height: 1.4rem"></div>
+      <div class="skeleton skeleton-line" style="width: 55%"></div>
+    </div>
+  } @else if (profile(); as person) {
+    <!-- ── Банер метчу: з'являється рівно тоді, коли бекенд віддав фото ── -->
+    @if (matched()) {
+      <div class="match-bar enter">
+        <div class="pair" aria-hidden="true">
+          @if (mainPhoto(); as photo) {
+            <span class="pair-tile"><img [src]="photo.dataUri" alt="" /></span>
+          } @else {
+            <span class="pair-tile letter">{{ initial() }}</span>
+          }
+          <span class="pair-tile letter mine">{{ myInitial() }}</span>
+        </div>
+
+        <div class="match-text">
+          <b>Взаємний збіг — фото розблоковано</b>
+          <small>Ви сподобались одне одному. Тепер бачите світлини й можете спілкуватись.</small>
+        </div>
+
+        @if (chatId(); as id) {
+          <a class="match-cta" [routerLink]="['/chats', id]">
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M13.4 8.3c0 2.5-2.4 4.5-5.4 4.5-.7 0-1.4-.1-2-.3l-3 1.2.9-2.4A4.3 4.3 0 0 1 2.6 8.3c0-2.5 2.4-4.5 5.4-4.5s5.4 2 5.4 4.5z" />
+            </svg>
+            Написати {{ person.name }}
+          </a>
+        }
+      </div>
+    }
+
+    <div class="layout">
+      <!-- ── Головна колонка ── -->
+      <div class="col-main">
+        <section class="card shot-card enter">
+          <div class="shots">
+            @if (unlocked() && mainPhoto(); as photo) {
+              <button type="button" class="shot open" (click)="lightboxIndex.set(0)"
+                      aria-label="Відкрити фото на весь екран">
+                <img [src]="photo.dataUri" alt="Фото {{ person.name }}" />
+                <span class="shot-hint">1 / {{ orderedPhotos().length }} · клік для повного екрана</span>
+              </button>
+
+              @if (restPhotos().length > 0) {
+                <div class="thumbs">
+                  @for (photo of restPhotos(); track photo.photoId; let i = $index) {
+                    <button type="button" class="thumb" (click)="lightboxIndex.set(i + 1)"
+                            [attr.aria-label]="'Відкрити фото ' + (i + 2)">
+                      <img [src]="photo.dataUri" [srcset]="variants(photo)()?.srcset ?? ''"
+                           sizes="120px" alt="Фото {{ person.name }}" />
+                    </button>
+                  }
+                </div>
+              }
+            } @else {
+              <div class="shot locked">
+                <div class="veil">
+                  <span class="lock">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <rect x="3.4" y="7" width="9.2" height="6.2" rx="1.6" />
+                      <path d="M5.6 7V5.4a2.4 2.4 0 0 1 4.8 0V7" />
+                    </svg>
+                  </span>
+                  <b>Фото приховане</b>
+                  <small>Відкриється автоматично, коли симпатія стане взаємною</small>
+                </div>
+                <span class="sheen" aria-hidden="true"></span>
+                @if (photoCount() > 0) {
+                  <span class="count-pill">{{ photoCount() }} ФОТО</span>
+                }
+              </div>
+
+              @if (lockedTiles().length > 0) {
+                <div class="thumbs" aria-hidden="true">
+                  @for (i of lockedTiles(); track i) {
+                    <span class="thumb-locked"></span>
+                  }
+                </div>
+              }
+            }
+          </div>
+
+          <div class="ident">
+            <div class="ident-main">
+              <div class="name-row">
+                <h1>{{ person.name }}@if (age() !== empty) {, {{ age() }}}</h1>
+                @if (matched()) {
+                  <span class="match-chip">ВЗАЄМНИЙ ЗБІГ</span>
+                }
+              </div>
+              <p class="ident-meta">
+                {{ person.city || 'Місто не вказано' }} · {{ genderLabel(person.gender) }}
+                · {{ goalLabel(person.datingGoal) }}
+              </p>
+            </div>
+
+            @if (matchPercent() !== null) {
+              <div class="score">
+                <svg viewBox="0 0 60 60" aria-hidden="true">
+                  <circle cx="30" cy="30" r="25" class="track" />
+                  <circle cx="30" cy="30" r="25" class="value"
+                          [attr.stroke-dashoffset]="donutOffset()"
+                          transform="rotate(-90 30 30)" />
+                  <text x="30" y="35" text-anchor="middle">{{ matchPercent() }}</text>
+                </svg>
+                <span>
+                  <b>Сумісність</b>
+                  <small>{{ sharedTags().length }} з {{ myTagCount() }} ваших тем</small>
+                </span>
+              </div>
+            }
+          </div>
+        </section>
+
+        @if (person.characterisation) {
+          <section class="card about-card enter-2" [class.unlocked]="matched()">
+            <p class="strip-label">Про себе</p>
+            <p class="about-quote">«{{ person.characterisation }}»</p>
+          </section>
+        }
+
+        <div class="two-up">
+          @if (tags().length > 0) {
+            <section class="card enter-2">
+              <div class="card-head">
+                <p class="strip-label">Інтереси</p>
+                @if (sharedTags().length > 0) {
+                  <small class="head-note">{{ sharedTags().length }} спільних</small>
+                }
+              </div>
+              <div class="tag-row">
+                @for (tag of tags(); track tag.tagId) {
+                  <span class="tag" [class.shared]="isShared(tag)">{{ tag.tagName }}</span>
+                }
+              </div>
+              @if (sharedTags().length > 0) {
+                <p class="foot-note">Заповнені кольором — спільні з вашими інтересами</p>
+              }
+            </section>
+          }
+
+          <section class="card enter-3">
+            <p class="strip-label">Деталі</p>
+            <dl class="fields">
+              <div><dt>Місто</dt><dd>{{ person.city || empty }}</dd></div>
+              <div><dt>Освіта</dt><dd>{{ educationLabel(person.educationLevel) }}</dd></div>
+              <div><dt>Темперамент</dt><dd>{{ temperamentLabel(person.temperament) }}</dd></div>
+              <div><dt>Діти</dt><dd>{{ childrenLabel(person.childrenStatus) }}</dd></div>
+            </dl>
+          </section>
+        </div>
+
+        @if (commonalities().length > 0) {
+          <section class="card enter-3">
+            <p class="strip-label">Що у вас спільного</p>
+            <ul class="common-list">
+              @for (item of commonalities(); track item) {
+                <li>
+                  <i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 8.4 2.6 2.6L12 5.6" /></svg></i>
+                  {{ item }}
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      </div>
+
+      <!-- ── Права колонка ── -->
+      <aside class="col-side">
+        <section class="card act-card enter" [class.matched]="matched()">
+          @if (isAdmin()) {
+            <!-- Модератор дивиться анкету, а не знайомиться: ні симпатій, ні чату -->
+            <p class="strip-label">Перегляд для модерації</p>
+            <p class="act-note left">
+              Ви відкрили анкету як адміністратор — фото доступні для перевірки.
+              Санкції застосовуються на сторінці модерації.
+            </p>
+            <a class="act-outline" routerLink="/admin">До модерації</a>
+          } @else if (matched()) {
+            <span class="heart">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 13.4S2.2 9.9 2.2 6.2A2.95 2.95 0 0 1 8 5a2.95 2.95 0 0 1 5.8 1.2c0 3.7-5.8 7.2-5.8 7.2z" />
+              </svg>
+            </span>
+            <b class="act-title">Ви сподобались<br />одне одному</b>
+            <p class="act-note">Чат створено автоматично</p>
+
+            @if (chatId(); as id) {
+              <a class="act-primary" [routerLink]="['/chats', id]">Написати в чаті</a>
+            }
+            <button type="button" class="act-outline" (click)="lightboxIndex.set(0)">
+              Переглянути фото
+            </button>
+          } @else {
+            <p class="strip-label">Ваші дії</p>
+            <button type="button" class="act-primary" [disabled]="busy()" (click)="like()">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 13.2S2.4 9.9 2.4 6.3A2.9 2.9 0 0 1 8 5.1a2.9 2.9 0 0 1 5.6 1.2c0 3.6-5.6 6.9-5.6 6.9z" />
+              </svg>
+              Вподобати
+            </button>
+            <button type="button" class="act-outline" [disabled]="busy()" (click)="skip()">
+              Пропустити
+            </button>
+            <p class="act-note left">
+              {{ person.name }} побачить вашу симпатію одразу. Фото відкриються обом,
+              коли вона стане взаємною.
+            </p>
+          }
+
+          @if (!isAdmin()) {
+          <div class="act-links">
+            @if (reporting()) {
+              <form [formGroup]="reportForm" (ngSubmit)="submitReport()">
+                <label class="field">
+                  <span>Причина скарги</span>
+                  <textarea formControlName="reason" rows="3"></textarea>
+                </label>
+                <div class="side-actions">
+                  <button type="submit" class="btn btn-sm" [disabled]="reportForm.invalid || busy()">
+                    Надіслати
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm" (click)="reporting.set(false)">
+                    Скасувати
+                  </button>
+                </div>
+              </form>
+            } @else if (confirmingBlock()) {
+              <p class="muted">Заблокувати анкету — {{ person.name }}? Ефект симетричний.</p>
+              <div class="side-actions">
+                <button type="button" class="btn btn-danger btn-sm" [disabled]="busy()" (click)="block()">
+                  Так, заблокувати
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" (click)="confirmingBlock.set(false)">
+                  Скасувати
+                </button>
+              </div>
+            } @else {
+              <button type="button" class="link-btn" (click)="reporting.set(true)">Поскаржитись</button>
+              <button type="button" class="link-btn danger" (click)="confirmingBlock.set(true)">
+                Заблокувати
+              </button>
+            }
+          </div>
+          }
+        </section>
+
+        @if (matched() && starters().length > 0) {
+          <section class="card starters-card enter-2">
+            <p class="strip-label">Про що поговорити</p>
+            <div class="starters">
+              @for (starter of starters(); track starter) {
+                <span>«{{ starter }}»</span>
+              }
+            </div>
+            <p class="foot-note">Складено зі спільних інтересів</p>
+          </section>
+        }
+
+        @if (!matched() && sharedTags().length > 0) {
+          <section class="card enter-2">
+            <p class="strip-label">Чому ця анкета у стрічці</p>
+            <p class="side-text">
+              Ранжування піднімає анкети з найбільшою кількістю спільних тем. Тут їх
+              {{ sharedTags().length }}:
+            </p>
+            <div class="tag-row">
+              @for (tag of sharedTags(); track tag.tagId) {
+                <span class="tag shared small">{{ tag.tagName }}</span>
+              }
+            </div>
+          </section>
+        }
+
+        @if (!isAdmin()) {
+        <section class="card safety-card enter-3">
+          <p class="strip-label">Безпека</p>
+          <p class="side-text">
+            Ніхто не бачить ваші фото без взаємної симпатії. Скарги розглядає модератор.
+          </p>
+        </section>
+        }
+      </aside>
+    </div>
+  }
+
+  @if (lightboxIndex() !== null) {
+    <app-photo-lightbox
+      [photos]="orderedPhotos()"
+      [startIndex]="lightboxIndex()!"
+      (closed)="lightboxIndex.set(null)" />
+  }
+</app-shell>
