@@ -1,59 +1,70 @@
-# DatingApplicationWeb
+# Знайди — вебклієнт
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.6.
+Клієнтська частина дейтинг-застосунку: Angular 22, standalone-компоненти, сигнали.
+Головна механіка — **фотографії відкриваються лише після взаємної симпатії**:
+доки збігу немає, замість знімків показується панель із замком.
 
-## Development server
+Серверна частина — в окремому репозиторії
+[dating_application](https://github.com/romanhorbenko06/dating_application).
 
-To start a local development server, run:
+## Що потрібно
 
-```bash
-ng serve
-```
+- **Node.js** `^22.22` / `^24.15` / `>=26` (вимога Angular CLI 22)
+- **Запущений бекенд** на `http://localhost:8080` — без нього застосунок
+  відкриється, але всі екрани будуть порожні, а вхід поверне помилку мережі
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Запуск
 
 ```bash
-ng generate --help
+npm install
+npm start
 ```
 
-## Building
+Застосунок буде на `http://localhost:4200`.
 
-To build the project run:
+Звертань до `http://localhost:8080` у коді немає: `/api` і `/ws` переадресовує
+дев-сервер за `proxy.conf.json`, тож у розробці немає ні CORS, ні різних адрес
+для HTTP і WebSocket. Якщо бекенд слухає інший порт — правити треба саме цей файл.
+
+## Перші кроки в застосунку
+
+1. Зареєструватися на `/register`. Код підтвердження бекенд або надішле листом,
+   або — якщо пошта в ньому вимкнена — надрукує у свою консоль блоком
+   `VERIFICATION EMAIL (Development Mode)`.
+2. Заповнити анкету й додати світлини на `/profile/edit`.
+3. У стрічці на `/feed` вподобати або пропустити анкету. Фотографії чужої анкети
+   лишаються закритими, доки людина не відповість взаємністю у своїх симпатіях.
+4. Після збігу з'являється чат — повідомлення, редагування, видалення, прочитання
+   йдуть через WebSocket у реальному часі.
+
+Адміністратор (створюється бекендом при старті) потрапляє одразу в `/admin`
+і в стрічку не допускається — і навпаки, звичайний користувач в адмінку не зайде.
+
+## Тести
 
 ```bash
-ng build
+npm test -- --watch=false
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Раннер — vitest через `@angular/build:unit-test`. Покриті хелпери форматування,
+розбір помилок API і heartbeat сокета.
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Збірка
 
 ```bash
-ng test
+npm run build
 ```
 
-## Running end-to-end tests
+Результат — у `dist/`.
 
-For end-to-end (e2e) testing, run:
+## Структура
 
-```bash
-ng e2e
-```
+| Тека | Що всередині |
+|---|---|
+| `src/app/core` | сервіси доступу до API, моделі, інтерцептор і охоронці маршрутів |
+| `src/app/pages` | екрани: вхід і реєстрація, анкета, стрічка, симпатії, чати, сповіщення, адмінка |
+| `src/app/components` | галерея фото й переглядач на весь екран |
+| `src/app/layout` | оболонка з навігацією та проста рамка для екранів входу |
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Кожен екран підключений лінивим `loadComponent`, тож у стартовий бандл
+потрапляє лише те, що потрібно для першої сторінки.
