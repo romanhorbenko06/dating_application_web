@@ -1,0 +1,27 @@
+@if (ordered().length === 0) {
+  <p class="empty">{{ emptyText() }}</p>
+} @else {
+  <div class="gallery">
+    @for (photo of ordered(); track photo.photoId; let i = $index) {
+      <button type="button" class="tile" [class.main]="photo.isMain" (click)="open(i)"
+              [attr.aria-label]="'Відкрити фото ' + (i + 1)">
+        <img
+          [src]="variants(photo)()?.smallest ?? photo.dataUri"
+          [srcset]="variants(photo)()?.srcset ?? ''"
+          sizes="(max-width: 30rem) 45vw, 200px"
+          alt="Фото профілю" />
+        @if (photo.isMain) {
+          <span class="badge">Головне</span>
+        }
+        <span class="zoom">⤢</span>
+      </button>
+    }
+  </div>
+}
+
+@if (openIndex() !== null) {
+  <app-photo-lightbox
+    [photos]="ordered()"
+    [startIndex]="openIndex()!"
+    (closed)="openIndex.set(null)" />
+}

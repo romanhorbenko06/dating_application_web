@@ -1,0 +1,460 @@
+/* ── Шапка ── */
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.15rem;
+}
+
+.head-text h1 {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.head-text p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #8b807a;
+}
+
+.edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.7rem 1.15rem;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font: 700 0.82rem/1 var(--font-ui);
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.edit-btn:hover {
+  background: var(--accent-strong);
+  color: var(--accent-text);
+}
+
+.edit-btn svg {
+  width: 0.88rem;
+  height: 0.88rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Смуга лічильників ── */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.stat {
+  padding: 1rem 1.15rem;
+  border: 1px solid #eee5df;
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.stat b {
+  display: block;
+  font: 600 1.6rem/1 var(--font-display);
+  color: var(--accent);
+}
+
+/* Знаменник «/6» не має важити стільки ж, скільки саме число */
+.stat b i {
+  font-style: normal;
+  font-size: 1rem;
+  color: #b3a7a0;
+}
+
+.stat small {
+  display: block;
+  margin-top: 0.35rem;
+  font: 500 0.72rem/1.4 var(--font-ui);
+  color: #8b807a;
+}
+
+.stat-ink {
+  background: var(--ink);
+  border-color: transparent;
+  color: #fff;
+}
+
+.stat-ink b {
+  color: #fff;
+}
+
+.stat-ink small {
+  color: rgb(255 255 255 / 62%);
+}
+
+.stat-accent {
+  background: var(--accent-soft);
+  border-color: #f6d8e3;
+}
+
+.stat-accent b {
+  color: var(--accent-ink);
+}
+
+.stat-accent small {
+  color: #b3768f;
+}
+
+/* ── Сітка ── */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15.5rem;
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.col-main,
+.col-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.card {
+  border-color: #eee5df;
+}
+
+.strip-label {
+  margin: 0 0 0.7rem;
+  font: 700 0.63rem/1 var(--font-ui);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #b3a7a0;
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.head-note {
+  font: 500 0.72rem/1 var(--font-ui);
+  color: #b3a7a0;
+}
+
+/* ── Картка «хто я» ── */
+
+.ident {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  flex-wrap: wrap;
+}
+
+.avatar-xl {
+  width: 5.15rem;
+  height: 5.15rem;
+  border-radius: 22px;
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  background: linear-gradient(150deg, #f0bfd1, #a86e86);
+  color: #fff;
+}
+
+.photo-wrap {
+  position: relative;
+  width: 5.15rem;
+  height: 5.15rem;
+  flex-shrink: 0;
+}
+
+.photo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 22px;
+}
+
+/* Плашка сидить на нижній межі знімка — як у макеті */
+.main-mark {
+  position: absolute;
+  left: 50%;
+  bottom: -0.55rem;
+  transform: translateX(-50%);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font: 700 0.56rem/1 var(--font-ui);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.who {
+  min-width: 0;
+  flex: 1;
+}
+
+.who h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.meta {
+  margin: 0.4rem 0 0.6rem;
+  font: 500 0.82rem/1.4 var(--font-ui);
+  color: #8b807a;
+  overflow-wrap: anywhere;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.pills .mini-tag {
+  background: #faf6f3;
+  border-color: #eee5df;
+}
+
+/* ── Про себе ── */
+
+.about-card {
+  background: #faf6f3;
+}
+
+.about-quote {
+  margin: 0;
+  font: italic 500 1.02rem/1.6 var(--font-display);
+  color: #3a2d32;
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+/* ── Деталі ── */
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 0.7rem;
+  margin: 0;
+}
+
+.fields div {
+  padding: 0.7rem 0.8rem;
+  border-radius: 13px;
+  background: #faf6f3;
+}
+
+.fields dt {
+  font: 700 0.6rem/1 var(--font-ui);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #b3a7a0;
+  margin-bottom: 0.35rem;
+}
+
+.fields dd {
+  margin: 0;
+  font: 600 0.78rem/1.3 var(--font-ui);
+}
+
+/* ── Інтереси ── */
+
+.my-tag {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font: 600 0.75rem/1.35 var(--font-ui);
+}
+
+/* ── Що додати ── */
+
+.todo-card {
+  background: #faf6f3;
+}
+
+.todo-list {
+  list-style: none;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.todo-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font: 500 0.76rem/1.5 var(--font-ui);
+  color: #3a2d32;
+}
+
+.todo-list i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  margin-top: 0.15rem;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+}
+
+.todo-list li.done {
+  color: var(--faint);
+  text-decoration: line-through;
+}
+
+.todo-list li.done i {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.todo-list svg {
+  width: 0.55rem;
+  height: 0.55rem;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Адаптивність ── */
+
+@media (max-width: 62rem) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 34rem) {
+  .head-text h1 {
+    font-size: 1.2rem;
+  }
+
+  .edit-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .avatar-xl,
+  .photo-wrap {
+    width: 4.2rem;
+    height: 4.2rem;
+  }
+
+  .avatar-xl {
+    font-size: 1.6rem;
+  }
+
+  .who h2 {
+    font-size: 1.2rem;
+  }
+
+  .about-quote {
+    font-size: 0.95rem;
+  }
+}
+
+/* ── Заблоковані ─────────────────────────────────────────────────────── */
+
+.small {
+  font-size: 0.72rem;
+}
+
+.block-list {
+  list-style: none;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.block-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.block-who {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.block-who b {
+  font: 600 0.82rem/1.3 var(--font-ui);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.block-who small {
+  font: 400 0.68rem/1.3 var(--font-ui);
+  color: var(--faint);
+}
+
+/* ── Небезпечна зона ─────────────────────────────────────────────────── */
+
+.danger-card {
+  border-color: var(--error-border);
+}
+
+.danger-card .strip-label {
+  color: var(--error);
+}
+
+.danger-card .muted,
+.danger-card .warn {
+  margin: 0 0 0.8rem;
+  font: 400 0.78rem/1.55 var(--font-ui);
+}
+
+.danger-card .warn {
+  color: var(--error);
+}
+
+.danger-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+/* Кнопка-тригер лишається спокійною: червоним підсвічуємо лише підтвердження */
+.danger-trigger {
+  color: var(--error);
+  border-color: var(--error-border);
+}
+
+.danger-trigger:hover:not(:disabled) {
+  background: var(--error-bg);
+  border-color: var(--error);
+}

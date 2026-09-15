@@ -1,0 +1,68 @@
+<div class="lightbox" #overlay tabindex="-1" (keydown)="onKey($event)" (click)="close()"
+     (mousemove)="onMouseMove($event)" (mouseup)="onMouseUp()" (mouseleave)="onMouseUp()">
+  <header class="bar" (click)="$event.stopPropagation()">
+    <span class="counter">{{ index() + 1 }} / {{ total() }}</span>
+    <div class="bar-actions">
+      @if (zoomed()) {
+        <button type="button" class="icon-btn" (click)="resetZoom()" aria-label="Скинути масштаб">
+          ⤢<sub>×{{ scale() | number: '1.1-1' }}</sub>
+        </button>
+      }
+      <button type="button" class="icon-btn" (click)="close()" aria-label="Закрити">✕</button>
+    </div>
+  </header>
+
+  @if (current(); as photo) {
+    <div class="stage" (click)="$event.stopPropagation()">
+      @if (total() > 1) {
+        <button type="button" class="nav prev" (click)="prev()" aria-label="Попереднє фото">‹</button>
+      }
+
+      <figure
+        #frame
+        class="frame"
+        [class.zoomed]="zoomed()"
+        [class.dragging]="dragging()"
+        (click)="onClick($event)"
+        (mousedown)="onMouseDown($event)"
+        (touchstart)="onTouchStart($event)"
+        (touchmove)="onTouchMove($event)"
+        (touchend)="onTouchEnd($event)">
+        <img
+          #image
+          [src]="photo.dataUri"
+          [style.transform]="transform()"
+          [class.smooth]="!dragging()"
+          alt="Фото {{ index() + 1 }}"
+          draggable="false" />
+      </figure>
+
+      @if (total() > 1) {
+        <button type="button" class="nav next" (click)="next()" aria-label="Наступне фото">›</button>
+      }
+    </div>
+
+    <p class="hint" (click)="$event.stopPropagation()">
+      @if (zoomed()) {
+        Тягніть, щоб роздивитись · подвійний тап або клік — зменшити
+      } @else {
+        Подвійний тап, клік або щипок — наблизити
+        @if (total() > 1) { · гортайте свайпом чи стрілками ← → }
+      }
+    </p>
+  }
+
+  @if (total() > 1) {
+    <div class="thumbs" (click)="$event.stopPropagation()">
+      @for (photo of photos(); track photo.photoId; let i = $index) {
+        <button type="button" class="thumb" [class.active]="i === index()" (click)="select(i)">
+          <img
+            [src]="thumb(photo)()?.smallest ?? photo.dataUri"
+            [srcset]="thumb(photo)()?.srcset ?? ''"
+            sizes="58px"
+            alt="Мініатюра {{ i + 1 }}" />
+        </button>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,198 @@
+<app-shell>
+  <header class="head">
+    <div class="head-text">
+      <h1>Моя анкета</h1>
+      <p>Так вас бачать інші — фото лише після взаємної симпатії</p>
+    </div>
+    <a class="edit-btn" routerLink="/profile/edit">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11.2 2.6 13.4 4.8 5.4 12.8H3.2v-2.2z" /></svg>
+      Редагувати
+    </a>
+  </header>
+
+  @if (error()) {
+    <p class="banner banner-error"><span class="banner-icon">✕</span> {{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <section class="card">
+      <div class="skeleton" style="width: 6rem; height: 6rem; border-radius: 16px"></div>
+      <div class="skeleton skeleton-line" style="width: 30%; margin-top: 1rem; height: 1.2rem"></div>
+      <div class="skeleton skeleton-line" style="width: 55%"></div>
+    </section>
+  } @else if (user(); as profile) {
+    <!-- ── Лічильники: усі чотири рахуються з реальних відповідей бекенду ── -->
+    <div class="stats enter">
+      <div class="stat stat-ink">
+        <b>{{ incomingLikes() }}</b>
+        <small>вподобали вас</small>
+      </div>
+      <div class="stat">
+        <b>{{ matches() }}</b>
+        <small>взаємні збіги</small>
+      </div>
+      <div class="stat">
+        <b>{{ photos().length }}<i>/{{ maxPhotos }}</i></b>
+        <small>фотографій</small>
+      </div>
+      <div class="stat stat-accent">
+        <b>{{ completeness() }}%</b>
+        <small>заповненість анкети</small>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="col-main">
+        <section class="card ident-card enter">
+          <div class="ident">
+            @if (mainPhoto(); as photo) {
+              <div class="photo-wrap">
+                <img [src]="photo.dataUri" alt="Ваше головне фото" />
+                <span class="main-mark">ГОЛОВНЕ</span>
+              </div>
+            } @else {
+              <div class="avatar avatar-xl">{{ initial() }}</div>
+            }
+
+            <div class="who">
+              <h2>{{ profile.name }}@if (age() !== empty) {, {{ age() }}}</h2>
+              <p class="meta">{{ profile.city || 'Місто не вказано' }} · {{ profile.email }}</p>
+              <div class="pills">
+                <span class="mini-tag">{{ genderLabel(profile.gender) }}</span>
+                <span class="mini-tag">{{ goalLabel(profile.datingGoal) }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card about-card enter-2">
+          <p class="strip-label">Про себе</p>
+          @if (profile.characterisation) {
+            <p class="about-quote">«{{ profile.characterisation }}»</p>
+          } @else {
+            <p class="muted">
+              Ще нічого не написано. Саме цей текст бачать першим — без нього анкета майже порожня.
+            </p>
+          }
+        </section>
+
+        <section class="card enter-2">
+          <div class="card-head">
+            <p class="strip-label">Фотографії</p>
+            <small class="head-note">{{ photos().length }} з {{ maxPhotos }}</small>
+          </div>
+          <app-photo-gallery
+            [photos]="photos()"
+            emptyText="Фотографій ще немає — додайте їх у редагуванні анкети" />
+        </section>
+
+        <section class="card enter-3">
+          <p class="strip-label">Деталі</p>
+          <dl class="fields">
+            <div><dt>Стать</dt><dd>{{ genderLabel(profile.gender) }}</dd></div>
+            <div><dt>Народження</dt><dd>{{ formatDate(profile.dateOfBirth) }}</dd></div>
+            <div><dt>Освіта</dt><dd>{{ educationLabel(profile.educationLevel) }}</dd></div>
+            <div><dt>Темперамент</dt><dd>{{ temperamentLabel(profile.temperament) }}</dd></div>
+            <div><dt>Діти</dt><dd>{{ childrenLabel(profile.childrenStatus) }}</dd></div>
+            <div><dt>Мета</dt><dd>{{ goalLabel(profile.datingGoal) }}</dd></div>
+          </dl>
+        </section>
+
+        <section class="card danger-card enter-3">
+          <p class="strip-label">Небезпечна зона</p>
+          @if (confirmingDelete()) {
+            <p class="warn">
+              Видалити акаунт назавжди? Зникнуть анкета, фотографії, симпатії, усі чати
+              разом із листуванням. Відновити не вийде — резервних копій немає.
+            </p>
+            <div class="danger-actions">
+              <button type="button" class="btn btn-danger btn-sm" [disabled]="deleting()"
+                      (click)="deleteAccount()">
+                {{ deleting() ? 'Видаляємо…' : 'Так, видалити назавжди' }}
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" [disabled]="deleting()"
+                      (click)="confirmingDelete.set(false)">
+                Скасувати
+              </button>
+            </div>
+          } @else {
+            <p class="muted">
+              Видалення акаунта незворотне. Якщо хочеться просто зробити паузу —
+              достатньо вийти з застосунку, анкета нікуди не подінеться.
+            </p>
+            <button type="button" class="btn btn-outline btn-sm danger-trigger"
+                    (click)="confirmingDelete.set(true)">
+              Видалити акаунт
+            </button>
+          }
+          @if (deleteError(); as message) {
+            <p class="banner banner-error">{{ message }}</p>
+          }
+        </section>
+      </div>
+
+      <aside class="col-side">
+        <section class="card enter-2">
+          <p class="strip-label">Мої інтереси</p>
+          @if (tags().length === 0) {
+            <p class="muted">Теги ще не обрані — саме за ними стрічка підбирає людей.</p>
+            <a class="btn btn-ghost btn-sm btn-block" routerLink="/profile/edit">Обрати інтереси</a>
+          } @else {
+            <ul class="tag-row">
+              @for (tag of tags(); track tag.tagId) {
+                <li class="my-tag">{{ tag.tagName }}</li>
+              }
+            </ul>
+          }
+        </section>
+
+        <section class="card todo-card enter-3">
+          <p class="strip-label">Що додати</p>
+          <ul class="todo-list">
+            @for (todo of todos(); track todo.text) {
+              <li [class.done]="todo.done">
+                <i>
+                  @if (todo.done) {
+                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 8.4 2.6 2.6L12 5.6" /></svg>
+                  }
+                </i>
+                {{ todo.text }}
+              </li>
+            }
+          </ul>
+          <a class="btn btn-ghost btn-sm btn-block" routerLink="/profile/edit">Доповнити анкету</a>
+        </section>
+
+        @if (blocks().length > 0) {
+          <section class="card enter-3">
+            <div class="card-head">
+              <p class="strip-label">Заблоковані</p>
+              <small class="head-note">{{ blocks().length }}</small>
+            </div>
+            <p class="muted small">
+              Ви не бачите одне одного у стрічці, чатах і фото. Це діє в обидва боки.
+            </p>
+            <ul class="block-list">
+              @for (block of blocks(); track block.blockId) {
+                <li>
+                  <div class="block-who">
+                    <b>{{ block.blockedUserName }}</b>
+                    <small>{{ blockedOn(block.createdAt) }}</small>
+                  </div>
+                  <button type="button" class="btn btn-outline btn-sm"
+                          [disabled]="unblocking() !== null"
+                          (click)="unblock(block)">
+                    {{ unblocking() === block.blockedUserId ? 'Знімаємо…' : 'Розблокувати' }}
+                  </button>
+                </li>
+              }
+            </ul>
+            @if (blockError(); as message) {
+              <p class="banner banner-error">{{ message }}</p>
+            }
+          </section>
+        }
+      </aside>
+    </div>
+  }
+</app-shell>
