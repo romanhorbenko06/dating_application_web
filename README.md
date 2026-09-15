@@ -17,10 +17,14 @@
 
 ```bash
 npm install
-npm start
+ng serve
 ```
 
 Застосунок буде на `http://localhost:4200`.
+
+Якщо Angular CLI не встановлений глобально (`npm i -g @angular/cli`), те саме
+робить `npm start` — він бере CLI з `node_modules`, тому працює одразу після
+`npm install`. Команди рівноцінні: `start` у `package.json` викликає саме `ng serve`.
 
 Звертань до `http://localhost:8080` у коді немає: `/api` і `/ws` переадресовує
 дев-сервер за `proxy.conf.json`, тож у розробці немає ні CORS, ні різних адрес
@@ -43,8 +47,11 @@ npm start
 ## Тести
 
 ```bash
-npm test -- --watch=false
+ng test --watch=false
 ```
+
+Без `--watch=false` раннер лишається висіти й перезапускає тести на кожну зміну —
+зручно під час роботи, але не для разового прогону. Через npm: `npm test -- --watch=false`.
 
 Раннер — vitest через `@angular/build:unit-test`. Покриті хелпери форматування,
 розбір помилок API і heartbeat сокета.
@@ -52,7 +59,7 @@ npm test -- --watch=false
 ## Збірка
 
 ```bash
-npm run build
+ng build
 ```
 
 Результат — у `dist/`.
