@@ -1,11 +1,8 @@
-/* Дві панелі: ліворуч — навіщо це, праворуч — сама форма */
 .split {
   display: grid;
   grid-template-columns: 26rem 1fr;
   min-height: 100vh;
 }
-
-/* ── Ліва темна панель ── */
 
 .intro {
   position: relative;
@@ -17,7 +14,6 @@
   overflow: hidden;
 }
 
-/* Рожеве світіння знизу — акцент на темному тлі */
 .intro::after {
   content: '';
   position: absolute;
@@ -102,8 +98,6 @@
   color: #fff;
 }
 
-/* ── Права панель ── */
-
 .form-pane {
   display: flex;
   align-items: center;
@@ -128,7 +122,6 @@
   color: var(--muted);
 }
 
-/* Індикатор кроків — дві смужки */
 .progress {
   display: flex;
   gap: 0.4rem;
@@ -200,8 +193,6 @@ form button {
   }
 }
 
-/* Посилання всередині галочки згоди: підкреслення потрібне, бо колір тут
-   поруч із текстом мітки й сам по собі читається як звичайний акцент. */
 .terms-link {
   color: var(--accent-ink);
   text-decoration: underline;

@@ -25,7 +25,6 @@ import { RequestService } from '../../core/request.service';
 import { TagService } from '../../core/tag.service';
 import { AppShell } from '../../layout/app-shell/app-shell';
 
-/** UC-06 / UC-07 / UC-08: стрічка анкет, лайк і пропуск. */
 @Component({
   selector: 'app-feed',
   imports: [ReactiveFormsModule, RouterLink, AppShell],
@@ -44,35 +43,26 @@ export class Feed implements OnInit {
   readonly goals = DATING_GOAL_OPTIONS;
 
   readonly profile = signal<PublicProfile | null>(null);
-  /** Хто йде за поточною анкетою — смуга «далі у стрічці», разом із часткою збігу. */
   readonly upcoming = signal<{ profile: PublicProfile; percent: number | null }[]>([]);
   readonly tags = signal<TagResponse[]>([]);
-  /** Власні теги — щоб показати, скільки інтересів збігається (саме за цим ранжує бекенд). */
   private myTagIds = signal<Set<number>>(new Set());
 
   readonly loading = signal(true);
   readonly exhausted = signal(false);
   readonly error = signal<string | null>(null);
   readonly notice = signal<string | null>(null);
-  /** Значок біля повідомлення: серце для симпатії, пісочний годинник для черги. */
   readonly noticeIcon = signal('♡');
   readonly busy = signal(false);
 
-  /** Скільки людей чекають на вашу відповідь — показуємо, коли стрічка порожня. */
   readonly incomingCount = signal(0);
-  /** Пропущені анкети з деталями — їх можна переглянути ще раз. */
   readonly skipped = signal<{ profile: PublicProfile; percent: number | null }[]>([]);
   readonly skippedTotal = signal(0);
   readonly filtersOpen = signal(false);
   readonly confirmingBlock = signal(false);
   readonly reporting = signal(false);
-  /** Коротка анімація серця після натискання «Вподобати». */
   readonly burst = signal(false);
 
-  /**
-   * Обгортка з одного елемента: @for із track за userId змушує Angular
-   * пересоздати картку на кожній новій анкеті — інакше анімація появи не повторюється.
-   */
+  /** @for із track за userId пересоздає картку, щоб анімація появи повторювалась. */
   readonly cardList = computed(() => {
     const current = this.profile();
     return current ? [current] : [];
@@ -85,11 +75,7 @@ export class Feed implements OnInit {
 
   readonly myTagCount = computed(() => this.myTagIds().size);
 
-  /**
-   * Показник сумісності. У макеті стояв абстрактний відсоток — тут це
-   * реальна частка ваших інтересів, які збіглися: бекенд ранжує стрічку
-   * саме за кількістю спільних тегів, тож число не вигадане.
-   */
+  /** Частка ваших інтересів, що збіглися: бекенд ранжує стрічку саме за спільними тегами. */
   readonly matchPercent = computed(() => {
     const mine = this.myTagCount();
     if (!mine) return null;
@@ -104,7 +90,6 @@ export class Feed implements OnInit {
     datingGoal: ['' as DatingGoal | ''],
   });
 
-  /** Значення повзунка як сигнал — від нього залежать підпис і заповнений відрізок. */
   private readonly filterValue = toSignal(this.filterForm.valueChanges, {
     initialValue: this.filterForm.getRawValue(),
   });
@@ -112,11 +97,11 @@ export class Feed implements OnInit {
   readonly minAgeValue = computed(() => Number(this.filterValue().minAge ?? 18));
   readonly maxAgeValue = computed(() => Number(this.filterValue().maxAge ?? 120));
 
-  // Доріжка охоплює 18…120 — ті самі межі, що приймає бекенд (@Min 18 / @Max 120)
+  // 18…120 — ті самі межі, що приймає бекенд
   readonly rangeLeft = computed(() => ((this.minAgeValue() - 18) / 102) * 100);
   readonly rangeRight = computed(() => 100 - ((this.maxAgeValue() - 18) / 102) * 100);
 
-  /** Кільце сумісності: довжина кола 157, зміщення — це незаповнена частина. */
+  /** Довжина кола 157, зміщення — незаповнена частина. */
   readonly donutOffset = computed(() => {
     const percent = this.matchPercent() ?? 0;
     return (157.1 * (100 - percent)) / 100;
@@ -179,8 +164,7 @@ export class Feed implements OnInit {
 
     this.requests.send(target.userId).subscribe({
       next: (request) => {
-        // Бекенд одразу перетворює зустрічний лайк на метч і повертає ACCEPTED —
-        // тоді «чекаємо на відповідь» було б неправдою: чат уже існує.
+        // Зустрічний лайк бекенд одразу перетворює на метч.
         const matched = request.status === 'ACCEPTED';
 
         this.noticeIcon.set(matched ? '★' : '♡');
@@ -189,7 +173,6 @@ export class Feed implements OnInit {
             ? `Взаємно: ${target.name}. Чат уже створено`
             : `Симпатію надіслано: ${target.name}. Чекаємо на відповідь`,
         );
-        // Даємо серцю доанімуватись, і лише потім міняємо картку
         setTimeout(() => {
           this.burst.set(false);
           this.loadNext();
@@ -285,11 +268,7 @@ export class Feed implements OnInit {
       });
   }
 
-  /**
-   * Черга анкет. Для кожної рахуємо частку спільних тем — теги доводиться
-   * питати окремо на людину, але їх одиниці, тож це дешевше за окремий ендпоінт.
-   * Смуга другорядна: будь-яка помилка просто ховає її, не ламаючи стрічку.
-   */
+  /** Черга другорядна: будь-яка помилка просто ховає її. */
   private loadUpcoming(): void {
     this.feedService
       .getUpcoming(this.currentFilters(), 5)
@@ -312,7 +291,6 @@ export class Feed implements OnInit {
       .subscribe({ next: (list) => this.upcoming.set(list) });
   }
 
-  /** Частка ваших інтересів, які збіглися. null — коли своїх тегів ще немає. */
   private percentOf(theirTags: TagResponse[]): number | null {
     const mine = this.myTagIds();
     if (mine.size === 0) return null;
@@ -321,27 +299,19 @@ export class Feed implements OnInit {
     return Math.round((shared / mine.size) * 100);
   }
 
-  /**
-   * Черга — лише попередній перегляд. Рішення приймається по поточній анкеті,
-   * інакше можна було б «перестрибнути» порядок, за яким бекенд ранжує стрічку.
-   */
+  /** Лише перегляд: рішення приймається по поточній анкеті, щоб не ламати ранжування. */
   notYet(name: string): void {
     this.noticeIcon.set('⏳');
     this.notice.set(`${name} — далі в черзі. Вподобати чи пропустити можна лише поточну анкету.`);
   }
 
-  /** Кнопка «Оновити»: перечитати поточну анкету й чергу. */
   refresh(): void {
     this.loadNext();
   }
 
-  /** Скільки тем обрано з повного довідника — підказка на порожній стрічці. */
   readonly tagsChosen = computed(() => this.myTagIds().size);
 
-  /**
-   * Дані для порожнього стану. Вантажимо лише тоді, коли стрічка справді
-   * вичерпалась: на звичайному екрані ці запити нікому не потрібні.
-   */
+  /** Вантажимо лише тоді, коли стрічка справді вичерпалась. */
   private loadEmptyState(): void {
     this.requests.incoming().subscribe({
       next: (list) => this.incomingCount.set(list.length),
@@ -380,7 +350,7 @@ export class Feed implements OnInit {
 
     return {
       gender: value.gender || undefined,
-      // 18 і 120 — краї повзунка, тобто «без обмеження»: не шлемо їх у запит
+      // 18 і 120 — «без обмеження», у запит не шлемо
       minAge: Number(value.minAge) > 18 ? Number(value.minAge) : undefined,
       maxAge: Number(value.maxAge) < 120 ? Number(value.maxAge) : undefined,
       city: value.city.trim() || undefined,

@@ -27,7 +27,6 @@ export class Login {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
 
-  /** Інтерсептор кидає сюди з ?expired=1, коли токен перестав діяти. */
   readonly sessionExpired = this.route.snapshot.queryParamMap.get('expired') === '1';
 
   submit(): void {

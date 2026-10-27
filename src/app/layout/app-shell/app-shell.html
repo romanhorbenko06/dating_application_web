@@ -12,8 +12,6 @@
 
     <nav class="side-nav" (click)="menuOpen.set(false)">
       @if (isAdmin()) {
-        <!-- Адміністратор не має анкети й не бере участі в знайомствах, тож
-             стрічка, симпатії, чати та сповіщення для нього порожні за визначенням -->
         <a routerLink="/admin" routerLinkActive="active">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4"/><path d="M6 5h11l-2 3.5L17 12H6"/></svg>
           Модерація

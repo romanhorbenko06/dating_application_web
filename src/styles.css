@@ -1,17 +1,10 @@
-/* ════════════════════════════════════════════════════════════════
-   Znaidy — дизайн-система
-   Структура й компоненти взяті з прототипу, акцент — рожевий.
-   Тут лише глобальне: токени, базові елементи, спільні класи,
-   анімації. Усе, що стосується одного екрана, — у файлі поруч
-   з його компонентом.
-   ════════════════════════════════════════════════════════════════ */
+/* Глобальні стилі: токени, базові елементи, спільні класи. Стилі екранів — поруч із компонентами. */
 
 :root {
-  /* Інтерфейс завжди світлий: браузер не має підмінювати кольори полів
-     і скролбарів під системну темну тему. */
+  /* Інтерфейс завжди світлий, без підміни під системну темну тему */
   color-scheme: light;
 
-  /* Акцент: рожева шкала. soft — для плашок і чипів, ink — текст на soft */
+  /* Акцент: soft — для плашок і чипів, ink — текст на soft */
   --accent: #d6336c;
   --accent-light: #e8608f;
   --accent-strong: #b02455;
@@ -19,7 +12,6 @@
   --accent-ink: #8f2249;
   --accent-text: #ffffff;
 
-  /* Нейтралі теплого бежевого ряду — база макета */
   --bg: #e7e0da;
   --surface: #ffffff;
   --surface-2: #f6f1ed;
@@ -27,16 +19,13 @@
   --muted: #7d726c;
   --faint: #9a8f89;
   --border: #e3d8d2;
-  /* Темна поверхня: секція «як це працює», картки метчів, підказки */
   --ink: #1c1518;
   --ink-2: #2a1d22;
   --on-ink: #f4ece8;
 
-  /* Заголовки — серифні, інтерфейс — гротеск */
   --font-display: 'Playfair Display', Georgia, serif;
   --font-ui: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-  /* Статуси */
   --error: #c0392b;
   --error-bg: #fceaea;
   --error-border: #f2c4c0;
@@ -72,8 +61,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Типографіка ───────────────────────────────────────────── */
-
 h1, h2, h3 {
   margin: 0;
   line-height: 1.2;
@@ -82,7 +69,6 @@ h1, h2, h3 {
   font-weight: 700;
 }
 
-/* Заголовок сторінки — великий серифний, як у макеті */
 .page-title {
   font-family: var(--font-display);
   font-size: 1.85rem;
@@ -96,7 +82,6 @@ h1, h2, h3 {
   margin: 0 0 1.15rem;
 }
 
-/* Дрібний підпис над блоком — як «ПРО СЕБЕ» у прототипі */
 .section-label {
   font-size: 0.66rem;
   font-weight: 700;
@@ -123,8 +108,6 @@ a {
   color: var(--accent);
 }
 
-/* ── Поверхні ──────────────────────────────────────────────── */
-
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -132,7 +115,6 @@ a {
   padding: 1.35rem;
 }
 
-/* Темна картка: метчі, підказки, акцентні блоки */
 .card-ink {
   background: linear-gradient(150deg, var(--ink), var(--ink-2));
   border-color: transparent;
@@ -148,7 +130,6 @@ a {
   padding: 1rem 1.15rem;
 }
 
-/* Картка, що реагує на курсор (анкети, чати, сповіщення) */
 .card-hover {
   transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
 }
@@ -158,8 +139,6 @@ a {
   transform: translateY(-2px);
   border-color: #d9d2cd;
 }
-
-/* ── Кнопки ───────────────────────────────────────────────── */
 
 button {
   font: inherit;
@@ -234,7 +213,6 @@ button {
   width: 100%;
 }
 
-/* Текстова кнопка-посилання */
 .link-btn {
   background: none;
   border: none;
@@ -254,8 +232,6 @@ button {
 .link-btn.danger {
   color: var(--error);
 }
-
-/* ── Форми ────────────────────────────────────────────────── */
 
 .field {
   display: block;
@@ -342,8 +318,6 @@ input[type='checkbox'] {
   margin-top: 0.25rem;
 }
 
-/* ── Чипи й теги ──────────────────────────────────────────── */
-
 .chip {
   display: inline-flex;
   align-items: center;
@@ -372,7 +346,6 @@ input[type='checkbox'] {
   font-weight: 600;
 }
 
-/* Нерухомий тег-мітка (без кліку) */
 .mini-tag {
   display: inline-block;
   padding: 0.22rem 0.7rem;
@@ -384,7 +357,6 @@ input[type='checkbox'] {
   font-weight: 600;
 }
 
-/* Спільний інтерес — заповнений акцентом, решта контурні */
 .mini-tag.shared {
   background: var(--accent);
   border-color: var(--accent);
@@ -400,8 +372,6 @@ input[type='checkbox'] {
   padding: 0;
 }
 
-/* ── Статуси ──────────────────────────────────────────────── */
-
 .status {
   display: inline-block;
   padding: 0.15rem 0.6rem;
@@ -415,8 +385,6 @@ input[type='checkbox'] {
 .status-done { background: var(--ok-bg); color: var(--ok-ink); }
 .status-rejected { background: var(--surface-2); color: var(--muted); }
 .status-blocked { background: var(--error-bg); color: var(--error); }
-
-/* ── Аватар-заглушка ──────────────────────────────────────── */
 
 .avatar {
   display: flex;
@@ -443,8 +411,6 @@ input[type='checkbox'] {
   height: 2.1rem;
   font-size: 0.85rem;
 }
-
-/* ── Банери й повідомлення ────────────────────────────────── */
 
 .banner {
   display: flex;
@@ -493,8 +459,6 @@ input[type='checkbox'] {
   margin-top: 0.1rem;
 }
 
-/* ── Значок-лічильник ─────────────────────────────────────── */
-
 .count-badge {
   display: inline-flex;
   align-items: center;
@@ -509,8 +473,6 @@ input[type='checkbox'] {
   font-weight: 700;
   animation: pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
-/* ── Таблиця (адмінка) ────────────────────────────────────── */
 
 .table-wrap {
   overflow-x: auto;
@@ -550,8 +512,6 @@ input[type='checkbox'] {
 .data-table tbody tr:hover td {
   background: var(--surface-2);
 }
-
-/* ── Модальне вікно ───────────────────────────────────────── */
 
 .modal-overlay {
   position: fixed;
@@ -602,8 +562,6 @@ input[type='checkbox'] {
   font-size: 1.35rem;
 }
 
-/* ── Скелетони ────────────────────────────────────────────── */
-
 .skeleton {
   border-radius: var(--radius-sm);
   background: linear-gradient(90deg, var(--surface-2) 25%, #efeae7 37%, var(--surface-2) 63%);
@@ -616,13 +574,9 @@ input[type='checkbox'] {
   margin-bottom: 0.5rem;
 }
 
-/* ── Порожній стан ────────────────────────────────────────── */
-
 .empty-state {
   text-align: center;
   padding: 2.5rem 1.5rem;
-  /* Порожній стан на всю ширину виглядає як помилка верстки.
-     Вирівнюємо ліворуч — під заголовком секції, а не окремо від нього. */
   max-width: 34rem;
 }
 
@@ -632,8 +586,6 @@ input[type='checkbox'] {
   margin-bottom: 0.6rem;
   animation: float 3.5s ease-in-out infinite;
 }
-
-/* ── Анімації ─────────────────────────────────────────────── */
 
 @keyframes fade-in {
   from { opacity: 0; }
@@ -677,15 +629,12 @@ input[type='checkbox'] {
   100% { box-shadow: 0 0 0 0 rgb(214 51 108 / 0%); }
 }
 
-/* Спільний клас: плавна поява вмісту сторінки */
 .enter {
   animation: fade-in-up 0.32s ease backwards;
 }
 
 .enter-2 { animation: fade-in-up 0.32s 0.05s ease backwards; }
 .enter-3 { animation: fade-in-up 0.32s 0.1s ease backwards; }
-
-/* ── Доступність ──────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -697,17 +646,12 @@ input[type='checkbox'] {
   }
 }
 
-/* ════════════════════════════════════════════════════════════════
-   Адаптивність: глобальні правила
-   Компонентні брейкпоїнти лишаються у файлах поруч із компонентами,
-   тут — те, що стосується базових елементів на всіх сторінках.
-   ════════════════════════════════════════════════════════════════ */
+/* Адаптивність базових елементів */
 
 img {
   max-width: 100%;
 }
 
-/* Планшет і вужче */
 @media (max-width: 48rem) {
   .page-title {
     font-size: 1.1rem;
@@ -727,7 +671,6 @@ img {
   }
 }
 
-/* Телефон: два стовпці в формах перестають вміщатись */
 @media (max-width: 34rem) {
   .field-row {
     grid-template-columns: 1fr;
@@ -751,7 +694,6 @@ img {
     width: 100%;
   }
 
-  /* Кнопки в шапках сторінок на телефоні тягнемо на всю ширину */
   .head-actions,
   .actions {
     width: 100%;
@@ -771,7 +713,7 @@ img {
   }
 }
 
-/* Дуже вузькі екрани (320–360px) */
+/* 320–360px */
 @media (max-width: 22rem) {
   .btn {
     padding: 0.55rem 0.8rem;

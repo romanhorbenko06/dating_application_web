@@ -12,10 +12,8 @@ import {
 } from './models/enums';
 import { UserResponse } from './models/user.models';
 
-/** Прочерк для незаповнених полів — щоб порожнеча в анкеті виглядала однаково всюди. */
 export const EMPTY = '—';
 
-/** Вік у повних роках. Бекенд віддає лише дату народження, вік рахує клієнт. */
 export function ageFrom(dateOfBirth: string | null): number | null {
   if (!dateOfBirth) return null;
 
@@ -25,7 +23,6 @@ export function ageFrom(dateOfBirth: string | null): number | null {
   const now = new Date();
   let age = now.getFullYear() - birth.getFullYear();
 
-  // День народження цього року ще не настав — рік не зараховуємо
   const hadBirthday =
     now.getMonth() > birth.getMonth() ||
     (now.getMonth() === birth.getMonth() && now.getDate() >= birth.getDate());
@@ -44,7 +41,6 @@ export const temperamentLabel = (value: Temperament | null) =>
 export const childrenLabel = (value: ChildrenStatus | null) =>
   value ? CHILDREN_STATUS_LABELS[value] : EMPTY;
 
-/** Дата у звичному вигляді 02.07.1995 замість ISO-рядка з бекенду. */
 export function formatDate(iso: string | null): string {
   if (!iso) return EMPTY;
 
@@ -52,10 +48,7 @@ export function formatDate(iso: string | null): string {
   return Number.isNaN(date.getTime()) ? EMPTY : date.toLocaleDateString('uk-UA');
 }
 
-/**
- * Українська множина: 1 світлину, 2 світлини, 5 світлин.
- * Потрібна в підказках «додати ще N…», де форма слова змінюється з числом.
- */
+/** 1 світлину, 2 світлини, 5 світлин. */
 export function plural(n: number, one: string, few: string, many: string): string {
   const mod10 = n % 10;
   const mod100 = n % 100;
@@ -66,10 +59,7 @@ export function plural(n: number, one: string, few: string, many: string): strin
   return many;
 }
 
-/**
- * «сьогодні», «вчора», «3 дні тому». Рахуємо в КАЛЕНДАРНИХ днях, а не в добах:
- * симпатія, надіслана вчора о 23:00, має лишитися «вчора», а не «сьогодні».
- */
+/** Рахуємо в календарних днях: вчора о 23:00 — це «вчора». */
 export function agoLabel(iso: string | null): string {
   if (!iso) return EMPTY;
 
@@ -85,10 +75,6 @@ export function agoLabel(iso: string | null): string {
   return `${days} ${plural(days, 'день', 'дні', 'днів')} тому`;
 }
 
-/**
- * Заповненість анкети у відсотках. Рахуємо всі поля, які людина може заповнити,
- * плюс наявність фото й тегів — саме цього бракує «порожнім» анкетам у стрічці.
- */
 export function profileCompleteness(
   user: UserResponse | null,
   photoCount: number,

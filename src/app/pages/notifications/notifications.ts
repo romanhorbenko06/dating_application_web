@@ -10,7 +10,6 @@ import { NotificationService } from '../../core/notification.service';
 import { plural } from '../../core/profile-format';
 import { WsService } from '../../core/ws.service';
 
-/** UC-11: центр сповіщень. */
 @Component({
   selector: 'app-notifications',
   imports: [NgTemplateOutlet, RouterLink, AppShell],
@@ -32,10 +31,8 @@ export class Notifications implements OnInit, OnDestroy {
   private wsSub?: Subscription;
   private reconnectSub?: Subscription;
 
-  /** Спільний лічильник із сервісу — той самий, що світиться в бічній панелі. */
   readonly unreadCount = this.service.unreadCount;
 
-  /** Макет ділить стрічку на «сьогодні» й «раніше» — межа по календарному дню. */
   readonly todayItems = computed(() => this.items().filter((item) => this.isToday(item.createdAt)));
   readonly earlierItems = computed(() =>
     this.items().filter((item) => !this.isToday(item.createdAt)),
@@ -54,11 +51,10 @@ export class Notifications implements OnInit, OnDestroy {
     this.reload();
 
     this.ws.connect();
-    // Сповіщення, що прилетіло у відкриту сторінку, має з'явитись без перезавантаження
     this.wsSub = this.ws.events.subscribe((event) => {
       if (event.type === 'NOTIFICATION') this.reload();
     });
-    // Сповіщення, що прийшли під час обриву, інакше з'явилися б лише після F5
+    // Сповіщення, що прийшли під час обриву
     this.reconnectSub = this.ws.reconnected.subscribe(() => this.reload());
   }
 
@@ -98,13 +94,16 @@ export class Notifications implements OnInit, OnDestroy {
     });
   }
 
-  /** Іконка типу — щоб список читався одним поглядом. */
   icon(item: NotificationResponse): string {
     switch (item.type) {
       case 'NEW_LIKE':
         return '♡';
       case 'NEW_MATCH':
         return '✦';
+      case 'ISLAND_INVITE':
+      case 'ISLAND_UPDATE':
+      case 'ISLAND_COMPLETED':
+        return '🏝';
       default:
         return '✉';
     }
@@ -114,7 +113,6 @@ export class Notifications implements OnInit, OnDestroy {
     return name.charAt(0).toUpperCase();
   }
 
-  /** Текст під тип події. NEW_MESSAGE згорнутий, тому показуємо кількість. */
   text(item: NotificationResponse): string {
     switch (item.type) {
       case 'NEW_LIKE':
@@ -127,29 +125,42 @@ export class Notifications implements OnInit, OnDestroy {
           ? `${item.actorName}: ${count} нових повідомлень`
           : `${item.actorName} надіслав(-ла) повідомлення`;
       }
+      case 'ISLAND_INVITE':
+        return `${item.actorName} запрошує на «Острів на двох»`;
+      case 'ISLAND_UPDATE':
+        return `${item.actorName} зробив(-ла) хід в «Острові на двох»`;
+      case 'ISLAND_COMPLETED':
+        return `Острів готовий: ${item.actorName} погодив(-ла) спільний список`;
       default:
         return item.type;
     }
   }
 
-  /**
-   * Другий рядок картки. Тексту самого повідомлення бекенд у сповіщенні не віддає,
-   * тож для NEW_MESSAGE пишемо, куди веде картка, а не вигаданий уривок.
-   */
+  /** Тексту повідомлення бекенд у сповіщенні не віддає. */
   hint(item: NotificationResponse): string {
     switch (item.type) {
       case 'NEW_MATCH':
         return 'Фото розблоковано, чат створено';
       case 'NEW_LIKE':
         return 'Відповідайте, щоб відкрити фото';
+      case 'ISLAND_INVITE':
+        return 'Міні-гра на 3–4 хвилини';
+      case 'ISLAND_UPDATE':
+        return 'Ваш черговий крок';
+      case 'ISLAND_COMPLETED':
+        return 'Картка закріплена в чаті';
       default:
         return 'Перейти до листування';
     }
   }
 
-  /** Куди вести з картки: у чат, якщо він уже є, інакше — у симпатії чи на анкету. */
   link(item: NotificationResponse): unknown[] {
-    if (item.chatId != null) return ['/chats', item.chatId];
+    if (item.chatId != null) {
+      if (item.type === 'ISLAND_INVITE' || item.type === 'ISLAND_UPDATE') {
+        return ['/chats', item.chatId, 'island'];
+      }
+      return ['/chats', item.chatId];
+    }
     return item.type === 'NEW_LIKE' ? ['/likes'] : ['/users', item.actorId];
   }
 

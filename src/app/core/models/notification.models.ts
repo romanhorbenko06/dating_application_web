@@ -1,13 +1,12 @@
-/** Типи подій центру сповіщень (FR-19). Фронт малює текст і посилання за цим полем. */
-export type NotificationType = 'NEW_LIKE' | 'NEW_MATCH' | 'NEW_MESSAGE';
+export type NotificationType =
+  | 'NEW_LIKE'
+  | 'NEW_MATCH'
+  | 'NEW_MESSAGE'
+  | 'ISLAND_INVITE'
+  | 'ISLAND_UPDATE'
+  | 'ISLAND_COMPLETED';
 
-/**
- * Запис у центрі сповіщень.
- *
- * `chatId` порожній для NEW_LIKE — чату ще немає, він з'являється лише на метчі.
- * `messageCount` заповнений для NEW_MESSAGE: бекенд ЗГОРТАЄ повідомлення з одного
- * чату в один запис і рахує їх, замість плодити десятки рядків.
- */
+/** chatId порожній для NEW_LIKE; messageCount — скільки повідомлень згорнуто для NEW_MESSAGE. */
 export interface NotificationResponse {
   notificationId: number;
   type: NotificationType;

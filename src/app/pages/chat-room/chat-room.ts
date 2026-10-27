@@ -18,15 +18,14 @@ import { ProfileService } from '../../core/profile.service';
 import { TagService } from '../../core/tag.service';
 import { PhotoVariants, ThumbnailService } from '../../core/thumbnail.service';
 import { WsService } from '../../core/ws.service';
+import { IslandCard } from '../../components/island-card/island-card';
 import { AppShell } from '../../layout/app-shell/app-shell';
 
-/** Скільки спільних тем показує бічна панель; решта ховається за лічильником. */
 const SIDE_TAGS_LIMIT = 6;
 
-/** UC-10: сама переписка — історія, надсилання, редагування, видалення, real-time. */
 @Component({
   selector: 'app-chat-room',
-  imports: [ReactiveFormsModule, RouterLink, AppShell],
+  imports: [ReactiveFormsModule, RouterLink, AppShell, IslandCard],
   templateUrl: './chat-room.html',
   styleUrl: './chat-room.css',
 })
@@ -48,9 +47,8 @@ export class ChatRoom implements OnInit, OnDestroy {
   readonly chatId = Number(this.route.snapshot.paramMap.get('id'));
 
   readonly chat = signal<ChatResponse | null>(null);
-  /** Анкета співрозмовника — для бічної панелі: місто, мета, вік. */
   readonly companion = signal<PublicProfile | null>(null);
-  /** Фото відкриті: у чаті ми вже за визначенням у взаємній симпатії. */
+  /** У чаті ми вже у взаємній симпатії, тож фото відкриті. */
   readonly companionPhotos = signal<PhotoContent[]>([]);
   readonly companionTags = signal<TagResponse[]>([]);
   private myTagIds = signal<Set<number>>(new Set());
@@ -60,10 +58,6 @@ export class ChatRoom implements OnInit, OnDestroy {
     return this.companionTags().filter((tag) => mine.has(tag.tagId));
   });
 
-  /**
-   * У панелі показуємо лише перші кілька тем: повний перелік однаково є в анкеті,
-   * а довгий список забирав би висоту саме там, де вона потрібна блоку дій.
-   */
   readonly visibleSharedTags = computed(() => this.sharedTags().slice(0, SIDE_TAGS_LIMIT));
   readonly hiddenSharedTagCount = computed(() =>
     Math.max(0, this.sharedTags().length - SIDE_TAGS_LIMIT),
@@ -82,7 +76,7 @@ export class ChatRoom implements OnInit, OnDestroy {
 
   readonly editingId = signal<number | null>(null);
 
-  /** Пошук працює по вже завантажених повідомленнях — окремого ендпоінта немає. */
+  /** Пошук по завантажених повідомленнях — окремого ендпоінта немає. */
   readonly searching = signal(false);
   readonly searchQuery = signal('');
 
@@ -119,7 +113,6 @@ export class ChatRoom implements OnInit, OnDestroy {
     return chat.user1Id === this.myId() ? chat.user2Id : chat.user1Id;
   });
 
-  /** Вік беремо з чату — бекенд віддає його разом зі списком учасників. */
   readonly companionAge = computed(() => {
     const chat = this.chat();
     if (!chat) return null;
@@ -132,17 +125,14 @@ export class ChatRoom implements OnInit, OnDestroy {
     return chat.user1Id === this.myId() ? chat.user2City : chat.user1City;
   });
 
-  /** Частка ВАШИХ тем, що збіглися; null — коли своїх тегів ще немає. */
   readonly matchPercent = computed(() => {
     const mine = this.myTagIds().size;
     if (!mine) return null;
     return Math.round((this.sharedTags().length / mine) * 100);
   });
 
-  /** Довжина кола радіуса 25 — 157.1; зміщення показує незаповнену частину. */
   readonly donutOffset = computed(() => (157.1 * (100 - (this.matchPercent() ?? 0))) / 100);
 
-  /** Головне фото співрозмовника — обличчя бічної панелі. */
   readonly mainPhoto = computed(
     () => this.companionPhotos().find((photo) => photo.isMain) ?? this.companionPhotos()[0] ?? null,
   );
@@ -204,12 +194,10 @@ export class ChatRoom implements OnInit, OnDestroy {
       : date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
   }
 
-  /** Мініатюри в бічній панелі — до 160px, повний знімок їм ні до чого. */
   variants(photo: PhotoContent): Signal<PhotoVariants | null> {
     return this.thumbnails.variants(photo, [160, 320]);
   }
 
-  /** Роздільник дня ставимо там, де дата змінилася — і завжди перед першим. */
   startsNewDay(index: number): boolean {
     const list = this.visibleMessages();
     if (index === 0) return true;
@@ -269,7 +257,6 @@ export class ChatRoom implements OnInit, OnDestroy {
 
     this.loadingOlder.set(true);
 
-    // Курсор — messageId, а не час: id унікальний, тож сторінки не злипаються
     this.chatService.getMessages(this.chatId, oldest.messageId).subscribe({
       next: (older) => {
         this.messages.update((list) => [...older, ...list]);
@@ -307,7 +294,6 @@ export class ChatRoom implements OnInit, OnDestroy {
 
   remove(message: MessageResponse): void {
     this.chatService.remove(message.messageId).subscribe({
-      // Видалення м'яке: у відповідь те саме повідомлення з isDeleted = true
       next: (updated) => this.upsert(updated),
       error: (err) => this.error.set(messageOf(err, 'Не вдалося видалити повідомлення.')),
     });
@@ -338,7 +324,6 @@ export class ChatRoom implements OnInit, OnDestroy {
 
     this.busy.set(true);
     this.moderation.blockUser(id).subscribe({
-      // Чат зникає для обох — лишатись на його сторінці більше немає сенсу
       next: () => this.router.navigate(['/chats']),
       error: (err) => {
         this.error.set(messageOf(err, 'Не вдалося заблокувати користувача.'));
@@ -348,14 +333,13 @@ export class ChatRoom implements OnInit, OnDestroy {
   }
 
   private handleEvent(event: WsEvent): void {
-    // Сокет спільний на весь застосунок — чужі чати відсіюємо
+    // Сокет спільний — чужі чати відсіюємо
     if (event.payload.chatId !== this.chatId) return;
 
     switch (event.type) {
       case 'NEW_MESSAGE':
         this.upsert(event.payload);
         this.scrollToBottomSoon();
-        // Прийшло від співрозмовника й вікно відкрите — одразу позначаємо прочитаним
         if (event.payload.senderId !== this.myId()) this.markRead();
         break;
 
@@ -365,11 +349,9 @@ export class ChatRoom implements OnInit, OnDestroy {
         break;
 
       case 'NOTIFICATION':
-        // Центр сповіщень (UC-11) — не справа вікна чату
         break;
 
       case 'READ_RECEIPT': {
-        // Квитанція від співрозмовника: мої повідомлення стали прочитаними
         if (event.payload.readerId === this.myId()) return;
         const ids = new Set(event.payload.messageIds);
         this.messages.update((list) =>
@@ -380,7 +362,6 @@ export class ChatRoom implements OnInit, OnDestroy {
     }
   }
 
-  /** Додає нове або замінює наявне повідомлення, тримаючи порядок за messageId. */
   private upsert(message: MessageResponse): void {
     this.messages.update((list) => {
       const index = list.findIndex((m) => m.messageId === message.messageId);
@@ -393,10 +374,7 @@ export class ChatRoom implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Бічна панель другорядна й не має блокувати відкриття чату,
-   * тому анкету, теги й фото вантажимо окремо від переписки.
-   */
+  /** Бічна панель не має блокувати відкриття чату, тож вантажимо її окремо. */
   private loadCompanion(): void {
     const id = this.companionId();
     if (id === null) return;
@@ -418,11 +396,7 @@ export class ChatRoom implements OnInit, OnDestroy {
     return iso.slice(0, 10);
   }
 
-  /**
-   * Після перепідключення: свіжа сторінка історії поверх наявної.
-   * upsert зливає її з уже завантаженим, тож давніші сторінки, які
-   * користувач догортав, лишаються на місці.
-   */
+  /** Після перепідключення: свіжа сторінка поверх наявної, догорнуте лишається. */
   private resync(): void {
     this.chatService.getMessages(this.chatId).subscribe({
       next: (messages) => {
@@ -437,7 +411,6 @@ export class ChatRoom implements OnInit, OnDestroy {
     this.chatService.markRead(this.chatId).subscribe({ error: () => {} });
   }
 
-  /** Прокрутка після того, як Angular перемалює список. */
   private scrollToBottomSoon(): void {
     setTimeout(() => {
       const element = this.scroller()?.nativeElement;

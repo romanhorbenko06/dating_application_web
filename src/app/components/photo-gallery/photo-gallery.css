@@ -22,7 +22,6 @@
   box-shadow: var(--shadow-lift);
 }
 
-/* Головне фото ширше — саме його бачать першим після метчу */
 .tile.main {
   grid-column: span 2;
   aspect-ratio: 4 / 3;
@@ -49,7 +48,6 @@ img {
   font-weight: 700;
 }
 
-/* Значок збільшення проявляється під курсором — підказує, що фото клікабельне */
 .zoom {
   position: absolute;
   top: 0.4rem;

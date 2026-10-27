@@ -6,21 +6,13 @@ import { WsEvent } from './models/chat.models';
 
 export type WsStatus = 'closed' | 'connecting' | 'open';
 
-/**
- * Живе з'єднання з бекендом (raw WebSocket, не STOMP).
- *
- * Токен передається ТІЛЬКИ query-параметром: WebSocket-рукостискання не носить
- * заголовок Authorization, тому інтерсептор тут не допомагає. Бекенд читає
- * його в JwtHandshakeInterceptor і при невдачі віддає 401 ще до відкриття сокета.
- */
+/** Raw WebSocket до бекенду. Токен лише в query: рукостискання не носить Authorization. */
 @Injectable({ providedIn: 'root' })
 export class WsService {
   private auth = inject(AuthService);
 
-  /** Наш ping. Той самий інтервал, що й у сервера, — 25 с. */
   private static readonly PING_INTERVAL_MS = 25_000;
 
-  /** Скільки чекати на PONG після пробудження вкладки, перш ніж рвати сокет. */
   private static readonly PROBE_TIMEOUT_MS = 5_000;
 
   private static readonly PING_FRAME = '{"type":"PING"}';
@@ -32,46 +24,34 @@ export class WsService {
   private pingTimer: ReturnType<typeof setInterval> | null = null;
   private probeTimer: ReturnType<typeof setTimeout> | null = null;
   private attempt = 0;
-  /** Розрізняє «сокет закрився сам» і «ми закрили навмисно» (logout). */
   private wanted = false;
-  /** Попередній ping лишився без відповіді. */
   private awaitingPong = false;
-  /** З'єднання вже падало — наступне відкриття буде ПЕРЕпідключенням. */
   private dropped = false;
 
   readonly status = signal<WsStatus>('closed');
 
   constructor() {
-    // Токен зник (вихід або 401 в інтерсепторі) — рвемо сокет самі.
-    // Інакше вже відкрите з'єднання жило б далі, хоча користувач уже розлогінений.
+    // Токен зник — рвемо сокет, щоб розлогінений не отримував пуші.
     effect(() => {
       if (!this.auth.token()) this.disconnect();
     });
 
-    // Ноутбук прокинувся або повернувся Wi-Fi — сокет може бути «зомбі»:
-    // TCP обірвано, а onclose браузер так і не покликав. Перевіряємо одразу,
-    // не чекаючи ні чергового такту heartbeat, ні паузи backoff.
+    // Після сну чи зміни мережі сокет може бути «зомбі», тож перевіряємо одразу.
     window.addEventListener('online', () => this.wake());
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') this.wake();
     });
   }
 
-  /** Потік подій. Компоненти фільтрують його за своїм chatId. */
   get events(): Observable<WsEvent> {
     return this.events$.asObservable();
   }
 
-  /**
-   * Емітить після ПЕРЕпідключення (не після першого відкриття).
-   * Поки сокета не було, пуші губилися безслідно — бекенд їх не накопичує,
-   * тож сторінки мають перезапитати те, що могли пропустити.
-   */
+  /** Емітить після перепідключення: пропущені пуші бекенд не накопичує, сторінки мають перечитати дані. */
   get reconnected(): Observable<void> {
     return this.reconnected$.asObservable();
   }
 
-  /** Безпечно викликати скільки завгодно разів — друге з'єднання не відкриється. */
   connect(): void {
     const token = this.auth.token();
     if (!token || this.socket) return;
@@ -95,17 +75,14 @@ export class WsService {
     };
 
     socket.onmessage = (event) => {
-      // Будь-який кадр — доказ, що канал живий
       this.awaitingPong = false;
 
       try {
         const parsed = JSON.parse(event.data as string) as { type?: string };
-        // Службова відповідь на наш ping: до подій застосунку не має стосунку
         if (parsed.type === 'PONG') return;
 
         this.events$.next(parsed as WsEvent);
       } catch {
-        // Побитий кадр не має валити з'єднання — просто ігноруємо
       }
     };
 
@@ -120,11 +97,10 @@ export class WsService {
       }
     };
 
-    // onerror завжди супроводжується onclose — перепідключення робимо там
+    // onerror завжди супроводжується onclose — перепідключення там
     socket.onerror = () => socket.close();
   }
 
-  /** Викликається при виході: інакше сокет жив би до кінця дії токена. */
   disconnect(): void {
     this.wanted = false;
     this.dropped = false;
@@ -137,12 +113,7 @@ export class WsService {
     this.status.set('closed');
   }
 
-  /**
-   * Власний ping потрібен саме на клієнті: ping-фрейми сервера браузер
-   * обробляє сам і в JS їх не видно. Без цього запиту вкладка не відрізнить
-   * тишу «новин немає» від обірваного каналу — а мовчазний обрив (сон
-   * ноутбука, зміна мережі) може не дійти до onclose ніколи.
-   */
+  /** Свій ping, бо ping-фрейми сервера в JS не видно, а мовчазний обрив може не дійти до onclose. */
   private startHeartbeat(): void {
     this.stopHeartbeat();
     this.awaitingPong = false;
@@ -153,9 +124,7 @@ export class WsService {
     const socket = this.socket;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-    // Рахуємо саме такти, а не час за годинником: у фоновій вкладці таймери
-    // приспані, і «давно нічого не приходило» там нічого не означає. А от
-    // ping без відповіді до НАСТУПНОГО такту — це вже мертвий канал.
+    // Рахуємо такти, а не час: у фоновій вкладці таймери приспані.
     if (this.awaitingPong) {
       this.dropZombie();
       return;
@@ -178,12 +147,10 @@ export class WsService {
     this.awaitingPong = false;
   }
 
-  /** Повернення вкладки або мережі: перевіряємо канал негайно. */
   private wake(): void {
     if (!this.wanted) return;
 
     if (!this.socket) {
-      // Не чекаємо на решту паузи backoff — користувач уже дивиться на екран
       this.clearTimer();
       this.attempt = 0;
       this.connect();
@@ -206,11 +173,7 @@ export class WsService {
     }, WsService.PROBE_TIMEOUT_MS);
   }
 
-  /**
-   * Сокет вважається відкритим, а насправді мертвий. Знімаємо обробники й
-   * плануємо перепідключення САМІ: onclose від такого сокета може не прийти
-   * взагалі, і тоді покладатися на нього означало б зависнути назавжди.
-   */
+  /** Мертвий сокет: перепідключаємось самі, бо onclose може не прийти. */
   private dropZombie(): void {
     const socket = this.socket;
     if (!socket) return;
@@ -227,24 +190,19 @@ export class WsService {
     try {
       socket.close();
     } catch {
-      // сокет уже й так непридатний
     }
 
-    // Це обрив, а не відмова сервера — пробуємо швидко, з першої сходинки
     this.attempt = 0;
     this.scheduleReconnect();
   }
 
-  /**
-   * Перепідключення з наростанням паузи: 1, 2, 4, 8 с і далі не частіше ніж раз на 15 с.
-   * Без обмеження зверху вкладка в фоні довбала б сервер щосекунди.
-   */
+  /** Backoff 1, 2, 4, 8 с, далі не частіше ніж раз на 15 с. */
   private scheduleReconnect(): void {
     if (!this.auth.token()) return;
 
     this.clearTimer();
     const base = Math.min(1000 * 2 ** this.attempt, 15000);
-    // Розкид ±20%: після перезапуску сервера всі вкладки інакше стукають в одну мить
+    // Розкид ±20%, щоб після рестарту сервера вкладки не стукали одночасно
     const delay = Math.round(base * (0.8 + Math.random() * 0.4));
     this.attempt++;
 

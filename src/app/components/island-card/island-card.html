@@ -1,0 +1,107 @@
+@if (loaded() && visible()) {
+<div class="wrap">
+  @if (error()) {
+    <p class="isl-error">{{ error() }}</p>
+  }
+
+  @switch (game()?.status) {
+    @case ('COMPLETED') {
+      @if (game(); as g) {
+        <div class="pinned">
+          <small class="pin-label">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 10v3.4M4.6 6.6h6.8l-1 3.4H5.6z" /><path d="M6 6.6V3.2h4v3.4" /></svg>
+            Закріплено в чаті
+          </small>
+          <a class="island-ink" [routerLink]="['/chats', chatId(), 'island']">
+            <span class="glow" aria-hidden="true"></span>
+            <span class="ink-body">
+              <span class="eyebrow">Наш острів</span>
+              <b class="island-name">«{{ g.islandName }}»</b>
+              @if (g.pairCard; as card) {
+                <span class="pair-style">
+                  <b [class.rare]="card.rare">{{ card.styleTitle }}</b>
+                  @if (card.signatureTitle) {
+                    <small>· {{ card.signatureTitle }}</small>
+                  }
+                </span>
+              }
+              <span class="chips">
+                @for (code of g.finalItems ?? []; track code) {
+                  <span class="isl-chip">{{ title(code) }}</span>
+                }
+              </span>
+            </span>
+            <span class="mini-tiles" aria-hidden="true">
+              @for (code of g.finalItems ?? []; track code) {
+                <i [style.background]="tile(code)"></i>
+              }
+            </span>
+          </a>
+        </div>
+      }
+    }
+
+    @case ('INVITED') {
+      @if (invitedMe()) {
+        <div class="invite-ink" [class.compact]="!emptyChat()">
+          <span class="glow" aria-hidden="true"></span>
+          <div class="ink-body center">
+            <span class="pill">Міні-гра · 3–4 хвилини</span>
+            <h3>{{ companionName() }} запрошує на «Острів на двох»</h3>
+            @if (emptyChat()) {
+              <p>Яхта потрапила в шторм. Хвиля викинула на берег 12 предметів. Вам двом треба
+                вижити — але спершу з'ясуємо, чи зможете ви домовитись.</p>
+            }
+            <div class="ink-actions">
+              <button type="button" class="ink-primary" [disabled]="busy()" (click)="accept()">Зіграти разом</button>
+              <button type="button" class="ink-ghost" [disabled]="busy()" (click)="decline()">Не зараз</button>
+            </div>
+            <small class="ink-hint">Чат від вашої відповіді не зміниться</small>
+          </div>
+        </div>
+      } @else {
+        <div class="strip">
+          <span class="strip-ico" aria-hidden="true">🏝</span>
+          <span class="strip-text"><b>Запрошення надіслано</b><small>{{ companionName() }} ще думає над запрошенням</small></span>
+        </div>
+      }
+    }
+
+    @default {
+      @if (inProgress()) {
+        <a class="strip" [class.my-move]="myMove()" [routerLink]="['/chats', chatId(), 'island']">
+          <span class="strip-ico" aria-hidden="true">🏝</span>
+          <span class="strip-text"><b>Острів на двох</b><small>{{ progressText() }}</small></span>
+          <span class="strip-cta">{{ myMove() ? 'Ваш хід' : 'Переглянути' }}</span>
+        </a>
+      } @else if (mayInvite()) {
+        @if (emptyChat()) {
+          <div class="invite-ink">
+            <span class="glow" aria-hidden="true"></span>
+            <div class="ink-body center">
+              <span class="pill">Міні-гра · 3–4 хвилини</span>
+              <h3>Острів на двох</h3>
+              <p>Замість «привіт, як справи» — спільна пригода. Яхта потрапила в шторм, на берег
+                викинуло 12 предметів. Подивимось, чи зможете ви домовитись.</p>
+              <div class="ink-actions">
+                <button type="button" class="ink-primary" [disabled]="busy()" (click)="invite()">Запросити на гру</button>
+              </div>
+              <small class="ink-hint">Гра стартує, коли погодяться обоє · писати можна будь-коли</small>
+            </div>
+          </div>
+        } @else {
+          <div class="strip">
+            <span class="strip-ico" aria-hidden="true">🏝</span>
+            <span class="strip-text">
+              <b>Острів на двох</b>
+              <small>{{ game()?.status === 'EXPIRED' ? 'Минула партія згоріла — можна спробувати ще' : 'Міні-гра на 3–4 хвилини — привід для розмови' }}</small>
+            </span>
+            <button type="button" class="strip-cta btn-like" [disabled]="busy()" (click)="invite()">Запросити</button>
+          </div>
+        }
+      }
+      <!-- Відмова для того, хто запрошував, свідомо нічого не показує -->
+    }
+  }
+</div>
+}

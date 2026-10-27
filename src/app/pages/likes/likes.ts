@@ -15,21 +15,14 @@ import { TagService } from '../../core/tag.service';
 import { WsService } from '../../core/ws.service';
 import { AppShell } from '../../layout/app-shell/app-shell';
 
-/** Результат щойно прийнятої симпатії — показуємо банер «Взаємно». */
 interface MatchInfo {
   userId: number;
   name: string;
   chatId: number;
 }
 
-/**
- * Скільки карток «чекають відповіді» показує БІЧНА панель. Решта ховається за
- * лічильником: панель вузька й фіксованої ширини, і два десятки карток розтягували б
- * її на кілька екранів, відсуваючи все інше вниз.
- */
 const SIDE_WAITING_LIMIT = 4;
 
-/** UC-09: хто вподобав вас і кого вподобали ви. */
 @Component({
   selector: 'app-likes',
   imports: [RouterLink, AppShell],
@@ -57,7 +50,6 @@ export class Likes implements OnInit, OnDestroy {
   readonly busyId = signal<number | null>(null);
   readonly match = signal<MatchInfo | null>(null);
 
-  /** Власні показники для блоку «що підвищує шанси» на порожньому екрані. */
   readonly myPhotoCount = signal(0);
   readonly myTagCount = signal(0);
   readonly tagTotal = signal(0);
@@ -69,11 +61,7 @@ export class Likes implements OnInit, OnDestroy {
     profileCompleteness(this.auth.currentUser(), this.myPhotoCount(), this.myTagCount()),
   );
 
-  /**
-   * Взаємні збіги беремо з ЧАТІВ, а не зі списку надісланих: чат створюється
-   * рівно в момент метчу, незалежно від того, хто кого вподобав першим.
-   * Симпатії, прийняті самим користувачем, у /requests/sent не потрапляють узагалі.
-   */
+  /** Взаємні збіги беремо з чатів: прийняті самим користувачем симпатії в /requests/sent не потрапляють. */
   readonly matched = computed(() =>
     this.chats().map((chat) => {
       const iAmFirst = chat.user1Id === this.myId();
@@ -118,14 +106,13 @@ export class Likes implements OnInit, OnDestroy {
     this.load();
 
     this.ws.connect();
-    // Поки сторінка відкрита, симпатію могли прийняти з іншого пристрою — і людина,
-    // з якою вже є чат, висіла б у списку до перезавантаження вручну.
+    // Симпатію могли прийняти з іншого пристрою
     this.wsSub = this.ws.events.subscribe((event) => {
       if (event.type === 'NOTIFICATION' && event.payload.type === 'NEW_MATCH') {
         this.load(false);
       }
     });
-    // Під час обриву події губляться безслідно — після повернення перечитуємо список
+    // Під час обриву події губляться — після повернення перечитуємо
     this.reconnectSub = this.ws.reconnected.subscribe(() => this.load(false));
   }
 
@@ -146,7 +133,6 @@ export class Likes implements OnInit, OnDestroy {
 
     this.requests.accept(request.requestId).subscribe({
       next: (response) => {
-        // Саме тут виникає метч: створено чат, фотографії відкрились обом
         this.match.set({
           userId: request.fromUserId,
           name: request.fromUserName,
@@ -181,10 +167,6 @@ export class Likes implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Сумісність — частка ВАШИХ тем, що збіглися. Спільні теми рахує бекенд,
-   * тут лишається поділити на свої; без власних тегів відсоток безглуздий.
-   */
   private percentOf(shared: number): number | null {
     const mine = this.myTagCount();
     return mine ? Math.round((shared / mine) * 100) : null;
@@ -211,8 +193,7 @@ export class Likes implements OnInit, OnDestroy {
         this.tagTotal.set(allTags.length);
         this.loading.set(false);
 
-        // Другим кроком, бо власний id стає відомий лише з /users/me.
-        // Лише метадані: для лічильника «N з 6» пікселі тягнути ні до чого
+        // Лише метадані: для лічильника «N з 6» пікселі не потрібні
         this.photoService
           .getPhotos(me.userId)
           .pipe(catchError(() => of([])))

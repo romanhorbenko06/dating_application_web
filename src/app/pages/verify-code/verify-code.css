@@ -4,7 +4,6 @@
   font-weight: 700;
 }
 
-/* Шість окремих клітинок — код видно як у листі */
 .code-row {
   display: flex;
   gap: 0.5rem;

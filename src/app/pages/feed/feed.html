@@ -62,7 +62,6 @@
           </div>
         </article>
       } @else if (exhausted()) {
-      <!-- Стрічку вичерпано: пояснюємо чому й даємо шляхи побачити більше -->
       <section class="done-hero enter">
       <span class="done-glow" aria-hidden="true"></span>
       <div class="done-inner">
@@ -153,7 +152,6 @@
         @for (candidate of cardList(); track candidate.userId) {
           <article class="card candidate enter">
             <div class="candidate-top">
-              <!-- Фото до взаємної симпатії не існує навіть на рівні API -->
               <div class="photo-pane">
                 <div class="pane-veil">
                   <span class="lock-circle">
@@ -225,7 +223,6 @@
               </div>
             </div>
 
-            <!-- Нижня смуга: рішення по центру, другорядні дії — рядком нижче праворуч -->
             <div class="actions-bar">
               <div class="decision-row">
                 <button type="button" class="act-btn skip" [disabled]="busy()" (click)="skip()">
@@ -300,7 +297,6 @@
 
           <div class="mini-field age-field">
             <span class="age-label">Вік <b>{{ minAgeValue() }} — {{ maxAgeValue() }}</b></span>
-            <!-- Два повзунки поверх спільної доріжки: заповнений відрізок рахується з їхніх значень -->
             <div class="range">
               <span class="track"></span>
               <span class="fill" [style.left.%]="rangeLeft()" [style.right.%]="rangeRight()"></span>

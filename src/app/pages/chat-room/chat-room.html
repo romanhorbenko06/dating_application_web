@@ -50,6 +50,11 @@
         <p class="banner banner-error"><span class="banner-icon">✕</span> {{ error() }}</p>
       }
 
+      @if (!loading()) {
+        <app-island-card [chatId]="chatId" [myId]="myId()" [companionName]="companionName()"
+                         [emptyChat]="messages().length === 0" />
+      }
+
       @if (loading()) {
         <div class="messages">
           <div class="skeleton" style="width: 55%; height: 2.6rem; border-radius: 16px"></div>
@@ -67,7 +72,7 @@
             <div class="blank">
               <span class="blank-icon">✨</span>
               <b>Повідомлень ще немає</b>
-              <small>Напишіть перший — ви вже сподобались одне одному.</small>
+              <small>Напишіть перший або запросіть на гру — ви вже сподобались одне одному.</small>
             </div>
           } @else if (visibleMessages().length === 0) {
             <p class="day">Нічого не знайдено</p>
@@ -137,7 +142,6 @@
       }
     </section>
 
-    <!-- ── Права колонка: хто по той бік ── -->
     <aside class="side" [class.acting]="reporting() || confirmingBlock()">
       <section class="card person-card">
         <div class="ava-wrap">

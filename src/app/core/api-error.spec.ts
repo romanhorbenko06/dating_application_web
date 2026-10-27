@@ -2,11 +2,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { fieldErrorsOf, messageOf, retryAfterOf } from './api-error';
 
-/**
- * Розбір помилок бекенду. Саме тут вирішується, що побачить людина замість
- * англомовної відповіді сервера, тож помилка цього модуля виглядає як
- * «застосунок пише незрозуміле», а не як збій.
- */
 describe('api-error', () => {
   const error = (status: number, body: unknown) =>
     new HttpErrorResponse({ status, error: body });

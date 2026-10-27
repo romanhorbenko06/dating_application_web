@@ -1,9 +1,5 @@
 import { EMPTY, ageFrom, agoLabel, formatDate, genderLabel, plural } from './profile-format';
 
-/**
- * Чисті функції форматування. Тестуються без Angular: ні DOM, ні сервісів тут
- * немає, тож і піднімати TestBed немає сенсу.
- */
 describe('profile-format', () => {
   describe('plural — українська множина', () => {
     it('обирає форму за останньою цифрою, а не за самим числом', () => {
@@ -31,11 +27,7 @@ describe('profile-format', () => {
   });
 
   describe('ageFrom — вік у повних роках', () => {
-    /**
-     * Дата рядком БЕЗ toISOString: той переводить локальний час у UTC і в
-     * додатних часових поясах зсуває день назад — тест ловив би не вік,
-     * а зсув часових поясів.
-     */
+    /** Без toISOString: він зсуває день у додатних часових поясах. */
     const localIso = (d: Date) =>
       `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 

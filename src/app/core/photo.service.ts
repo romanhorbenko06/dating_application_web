@@ -8,29 +8,22 @@ import { PhotoContent, PhotoResponse } from './models/photo.models';
 export class PhotoService {
   private http = inject(HttpClient);
 
-  /** Ліміт бекенду (app.photos.max-per-user) — дублюємо, щоб не давати натиснути дарма. */
+  /** Дублює ліміт бекенду. */
   static readonly MAX_PHOTOS = 6;
 
-  /** Формати, які бекенд уміє декодувати. WEBP свідомо не підтримується. */
+  /** WEBP бекенд не декодує. */
   static readonly ACCEPTED_TYPES = 'image/jpeg,image/png,image/gif,image/bmp';
 
-  /** Лише метадані — коли потрібна кількість фото, а не самі пікселі. */
   getPhotos(userId: number): Observable<PhotoResponse[]> {
     return this.http.get<PhotoResponse[]>(`/api/photos/user/${userId}`);
   }
 
-  /**
-   * Фото з вмістом. Для чужого користувача бекенд віддасть порожній список
-   * без метчу — це не помилка, а сама суть механіки «фото після взаємного лайку».
-   */
+  /** Без метчу бекенд віддає порожній список — це не помилка. */
   getPhotoContents(userId: number): Observable<PhotoContent[]> {
     return this.http.get<PhotoContent[]>(`/api/photos/user/${userId}/content`);
   }
 
-  /**
-   * multipart-завантаження. Content-Type НЕ виставляємо руками: браузер має сам
-   * додати boundary, інакше Spring не розбере частини запиту.
-   */
+  /** Content-Type не виставляємо: браузер сам додає boundary. */
   upload(file: File, isMain = false): Observable<PhotoResponse> {
     const form = new FormData();
     form.append('file', file);

@@ -24,7 +24,6 @@
       </div>
     </div>
   } @else if (rows().length > 0) {
-    <!-- ══ Є діалоги ══ -->
     <header class="head">
       <div class="head-text">
         <h1>Чати</h1>
@@ -100,7 +99,6 @@
                 } @else if (!row.last) {
                   <span class="pill pill-start">Почати</span>
                 } @else if (showTicks(row)) {
-                  <!-- Останнє слово за нами: галочка показує, чи його прочитали -->
                   <svg class="ticks" [class.read]="isRead(row)" viewBox="0 0 16 16" aria-hidden="true">
                     @if (isRead(row)) {
                       <path d="m2.4 8.4 2.4 2.4 4.4-5.2M7.2 10.8l.6.6 4.4-5.2" />
@@ -167,7 +165,7 @@
           @if (focusTags().length > 0) {
             <section class="card topics-card">
               <p class="strip-label">Про що поговорити</p>
-              <!-- Ім'я через крапку, а не «з Марією»: відмінювати імена на клієнті нема чим -->
+              <!-- Ім'я через крапку: відмінювати імена на клієнті нема чим -->
               <p class="topics-lead">Спільні теми · {{ focus.companionName }}</p>
               <div class="topics">
                 @for (tag of focusTags(); track tag.tagId) {
@@ -181,7 +179,6 @@
     </div>
 
   } @else {
-    <!-- ══ Діалогів немає ══ -->
     <header class="head">
       <div class="head-text">
         <h1>Чати</h1>

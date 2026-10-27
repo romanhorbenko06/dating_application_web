@@ -1,7 +1,4 @@
-/**
- * Копії enum-ів бекенду (com.example.dating_application.Entity).
- * Значення мають збігатися СИМВОЛ У СИМВОЛ — бекенд віддає 400 на невідоме значення.
- */
+/** Копії enum-ів бекенду: значення мають збігатися символ у символ. */
 
 export type Gender =
   | 'MALE'
@@ -35,7 +32,6 @@ export type DatingGoal =
 
 export type Role = 'DATER' | 'ADMIN';
 
-/** Підписи для випадних списків. Ключ — значення для API, значення — те, що бачить людина. */
 export const GENDER_LABELS: Record<Gender, string> = {
   MALE: 'Чоловік',
   FEMALE: 'Жінка',
@@ -68,11 +64,8 @@ export const DATING_GOAL_LABELS: Record<DatingGoal, string> = {
   PREFER_NOT_TO_SAY: 'Волію не вказувати',
 };
 
-/** Готові масиви для *@for* у шаблонах селектів. */
 export const GENDER_OPTIONS = Object.entries(GENDER_LABELS) as [Gender, string][];
 export const DATING_GOAL_OPTIONS = Object.entries(DATING_GOAL_LABELS) as [DatingGoal, string][];
-
-/** Необов'язкові поля анкети (FR-8.5 … FR-8.7). null = «не вказано». */
 
 export type EducationLevel =
   | 'SECONDARY'
@@ -90,7 +83,6 @@ export type Temperament =
   | 'MELANCHOLIC'
   | 'PREFER_NOT_TO_SAY';
 
-/** Значення поєднують «чи є діти» і «чи хоче далі» — бекенд свідомо звів це в один список. */
 export type ChildrenStatus =
   | 'NO_CHILDREN_WANT_SOMEDAY'
   | 'NO_CHILDREN_DONT_WANT'

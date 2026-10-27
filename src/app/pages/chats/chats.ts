@@ -15,23 +15,19 @@ import { TagService } from '../../core/tag.service';
 import { WsService } from '../../core/ws.service';
 import { AppShell } from '../../layout/app-shell/app-shell';
 
-/** Рядок списку: чат разом з останнім повідомленням для прев'ю. */
 interface ChatRow {
   chat: ChatResponse;
   companionId: number;
   companionName: string;
   last: MessageResponse | null;
-  /** Скільки повідомлень співрозмовника ще не прочитано на завантаженій сторінці. */
   unreadCount: number;
 }
 
-/** Вкладки над списком. «Нові збіги» — чати, у яких ще нема жодного повідомлення. */
+/** «Нові збіги» — чати без жодного повідомлення. */
 type ChatFilter = 'all' | 'unread' | 'fresh';
 
-/** Скільки карток показує блок «Нові збіги без розмови». */
 const FRESH_PREVIEW_LIMIT = 4;
 
-/** UC-10, частина перша: список діалогів. */
 @Component({
   selector: 'app-chats',
   imports: [RouterLink, AppShell],
@@ -50,7 +46,6 @@ export class Chats implements OnInit, OnDestroy {
   readonly error = signal<string | null>(null);
   readonly search = signal('');
 
-  /** Вхідні симпатії — потрібні лише порожньому екрану, тому вантажимо їх окремо. */
   readonly incoming = signal<RequestResponse[]>([]);
   private myTagCount = signal(0);
   private myTagIds = signal<Set<number>>(new Set());
@@ -58,12 +53,10 @@ export class Chats implements OnInit, OnDestroy {
   readonly filter = signal<ChatFilter>('all');
   readonly markingAll = signal(false);
 
-  /** Сторінка списку чатів; догортані сторінки лишаються на екрані. */
   private page = 0;
   readonly hasMore = signal(false);
   readonly loadingMore = signal(false);
 
-  /** Спільні теми зі співрозмовником, який зараз у фокусі бічної панелі. */
   readonly focusTags = signal<TagResponse[]>([]);
   private focusTagsFor: number | null = null;
 
@@ -72,7 +65,6 @@ export class Chats implements OnInit, OnDestroy {
   private reconnectSub?: Subscription;
 
   readonly unreadRows = computed(() => this.rows().filter((row) => row.unreadCount > 0));
-  /** Метч є, розмови ще немає — саме тут найчастіше потрібен поштовх. */
   readonly freshRows = computed(() => this.rows().filter((row) => !row.last));
 
   readonly visibleRows = computed(() => {
@@ -87,7 +79,6 @@ export class Chats implements OnInit, OnDestroy {
 
     if (!query) return byFilter;
 
-    // Шукаємо і за іменем, і за текстом останнього повідомлення — саме його видно в рядку
     return byFilter.filter(
       (row) =>
         row.companionName.toLowerCase().includes(query) ||
@@ -95,10 +86,8 @@ export class Chats implements OnInit, OnDestroy {
     );
   });
 
-  /** Кого показує темна картка вгорі панелі: остання розмова, що чекає відповіді. */
   readonly waitingRow = computed(() => this.unreadRows()[0] ?? null);
 
-  /** Чиї теми показує блок «Про що поговорити»: той, хто чекає, інакше — свіжий метч. */
   readonly focusRow = computed(() => this.waitingRow() ?? this.freshRows()[0] ?? null);
 
   readonly freshPreview = computed(() => this.freshRows().slice(0, FRESH_PREVIEW_LIMIT));
@@ -107,7 +96,6 @@ export class Chats implements OnInit, OnDestroy {
     this.rows().reduce((sum, row) => sum + row.unreadCount, 0),
   );
 
-  /** Підпис під заголовком: «3 діалоги · 1 непрочитане повідомлення». */
   readonly summary = computed(() => {
     const chats = this.rows().length;
     if (chats === 0) return 'Поки що жодного діалогу';
@@ -121,7 +109,6 @@ export class Chats implements OnInit, OnDestroy {
     return `${chatsPart} · ${unreadPart}`;
   });
 
-  /** Картки вхідних симпатій у бічній панелі порожнього екрана. */
   readonly waitingCards = computed(() =>
     this.incoming().map((request) => ({
       userId: request.fromUserId,
@@ -137,11 +124,10 @@ export class Chats implements OnInit, OnDestroy {
     this.load();
 
     this.ws.connect();
-    // Нове повідомлення має одразу підняти прев'ю в списку
     this.wsSub = this.ws.events.subscribe((event) => {
       if (event.type === 'NEW_MESSAGE') this.applyIncoming(event.payload);
     });
-    // Обрив з'єднання лишає список застарілим — перечитуємо його після повернення
+    // Після обриву з'єднання список міг застаріти
     this.reconnectSub = this.ws.reconnected.subscribe(() => this.load());
   }
 
@@ -158,10 +144,7 @@ export class Chats implements OnInit, OnDestroy {
     this.filter.set(value);
   }
 
-  /**
-   * Позначає прочитаними всі діалоги одразу. Окремого ендпоінта для цього немає,
-   * тож шлемо по запиту на чат — їх одиниці, і кожен ідемпотентний.
-   */
+  /** Окремого ендпоінта немає, тож шлемо ідемпотентний запит на кожен чат. */
   markAllRead(): void {
     const unread = this.unreadRows();
     if (unread.length === 0 || this.markingAll()) return;
@@ -181,22 +164,17 @@ export class Chats implements OnInit, OnDestroy {
     });
   }
 
-  /** Відсоток збігу тем — та сама формула, що на сторінці симпатій. */
   percent(row: ChatRow): number | null {
     const mine = this.myTagCount();
     return mine ? Math.round((row.chat.sharedTagCount / mine) * 100) : null;
   }
 
-  /**
-   * Колір плитки-аватара виводимо з id: та сама людина завжди має той самий
-   * відтінок, і список не зливається в однакову масу.
-   */
+  /** Колір аватара з id, щоб та сама людина мала той самий відтінок. */
   avatarStyle(userId: number): string {
     const hue = (userId * 47) % 360;
     return `linear-gradient(150deg, hsl(${hue} 45% 82%), hsl(${hue} 30% 55%))`;
   }
 
-  /** «чекає з 14:32» — час останнього повідомлення того, хто чекає відповіді. */
   waitingSince(): string {
     const row = this.waitingRow();
     return row ? this.when(row) : '';
@@ -214,7 +192,6 @@ export class Chats implements OnInit, OnDestroy {
     return (mine ? 'Ви: ' : '') + (row.last.content ?? '');
   }
 
-  /** Останнє слово за нами й воно вже прочитане — показуємо подвійну галочку. */
   showTicks(row: ChatRow): boolean {
     return !!row.last && row.last.senderId === this.myId() && !row.last.isDeleted;
   }
@@ -241,11 +218,7 @@ export class Chats implements OnInit, OnDestroy {
     return date.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' });
   }
 
-  /**
-   * Наступна сторінка чатів. Дублі відсіюємо навмисно: між запитами до когось
-   * могло прийти повідомлення, чат піднявся вгору — і та сама розмова прийшла б
-   * і на першій сторінці, і на другій.
-   */
+  /** Дублі відсіюємо: чат із новим повідомленням міг піднятися на попередню сторінку. */
   loadMore(): void {
     if (this.loadingMore() || !this.hasMore()) return;
 
@@ -283,7 +256,6 @@ export class Chats implements OnInit, OnDestroy {
       .pipe(
         switchMap((me) => {
           this.myId.set(me.userId);
-          // Свої теги потрібні кожному рядку: відсоток збігу рахується від них
           return forkJoin({
             chats: this.chatService.getChats(),
             myTags: this.tagService.getMy().pipe(catchError(() => of([] as TagResponse[]))),
@@ -301,7 +273,6 @@ export class Chats implements OnInit, OnDestroy {
           this.hasMore.set(rows.length >= ChatService.CHATS_PAGE_SIZE);
           this.loading.set(false);
           this.refreshFocusTags();
-          // Порожній екран пояснює, звідки беруться чати, — і показує, хто вже чекає
           if (rows.length === 0) this.loadWaiting();
         },
         error: (err) => {
@@ -318,10 +289,7 @@ export class Chats implements OnInit, OnDestroy {
       .subscribe((incoming) => this.incoming.set(incoming));
   }
 
-  /**
-   * Спільні теми для блоку «Про що поговорити». Запит точковий і лише про одну
-   * людину — ту, що у фокусі: список тем чату бекенд не віддає, тільки їхню кількість.
-   */
+  /** Бекенд віддає лише кількість спільних тем, тож теми беремо точковим запитом для людини у фокусі. */
   private refreshFocusTags(): void {
     const row = this.focusRow();
     if (!row) {
@@ -336,7 +304,7 @@ export class Chats implements OnInit, OnDestroy {
       .getForUser(row.companionId)
       .pipe(catchError(() => of([] as TagResponse[])))
       .subscribe((tags) => {
-        // Поки летів запит, фокус міг перемкнутись на іншу людину
+        // Поки летів запит, фокус міг перемкнутись
         if (this.focusTagsFor !== row.companionId) return;
 
         const mine = this.myTagIds();
@@ -344,10 +312,7 @@ export class Chats implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Прев'ю останнього повідомлення бекенд у списку чатів не віддає,
-   * тому доганяємо його точковим запитом на кожен чат (їх одиниці).
-   */
+  /** Прев'ю бекенд у списку не віддає, тож доганяємо його запитом на кожен чат. */
   private withPreviews(chats: ChatResponse[]): Observable<ChatRow[]> {
     if (chats.length === 0) return of([]);
 
@@ -369,7 +334,6 @@ export class Chats implements OnInit, OnDestroy {
       companionId: iAmFirst ? chat.user2Id : chat.user1Id,
       companionName: iAmFirst ? chat.user2Name : chat.user1Name,
       last: messages.at(-1) ?? null,
-      // Рахуємо по завантаженій сторінці (до 50 останніх) — окремого лічильника бекенд не має
       unreadCount: messages.filter((m) => m.senderId !== this.myId() && !m.isRead).length,
     };
   }
@@ -390,11 +354,9 @@ export class Chats implements OnInit, OnDestroy {
       ),
     );
 
-    // Нове повідомлення могло змінити, хто саме чекає на відповідь
     this.refreshFocusTags();
   }
 
-  /** Найсвіжіші розмови зверху; чати без повідомлень — у кінці. */
   private sortRows(rows: ChatRow[]): ChatRow[] {
     return [...rows].sort((a, b) => {
       if (!a.last && !b.last) return 0;

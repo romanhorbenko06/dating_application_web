@@ -5,11 +5,7 @@ import { AuthService } from '../../core/auth.service';
 import { NotificationService } from '../../core/notification.service';
 import { WsService } from '../../core/ws.service';
 
-/**
- * Каркас закритої частини: бічна панель + область вмісту.
- * Тут же живе єдине WebSocket-з'єднання й лічильник непрочитаних —
- * панель присутня на кожному екрані, тож це найприродніше місце.
- */
+/** Каркас закритої частини; тут же єдине WebSocket-з'єднання й лічильник непрочитаних. */
 @Component({
   selector: 'app-shell',
   imports: [RouterLink, RouterLinkActive],
@@ -22,10 +18,6 @@ export class AppShell implements OnInit {
   private ws = inject(WsService);
   private router = inject(Router);
 
-  /**
-   * Сторінки-«робочі столи» (переписка) просять більше ширини: на широкому екрані
-   * звичайна стеля контенту лишає по краях порожнечу, якої переписці бракує.
-   */
   readonly wide = input(false);
 
   readonly unreadCount = this.notifications.unreadCount;
@@ -34,17 +26,14 @@ export class AppShell implements OnInit {
 
   readonly initial = computed(() => this.user()?.name.charAt(0).toUpperCase() ?? '');
 
-  /** На вузькому екрані панель ховається й відкривається кнопкою. */
   readonly menuOpen = signal(false);
 
   ngOnInit(): void {
-    // Адміністратор не має ні чатів, ні сповіщень — сокет і лічильник йому ні до чого
     if (!this.isAdmin()) {
       this.ws.connect();
       this.notifications.refreshUnread();
     }
 
-    // Ім'я для картки внизу панелі; на більшості екранів воно вже завантажене
     if (!this.user()) this.auth.loadCurrentUser().subscribe({ error: () => {} });
   }
 

@@ -28,17 +28,13 @@ import { PhotoVariants, ThumbnailService } from '../../core/thumbnail.service';
 import { PhotoLightbox } from '../../components/photo-lightbox/photo-lightbox';
 import { AppShell } from '../../layout/app-shell/app-shell';
 
-/**
- * Заготовки першого повідомлення. Підставляється РЕАЛЬНИЙ спільний тег —
- * жодних вигаданих фактів про людину тут немає.
- */
+/** Заготовки першого повідомлення з реальним спільним тегом. */
 const STARTERS = [
   'З чого почалася твоя любов до теми {}?',
   'Що цікавого в темі {} трапилося останнім часом?',
   'Порадиш щось у темі {}?',
 ];
 
-/** UC-07: детальний перегляд чужої анкети. */
 @Component({
   selector: 'app-profile-view',
   imports: [ReactiveFormsModule, RouterLink, AppShell, PhotoLightbox],
@@ -64,7 +60,7 @@ export class ProfileView implements OnInit {
   readonly photos = signal<PhotoContent[]>([]);
   readonly tags = signal<TagResponse[]>([]);
   private myTagIds = signal<Set<number>>(new Set());
-  /** Чат існує лише після метчу — отже, він же і є ознакою взаємності. */
+  /** Чат існує лише після метчу, тож він і є ознакою взаємності. */
   readonly chatId = signal<number | null>(null);
 
   readonly loading = signal(true);
@@ -74,17 +70,11 @@ export class ProfileView implements OnInit {
   readonly reporting = signal(false);
   readonly confirmingBlock = signal(false);
 
-  /** Наявність фото = доступ відкрито. */
   readonly unlocked = computed(() => this.photos().length > 0);
 
-  /** Адміністратор дивиться анкети для модерації, а не для знайомств. */
   readonly isAdmin = this.auth.isAdmin;
 
-  /**
-   * Саме ВЗАЄМНІСТЬ, а не просто доступ до фото. Бекенд відкриває світлини
-   * адміністраторові теж (PhotoService.canViewPhotos), тож без цієї перевірки
-   * модератор бачив би банер «взаємний збіг» на кожній чужій анкеті.
-   */
+  /** Саме взаємність: фото бекенд відкриває й адміністраторові. */
   readonly matched = computed(() => this.unlocked() && !this.isAdmin());
 
   readonly sharedTags = computed(() => {
@@ -100,41 +90,32 @@ export class ProfileView implements OnInit {
     this.photos().filter((photo) => photo.photoId !== this.mainPhoto()?.photoId),
   );
 
-  /** Порядок для перегляду: головне фото першим, далі решта. */
   readonly orderedPhotos = computed(() => {
     const main = this.mainPhoto();
     return main ? [main, ...this.restPhotos()] : this.restPhotos();
   });
 
-  /** Індекс відкритого фото; null — перегляд закритий. */
   readonly lightboxIndex = signal<number | null>(null);
 
-  /** Наш профіль — щоб порівняти мету, дітей і місто. */
   readonly me = this.auth.currentUser;
 
   readonly myTagCount = computed(() => this.myTagIds().size);
 
-  /** Частка ваших інтересів, що збіглися; null — коли своїх тегів ще немає. */
   readonly matchPercent = computed(() => {
     const mine = this.myTagCount();
     if (!mine) return null;
     return Math.round((this.sharedTags().length / mine) * 100);
   });
 
-  /** Довжина кола радіуса 25 — 157.1; зміщення показує незаповнену частину. */
   readonly donutOffset = computed(() => (157.1 * (100 - (this.matchPercent() ?? 0))) / 100);
 
-  /** Теми для першого повідомлення — рівно зі спільних тегів, до трьох штук. */
   readonly starters = computed(() =>
     this.sharedTags()
       .slice(0, 3)
       .map((tag, i) => STARTERS[i % STARTERS.length].replace('{}', tag.tagName)),
   );
 
-  /**
-   * Що спільного — лише те, що справді можна порівняти за наявними полями.
-   * Ніяких вигаданих збігів на кшталт «активності» чи «онлайн».
-   */
+  /** Лише те, що справді можна порівняти за наявними полями. */
   readonly commonalities = computed(() => {
     const them = this.profile();
     const me = this.me();
@@ -159,10 +140,9 @@ export class ProfileView implements OnInit {
     return items;
   });
 
-  /** Кількість фото людини — бекенд віддає її і до взаємної симпатії. */
+  /** Бекенд віддає кількість і до взаємної симпатії. */
   readonly photoCount = computed(() => this.profile()?.photoCount ?? 0);
 
-  /** Розмиті плитки під закритим фото: показуємо стільки, скільки фото насправді є. */
   readonly lockedTiles = computed(() =>
     Array.from({ length: Math.min(this.photoCount(), 4) }, (_, i) => i),
   );
@@ -181,7 +161,7 @@ export class ProfileView implements OnInit {
   ngOnInit(): void {
     forkJoin({
       profile: this.profileService.getById(this.userId),
-      // Другорядні дані не мають ламати сторінку — на помилці підставляємо порожнє
+      // Другорядні дані не мають ламати сторінку
       photos: this.photoService.getPhotoContents(this.userId).pipe(catchError(() => of([]))),
       tags: this.tagService.getForUser(this.userId).pipe(catchError(() => of([]))),
       myTags: this.tagService.getMy().pipe(catchError(() => of([]))),
@@ -206,7 +186,6 @@ export class ProfileView implements OnInit {
     });
   }
 
-  /** Дрібні знімки під головним фото — беруть зменшений варіант. */
   variants(photo: PhotoContent): Signal<PhotoVariants | null> {
     return this.thumbnails.variants(photo, [160, 320]);
   }
@@ -220,7 +199,6 @@ export class ProfileView implements OnInit {
     return this.profile()?.name.charAt(0).toUpperCase() ?? '?';
   }
 
-  /** Друга плитка в банері метчу — це ми самі. */
   myInitial(): string {
     return this.me()?.name.charAt(0).toUpperCase() ?? '?';
   }
@@ -229,7 +207,6 @@ export class ProfileView implements OnInit {
     return this.myTagIds().has(tag.tagId);
   }
 
-  /** Пропустити просто зі сторінки анкети — той самий ендпоінт, що у стрічці. */
   skip(): void {
     const target = this.profile();
     if (!target || this.busy()) return;
@@ -252,7 +229,7 @@ export class ProfileView implements OnInit {
     this.requests.send(target.userId).subscribe({
       next: (request) => {
         if (request.status === 'ACCEPTED') {
-          // Людина вподобала нас раніше — лайк одразу став метчем, і фото вже відкриті
+          // Людина вподобала нас раніше — лайк одразу став метчем
           this.notice.set('Взаємно! Чат створено, а фото щойно відкрилися');
           this.photoService
             .getPhotoContents(this.userId)

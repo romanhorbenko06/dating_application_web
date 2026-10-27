@@ -30,16 +30,13 @@ import { TagService } from '../../core/tag.service';
 import { UserService } from '../../core/user.service';
 import { WsService } from '../../core/ws.service';
 
-/** Пункт списку «що додати»: виконане лишається в списку, але викресленим. */
 interface Todo {
   text: string;
   done: boolean;
 }
 
-/** Скільки тегів вважаємо достатнім, щоб стрічці було за чим ранжувати. */
 const ENOUGH_TAGS = 5;
 
-/** UC-04: перегляд власної анкети. */
 @Component({
   selector: 'app-profile',
   imports: [RouterLink, PhotoGallery, AppShell],
@@ -68,9 +65,8 @@ export class Profile implements OnInit, OnDestroy {
 
   readonly maxPhotos = PhotoService.MAX_PHOTOS;
 
-  /** Кого я заблокував. Єдине місце в застосунку, звідки блокування можна зняти. */
+  /** Єдине місце, звідки блокування можна зняти. */
   readonly blocks = signal<BlockResponse[]>([]);
-  /** id того, кого саме зараз розблоковуємо — щоб підсвітити лише його кнопку. */
   readonly unblocking = signal<number | null>(null);
   readonly blockError = signal<string | null>(null);
 
@@ -78,16 +74,11 @@ export class Profile implements OnInit, OnDestroy {
   readonly deleting = signal(false);
   readonly deleteError = signal<string | null>(null);
 
-  /**
-   * Скільки людей вподобали анкету за весь час. Саме накопичувально, як і сусідні
-   * «взаємні збіги»: показник «скільки ЧЕКАЄ відповіді» обнулявся б щоразу, коли
-   * користувач розбирає симпатії, і плитка виглядала б зламаною.
-   */
+  /** Накопичувально, інакше плитка обнулялась би після розбору симпатій. */
   readonly incomingLikes = signal(0);
-  /** Взаємні збіги = чати: чат створюється саме в момент метчу. */
+  /** Чат створюється саме в момент метчу. */
   readonly matches = signal(0);
 
-  // Шаблонні хелпери — форматування живе в одному місці й перевикористовується стрічкою
   readonly empty = EMPTY;
   readonly genderLabel = genderLabel;
   readonly goalLabel = goalLabel;
@@ -96,12 +87,10 @@ export class Profile implements OnInit, OnDestroy {
   readonly childrenLabel = childrenLabel;
   readonly formatDate = formatDate;
 
-  /** Заповненість анкети — та сама формула, що й у підказках на сторінці симпатій. */
   readonly completeness = computed(() =>
     profileCompleteness(this.user(), this.photos().length, this.tags().length),
   );
 
-  /** Підказки «що додати» — усі до одної рахуються з реальних даних анкети. */
   readonly todos = computed<Todo[]>(() => {
     const photosLeft = this.maxPhotos - this.photos().length;
     const tagsLeft = ENOUGH_TAGS - this.tags().length;
@@ -132,20 +121,17 @@ export class Profile implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.ws.connect();
 
-    // Лічильники «вподобали вас» і «взаємні збіги» — це живі числа: поки анкета
-    // відкрита, симпатія може прийти або стати взаємною. Без цього вони показували
-    // б стан на момент завантаження сторінки й розходилися з розділом «Симпатії».
+    // Лічильники живі: поки анкета відкрита, симпатія може прийти або стати взаємною.
     this.wsSub = this.ws.events.subscribe((event) => {
       if (event.type !== 'NOTIFICATION') return;
       if (event.payload.type === 'NEW_LIKE' || event.payload.type === 'NEW_MATCH') {
         this.refreshCounters();
       }
     });
-    // Під час обриву події губляться — після повернення перечитуємо числа
+    // Під час обриву події губляться — після повернення перечитуємо
     this.reconnectSub = this.ws.reconnected.subscribe(() => this.refreshCounters());
 
-    // Спершу профіль: id потрібен, щоб запитати фото. Далі решта паралельно.
-    // Лічильники другорядні — їхня помилка не має ламати анкету, тож гасимо її.
+    // Лічильники другорядні — їхня помилка не має ламати анкету
     this.auth
       .loadCurrentUser()
       .pipe(
@@ -189,7 +175,6 @@ export class Profile implements OnInit, OnDestroy {
     this.reconnectSub?.unsubscribe();
   }
 
-  /** Перечитує лише лічильники — анкету, фото й теги чіпати не треба. */
   private refreshCounters(): void {
     forkJoin({
       likeCount: this.requests.incomingCount().pipe(catchError(() => of(0))),
@@ -200,12 +185,10 @@ export class Profile implements OnInit, OnDestroy {
     });
   }
 
-  /** Фото, яке інші побачать першим після метчу. */
   mainPhoto() {
     return this.photos().find((photo) => photo.isMain) ?? this.photos()[0] ?? null;
   }
 
-  /** Дата блокування — для розуміння «коли я це зробив», час тут зайвий. */
   blockedOn(iso: string): string {
     return formatDate(iso);
   }
@@ -228,10 +211,7 @@ export class Profile implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Видалення власного акаунта. Токен гасимо локально, а не через /logout:
-   * користувача вже немає в базі, і запит на вихід дав би помилку на порожньому місці.
-   */
+  /** Токен гасимо локально: користувача вже немає, і /logout дав би помилку. */
   deleteAccount(): void {
     const userId = this.user()?.userId;
     if (!userId || this.deleting()) return;

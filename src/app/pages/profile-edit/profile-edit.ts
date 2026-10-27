@@ -27,10 +27,9 @@ import { AppShell } from '../../layout/app-shell/app-shell';
 import { ageFrom, childrenLabel, educationLabel, genderLabel, goalLabel, temperamentLabel } from '../../core/profile-format';
 import { adultValidator } from '../../core/validators';
 
-/** Ліміт multipart-запиту на бекенді (spring.servlet.multipart.max-file-size). */
+/** Ліміт multipart на бекенді. */
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 
-/** UC-05: редагування анкети, фотографій та інтересів. */
 @Component({
   selector: 'app-profile-edit',
   imports: [ReactiveFormsModule, RouterLink, AppShell],
@@ -60,7 +59,7 @@ export class ProfileEdit implements OnInit {
     characterisation: ['', [Validators.maxLength(1000)]],
     city: ['', [Validators.maxLength(100)]],
     datingGoal: ['' as DatingGoal | '', [Validators.required]],
-    // Необов'язкові: порожній рядок означає «не вказано» і піде на бекенд як null
+    // Порожній рядок піде на бекенд як null
     educationLevel: ['' as EducationLevel | ''],
     temperament: ['' as Temperament | ''],
     childrenStatus: ['' as ChildrenStatus | ''],
@@ -77,7 +76,6 @@ export class ProfileEdit implements OnInit {
   readonly photoError = signal<string | null>(null);
   readonly canAddPhoto = computed(() => this.photos().length < this.maxPhotos);
 
-  /** Головне фото — його ж, розмите, показує блок «так вас бачать у стрічці». */
   readonly mainPhoto = computed(
     () => this.photos().find((photo) => photo.isMain) ?? this.photos()[0] ?? null,
   );
@@ -87,7 +85,6 @@ export class ProfileEdit implements OnInit {
   readonly tagSearch = signal('');
   readonly tagError = signal<string | null>(null);
 
-  /** Довідник мінус уже обрані, звужений пошуком; показуємо не більше 40 за раз. */
   readonly availableTags = computed(() => {
     const chosen = new Set(this.myTags().map((tag) => tag.tagId));
     const query = this.tagSearch().trim().toLowerCase();
@@ -98,10 +95,6 @@ export class ProfileEdit implements OnInit {
       .slice(0, 40);
   });
 
-  /**
-   * Значення форми як сигнал — на ньому тримається блок «Попередній вигляд»,
-   * що оновлюється з кожним натисканням клавіші.
-   */
   readonly preview = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
 
   readonly previewAge = computed(() => {
@@ -111,7 +104,6 @@ export class ProfileEdit implements OnInit {
 
   readonly previewInitial = computed(() => (this.preview().name || '?').charAt(0).toUpperCase());
 
-  /** Скільки тегів узагалі є в довіднику — підпис до пошуку рахуємо, а не вписуємо. */
   readonly tagTotal = computed(() => this.allTags().length);
 
   readonly genderLabel = genderLabel;
@@ -147,7 +139,6 @@ export class ProfileEdit implements OnInit {
         this.myTags.set(myTags);
         this.loading.set(false);
 
-        // Фото окремим запитом: для нього потрібен id, який щойно приїхав
         this.reloadPhotos();
       },
       error: (err) => {
@@ -173,7 +164,7 @@ export class ProfileEdit implements OnInit {
         name: value.name,
         gender: value.gender as Gender,
         dateOfBirth: value.dateOfBirth,
-        // PUT замінює анкету цілком, тож порожні поля свідомо надсилаємо як null
+        // PUT замінює анкету цілком, тож порожні поля надсилаємо як null
         characterisation: value.characterisation || null,
         city: value.city || null,
         datingGoal: value.datingGoal as DatingGoal,
@@ -194,14 +185,12 @@ export class ProfileEdit implements OnInit {
       });
   }
 
-  // --- Фотографії ---
-
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
 
-    // Скидаємо одразу: інакше повторний вибір того самого файлу не викличе подію
+    // Скидаємо, інакше повторний вибір того самого файлу не викличе подію
     input.value = '';
     this.photoError.set(null);
 
@@ -215,7 +204,6 @@ export class ProfileEdit implements OnInit {
     }
 
     this.photoBusy.set(true);
-    // Перше фото робимо головним автоматично — інакше в стрічці нічого показати
     const isMain = this.photos().length === 0;
 
     this.photoService.upload(file, isMain).subscribe({
@@ -269,15 +257,13 @@ export class ProfileEdit implements OnInit {
     });
   }
 
-  // --- Теги ---
-
   onTagSearch(event: Event): void {
     this.tagSearch.set((event.target as HTMLInputElement).value);
   }
 
   addTag(tag: TagResponse): void {
     this.tagError.set(null);
-    // Оптимістично: список перемальовується одразу, при помилці відкочуємо
+    // Оптимістично, при помилці відкочуємо
     this.myTags.update((tags) => [...tags, tag]);
 
     this.tagService.add(tag.tagId).subscribe({

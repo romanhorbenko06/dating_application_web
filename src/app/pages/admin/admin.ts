@@ -10,7 +10,6 @@ import { AppShell } from '../../layout/app-shell/app-shell';
 
 type Tab = 'complaints' | 'blocked';
 
-/** Кого саме модеруємо у відкритій модалці. */
 interface Target {
   userId: number;
   name: string;
@@ -30,7 +29,6 @@ const STATUS_CLASS: Record<ComplaintStatus, string> = {
   REJECTED: 'status-rejected',
 };
 
-/** UC-13 і UC-14: розгляд скарг, бан і видалення акаунтів. */
 @Component({
   selector: 'app-admin',
   imports: [ReactiveFormsModule, RouterLink, AppShell],
@@ -48,7 +46,6 @@ export class Admin implements OnInit {
 
   readonly complaints = signal<ComplaintResponse[]>([]);
   readonly blocked = signal<BlockedUser[]>([]);
-  /** Повний перелік — потрібен для лічильників, які не залежать від фільтра. */
   private allComplaints = signal<ComplaintResponse[]>([]);
 
   readonly loading = signal(true);
@@ -105,8 +102,6 @@ export class Admin implements OnInit {
     return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('uk-UA');
   }
 
-  // --- Скарги ---
-
   review(complaint: ComplaintResponse): void {
     this.runOnComplaint(complaint, this.service.review(complaint.complaintId), 'взято на розгляд');
   }
@@ -122,8 +117,6 @@ export class Admin implements OnInit {
       'визнано безпідставною',
     );
   }
-
-  // --- Санкції ---
 
   startBan(complaint: ComplaintResponse): void {
     this.banTarget.set({ userId: complaint.reportedUserId, name: complaint.reportedUserName });

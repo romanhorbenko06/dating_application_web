@@ -6,7 +6,7 @@ import { messageOf, retryAfterOf } from '../../core/api-error';
 import { AuthService } from '../../core/auth.service';
 import { AuthLayout } from '../../layout/auth-layout/auth-layout';
 
-/** Скільки секунд не можна просити новий код — щоб не бити в ліміт бекенду. */
+/** Щоб не бити в ліміт бекенду. */
 const RESEND_COOLDOWN = 30;
 
 @Component({
@@ -23,7 +23,6 @@ export class VerifyCode implements OnDestroy {
   private readonly boxes = viewChildren<ElementRef<HTMLInputElement>>('box');
 
   readonly email = this.auth.pendingEmail();
-  /** Шість окремих клітинок; у формі лежить їхня склейка. */
   readonly digits = signal<string[]>(['', '', '', '', '', '']);
 
   readonly form = this.fb.nonNullable.group({
@@ -36,7 +35,6 @@ export class VerifyCode implements OnDestroy {
   readonly cooldown = signal(0);
   private cooldownTimer: ReturnType<typeof setInterval> | null = null;
 
-  /** Секунди читаються добре лише до хвилини; далі показуємо хвилини. */
   readonly cooldownLabel = computed(() => {
     const left = this.cooldown();
     if (left <= 0) return '';
@@ -44,8 +42,7 @@ export class VerifyCode implements OnDestroy {
   });
 
   constructor() {
-    // Пароль живе лише в памʼяті сервісу, тож після перезавантаження сторінки
-    // завершити реєстрацію нічим — повертаємо людину на початок.
+    // Пароль лише в пам'яті, тож після перезавантаження повертаємо на початок.
     if (!this.email) this.router.navigate(['/register']);
   }
 
@@ -57,7 +54,6 @@ export class VerifyCode implements OnDestroy {
     const input = event.target as HTMLInputElement;
     const value = input.value.replace(/\D/g, '');
 
-    // Вставка всього коду одразу: розкладаємо по клітинках
     if (value.length > 1) {
       this.fill(value.slice(0, 6));
       return;
@@ -99,9 +95,7 @@ export class VerifyCode implements OnDestroy {
       error: (err) => {
         this.error.set(messageOf(err, 'Не вдалося надіслати код ще раз.'));
 
-        // Уперлись у ліміт бекенду — тримаємо кнопку вимкненою рівно стільки,
-        // скільки сказав сервер. Інакше вона оживала б щопівхвилини й давала
-        // натискати лише для того, щоб знову отримати ту саму відмову.
+        // Тримаємо кнопку вимкненою рівно стільки, скільки сказав сервер.
         const wait = retryAfterOf(err);
         if (wait !== null) this.startCooldown(wait);
       },

@@ -47,7 +47,6 @@
       }
     </div>
   } @else if (incoming().length > 0) {
-    <!-- ══ Є вхідні симпатії: усе одним стовпцем ══ -->
     <div class="sec-head">
       <p class="strip-label">Вас вподобали</p>
       <span class="pill-badge">
@@ -58,7 +57,6 @@
     <div class="grid wide">
       @for (item of incomingCards(); track item.request.requestId) {
         <article class="card in-card enter">
-          <!-- Фото до метчу закрите — показуємо саме це, а не порожню плитку -->
           <a class="shot" [routerLink]="['/users', item.userId]" aria-label="Відкрити анкету">
             <span class="veil">
               <svg viewBox="0 0 16 16" aria-hidden="true">
@@ -143,7 +141,6 @@
       </div>
     }
   } @else {
-    <!-- ══ Вхідних немає: пояснюємо, що робити далі ══ -->
     <div class="layout">
       <div class="col-main">
         <section class="hero enter">

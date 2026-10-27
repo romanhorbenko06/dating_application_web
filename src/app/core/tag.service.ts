@@ -8,7 +8,6 @@ import { TagResponse } from './models/tag.models';
 export class TagService {
   private http = inject(HttpClient);
 
-  /** Повний довідник. Створювати теги користувач не може — лише обирати з готових. */
   getAll(): Observable<TagResponse[]> {
     return this.http.get<TagResponse[]>('/api/tags');
   }
@@ -17,7 +16,6 @@ export class TagService {
     return this.http.get<TagResponse[]>('/api/tags/my');
   }
 
-  /** Теги чужої анкети. Бекенд закриває їх тим самим canViewProfile, що й сам профіль. */
   getForUser(userId: number): Observable<TagResponse[]> {
     return this.http.get<TagResponse[]>(`/api/tags/user/${userId}`);
   }

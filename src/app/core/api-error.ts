@@ -1,11 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
 /**
- * Розбір помилок бекенду. Формати тіла, які реально трапляються:
- *  - 400 валідація    → { message: 'Validation failed', fieldErrors: { email: '...' } }
- *  - 400 бізнес-логіка → { message: 'Email already registered' }
- *  - 403 бан акаунта   → { message: 'Account is permanently blocked', reason: '...' }
- *  - 429 ліміт спроб   → { message: 'Too many attempts...', retryAfterSeconds: 900 }
+ * Розбір помилок бекенду:
+ *  - 400 валідація    → { message, fieldErrors }
+ *  - 400 бізнес-логіка → { message }
+ *  - 403 бан           → { message, reason }
+ *  - 429 ліміт         → { message, retryAfterSeconds }
  */
 export interface ApiErrorBody {
   message?: string;
@@ -16,7 +16,6 @@ export interface ApiErrorBody {
   fieldErrors?: Record<string, string>;
 }
 
-/** Помилки конкретних полів форми, якщо бекенд їх повернув. */
 export function fieldErrorsOf(err: unknown): Record<string, string> {
   if (err instanceof HttpErrorResponse) {
     const body = err.error as ApiErrorBody | null;
@@ -25,11 +24,7 @@ export function fieldErrorsOf(err: unknown): Record<string, string> {
   return {};
 }
 
-/**
- * Скільки секунд лишилось до зняття ліміту, якщо сервер це сказав.
- * Бекенд віддає число і в тілі (`retryAfterSeconds`), і заголовком `Retry-After`
- * — беремо тіло: воно приходить завжди, а заголовок ще має бути відкритий CORS.
- */
+/** Беремо з тіла: заголовок Retry-After ще має бути відкритий CORS. */
 export function retryAfterOf(err: unknown): number | null {
   if (!(err instanceof HttpErrorResponse) || err.status !== 429) return null;
 
@@ -37,11 +32,7 @@ export function retryAfterOf(err: unknown): number | null {
   return typeof seconds === 'number' && seconds > 0 ? seconds : null;
 }
 
-/**
- * Бекенд відповідає англійською (і це нормально — API не прив'язаний до мови інтерфейсу).
- * Найчастіші повідомлення перекладаємо тут, решту показуємо як є: краще незнайомий
- * текст від сервера, ніж загальне «щось пішло не так», яке нічого не пояснює.
- */
+/** Найчастіші англійські повідомлення бекенду перекладаємо, решту показуємо як є. */
 const TRANSLATIONS: Record<string, string> = {
   'User not found': 'Анкету не знайдено — можливо, акаунт видалено.',
   'No more profiles': 'Анкети закінчились.',
@@ -58,24 +49,37 @@ const TRANSLATIONS: Record<string, string> = {
   'Invalid email or password': 'Невірна пошта або пароль.',
   'Account is permanently blocked': 'Акаунт заблоковано назавжди',
   'Photo limit reached': 'Досягнуто ліміту фотографій.',
+  // «Острів на двох»
+  'An island game is already in progress': 'Партія вже йде — продовжуйте її.',
+  'You already have an island in this chat': 'У цьому чаті ваш острів уже є.',
+  'Your invitation was declined; only your partner can start a new game':
+    'Запрошення відхилено. Нову гру може почати лише співрозмовник.',
+  'Invitation has already been answered': 'На запрошення вже відповіли.',
+  'Waiting for your partner to accept': 'Чекаємо, поки співрозмовник прийме запрошення.',
+  'The island game has expired': 'Час на цей крок минув — партію завершено.',
+  'This step has not started yet': 'Цей крок ще не почався.',
+  'You have already made your pick': 'Свій набір ви вже здали.',
+  'You have already made your guess': 'Здогад ви вже зробили.',
+  'Make your own pick first': 'Спершу оберіть свої предмети.',
+  'You have already answered': 'Ви вже відповіли.',
+  'Items must be different': 'Предмети мають бути різними.',
+  'You can only keep items that one of you picked': 'Лишити можна лише те, що обрав хтось із вас.',
+  'Island name is required': 'Дайте острову назву.',
   'Photo file is empty': 'Файл порожній.',
   'Chat not found': 'Чат не знайдено.',
   'Message not found': 'Повідомлення не знайдено.',
 };
 
-/** Один рядок, який не соромно показати користувачеві. */
 export function messageOf(err: unknown, fallback = 'Щось пішло не так. Спробуйте ще раз.'): string {
   if (!(err instanceof HttpErrorResponse)) return fallback;
 
-  // Сервер не відповів узагалі: не запущений, впав або немає мережі
   if (err.status === 0) {
     return 'Немає зв’язку із сервером. Перевірте, чи запущений бекенд на порту 8080.';
   }
 
   const body = err.error as ApiErrorBody | null;
 
-  // Бекенд завжди відповідає JSON. Якщо в тілі рядок (типово — HTML-сторінка помилки),
-  // значить відповів не він, а dev-сервер: проксі не працює й запит нікуди не пішов.
+  // Рядок замість JSON — відповів dev-сервер, тобто проксі не працює.
   if (typeof err.error === 'string' && err.status === 404) {
     return 'Запит не дійшов до сервера. Перезапустіть ng serve, щоб підхопився proxy.conf.json.';
   }
@@ -88,13 +92,11 @@ export function messageOf(err: unknown, fallback = 'Щось пішло не т�
       : 'Забагато спроб. Спробуйте трохи пізніше.';
   }
 
-  // Бан адміністратором: причина лежить окремим полем
   if (err.status === 403 && body?.reason) {
     const head = body.message ? (TRANSLATIONS[body.message] ?? body.message) : 'Доступ заборонено';
     return `${head}. Причина: ${body.reason}`;
   }
 
-  // Помилки полів уже показані під самими полями — у шапці даємо загальний текст
   if (body?.fieldErrors && Object.keys(body.fieldErrors).length > 0) {
     return 'Перевірте правильність заповнення полів.';
   }
@@ -102,7 +104,7 @@ export function messageOf(err: unknown, fallback = 'Щось пішло не т�
   const message = body?.message;
   if (!message) return fallback;
 
-  // Деякі повідомлення бекенд збирає з префіксом (напр. «Photo limit reached (max 6)»)
+  // Деякі повідомлення мають суфікс, напр. «Photo limit reached (max 6)»
   const known = Object.keys(TRANSLATIONS).find((key) => message.startsWith(key));
   return known ? TRANSLATIONS[known] : message;
 }

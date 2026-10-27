@@ -1,5 +1,3 @@
-/* ── Шапка: липка, бо форма довга й «Зберегти» має лишатися під рукою ── */
-
 .head {
   position: sticky;
   top: 0;
@@ -90,7 +88,6 @@
   cursor: default;
 }
 
-/* Кнопка існує лише заради Enter у полях — з потоку її прибираємо */
 .sr-submit {
   position: absolute;
   width: 1px;
@@ -100,8 +97,6 @@
   overflow: hidden;
   clip-path: inset(50%);
 }
-
-/* ── Сітка ── */
 
 .layout {
   display: grid;
@@ -151,8 +146,6 @@
 .sec-note.bottom {
   margin: 0.8rem 0 0;
 }
-
-/* ── Фотографії ── */
 
 .photo-grid {
   display: grid;
@@ -218,7 +211,6 @@
   color: var(--accent);
 }
 
-/* Плитка «додати» повторює пропорції знімка, щоб сітка не стрибала */
 .upload-tile {
   display: flex;
   flex-direction: column;
@@ -272,8 +264,6 @@
   font: 600 0.72rem/1.3 var(--font-ui);
 }
 
-/* ── Поля ── */
-
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
@@ -293,8 +283,6 @@
   border-radius: 12px;
   background: #faf6f3;
 }
-
-/* ── Теги ── */
 
 .tag-row {
   display: flex;
@@ -358,8 +346,6 @@
   padding: 0.68rem 1rem;
   background: #faf6f3;
 }
-
-/* ── Попередній вигляд картки у стрічці ── */
 
 .preview {
   background: var(--ink);
@@ -460,20 +446,16 @@
   color: rgb(255 255 255 / 55%);
 }
 
-/* ── Адаптивність ── */
-
 @media (max-width: 62rem) {
   .layout {
     grid-template-columns: 1fr;
   }
 
-  /* Прев'ю над формою нічого не дає — воно має лишитися внизу */
   .col-side {
     order: 2;
   }
 }
 
-/* Оболонка тут міняє власні відступи, тож від'ємні поля шапки більше не збігаються */
 @media (max-width: 56rem) {
   .head {
     position: static;

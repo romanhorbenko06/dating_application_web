@@ -13,7 +13,6 @@
         </span>
       }
       <a class="ghost-btn" routerLink="/profile">До анкети</a>
-      <!-- Кнопка стоїть поза <form>, тож натискаємо save() напряму -->
       <button type="button" class="save-btn" [disabled]="form.invalid || saving()" (click)="save()">
         {{ saving() ? 'Зберігаємо…' : 'Зберегти' }}
       </button>
@@ -32,7 +31,6 @@
   } @else {
     <div class="layout">
       <div class="col-main">
-        <!-- ── Фотографії ── -->
         <section class="card enter">
           <p class="strip-label">Фотографії</p>
           <p class="sec-note">
@@ -83,7 +81,6 @@
           }
         </section>
 
-        <!-- ── Основні поля ── -->
         <section class="card enter-2">
           <p class="strip-label">Про вас</p>
 
@@ -175,13 +172,12 @@
               </label>
             </div>
 
-            <!-- Прихована submit-кнопка: Enter у полі має зберігати анкету -->
+            <!-- Прихована submit-кнопка: Enter у полі зберігає анкету -->
             <button type="submit" class="sr-submit" [disabled]="form.invalid || saving()"
                     tabindex="-1" aria-hidden="true"></button>
           </form>
         </section>
 
-        <!-- ── Інтереси ── -->
         <section class="card enter-3">
           <div class="card-head">
             <p class="strip-label">Інтереси та хобі</p>
@@ -220,7 +216,6 @@
         </section>
       </div>
 
-      <!-- ── Живий попередній перегляд ── -->
       <aside class="col-side">
         <section class="card preview enter-2">
           <p class="strip-label">Так вас бачать у стрічці</p>
@@ -230,7 +225,6 @@
               @if (mainPhoto(); as photo) {
                 <img [src]="photo.dataUri" alt="" aria-hidden="true" />
               }
-              <!-- Та сама завіса, що й у чужій анкеті до метчу -->
               <div class="prev-veil">
                 <svg viewBox="0 0 16 16" aria-hidden="true">
                   <rect x="3.4" y="7" width="9.2" height="6.2" rx="1.6" />

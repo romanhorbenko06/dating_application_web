@@ -2,10 +2,6 @@ import { Routes } from '@angular/router';
 
 import { adminGuard, authGuard, daterGuard, guestGuard } from './core/auth.guard';
 
-/**
- * loadComponent = ліниве завантаження: код екрана їде окремим шматком і качається
- * лише тоді, коли на нього справді перейшли. Для стартового бандла це помітно.
- */
 export const routes: Routes = [
   {
     path: 'about',
@@ -40,6 +36,11 @@ export const routes: Routes = [
     path: 'chats/:id',
     canActivate: [authGuard, daterGuard],
     loadComponent: () => import('./pages/chat-room/chat-room').then((m) => m.ChatRoom),
+  },
+  {
+    path: 'chats/:id/island',
+    canActivate: [authGuard, daterGuard],
+    loadComponent: () => import('./pages/island/island').then((m) => m.Island),
   },
   {
     path: 'notifications',

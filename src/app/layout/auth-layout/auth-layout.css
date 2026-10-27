@@ -2,7 +2,6 @@
   position: relative;
   min-height: 100vh;
   overflow: hidden;
-  /* Мʼякий рожевий серпанок згори, як у макеті */
   background: radial-gradient(48rem 26rem at 50% -6rem, #fbe7ef 0%, var(--surface) 62%);
 }
 
@@ -36,7 +35,6 @@
   max-width: 34rem;
 }
 
-/* Логотип живе всередині картки, як у макеті */
 .logo {
   display: inline-block;
   margin-bottom: 1.4rem;

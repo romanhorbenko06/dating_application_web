@@ -1,0 +1,431 @@
+<app-shell [wide]="true">
+  <div class="crumbs">
+    <a class="ghost-btn" [routerLink]="['/chats', chatId]">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.5 4 5.5 8l4 4" /></svg>
+      До чату
+    </a>
+    <span class="crumb-text">Острів на двох · {{ companionName() }}</span>
+  </div>
+
+  @if (loading()) {
+    <div class="frame"><div class="skeleton" style="height: 22rem"></div></div>
+  } @else {
+    <div class="frame">
+      <header class="band">
+        <span class="band-title">
+          @if (step(); as n) {
+            <span class="band-step">Крок {{ n }} з 5</span>
+          }
+          <b>{{ headTitle() }}</b>
+        </span>
+        @if (step(); as n) {
+          <span class="progress" aria-hidden="true">
+            @for (s of steps; track s) {
+              <i [class.on]="s <= n"></i>
+            }
+          </span>
+        }
+        @if (timerOn()) {
+          <span class="timer" [class.out]="secondsLeft() === 0">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.8" /><path d="M8 5.2V8l2.2 1.5" /></svg>
+            <b>{{ timerText() }}</b>
+          </span>
+        }
+      </header>
+
+      @if (error()) {
+        <p class="banner banner-error inset"><span class="banner-icon">✕</span> {{ error() }}</p>
+      }
+
+      <div class="stage">
+        @switch (screen()) {
+
+          @case ('lobby') {
+            <div class="lobby">
+              <div class="lobby-card">
+                <span class="lobby-ico" aria-hidden="true">🏝</span>
+                @switch (game()?.status) {
+                  @case ('INVITED') {
+                    @if (invitedMe()) {
+                      <h2>{{ companionName() }} запрошує вас на острів</h2>
+                      <p>Яхта потрапила в шторм. Хвиля викинула на берег 12 предметів. Кожен обирає три,
+                        потім ви розкриваєте набори, переживаєте ніч і разом вирішуєте, що лишити.</p>
+                      <div class="row-actions">
+                        <button type="button" class="btn" [disabled]="busy()" (click)="accept()">Зіграти разом</button>
+                        <button type="button" class="btn btn-outline" [disabled]="busy()" (click)="decline()">Не зараз</button>
+                      </div>
+                    } @else {
+                      <h2>Запрошення надіслано</h2>
+                      <p>Щойно {{ companionName() }} погодиться, гра почнеться. Відповідати не обов'язково
+                        одночасно — кожен ходить, коли зручно.</p>
+                    }
+                  }
+                  @case ('DECLINED') {
+                    @if (mayInvite()) {
+                      <h2>Ви відклали гру</h2>
+                      <p>Коли захочете — запросіть самі.</p>
+                      <div class="row-actions">
+                        <button type="button" class="btn" [disabled]="busy()" (click)="invite()">Запросити</button>
+                      </div>
+                    } @else {
+                      <h2>Поки що без острова</h2>
+                      <p>Гра — лише привід, а не обов'язок. Чат працює як завжди.</p>
+                    }
+                  }
+                  @case ('EXPIRED') {
+                    <h2>Час на крок минув</h2>
+                    <p>Партію завершено, але нічого не втрачено — можна почати нову.</p>
+                    <div class="row-actions">
+                      <button type="button" class="btn" [disabled]="busy()" (click)="invite()">Запросити знову</button>
+                    </div>
+                  }
+                  @default {
+                    <h2>Острів на двох</h2>
+                    <p>Замість «привіт, як справи» — спільна пригода на 3–4 хвилини. Жодних оцінок
+                      і відсотків сумісності: лише готові теми для розмови.</p>
+                    <ol class="how">
+                      <li>Кожен обирає 3 предмети з 12</li>
+                      <li>Вгадує вибір партнера</li>
+                      <li>Набори відкриваються одночасно</li>
+                      <li>Ніч на острові — несподівана подія</li>
+                      <li>Разом лишаєте спільний список і даєте острову назву</li>
+                    </ol>
+                    <div class="row-actions">
+                      <button type="button" class="btn" [disabled]="busy()" (click)="invite()">Запросити на гру</button>
+                    </div>
+                  }
+                }
+                <a class="back-link" [routerLink]="['/chats', chatId]">Повернутися до чату</a>
+              </div>
+            </div>
+          }
+
+          @case ('pick') {
+            <ng-container *ngTemplateOutlet="picker; context: { intro: 'Хвиля викинула на берег 12 предметів. Ви обираєте три — не радьтесь і не думайте довго, цінний саме перший порух.' }" />
+          }
+          @case ('guess') {
+            <ng-container *ngTemplateOutlet="picker; context: { intro: 'Позначте три предмети, які, на вашу думку, обрав(-ла) ' + companionName() + '. Ваш набір уже зафіксовано.' }" />
+          }
+
+          @case ('waitRound') {
+            <div class="two-col">
+              <section class="panel">
+                <p class="label">Ваш набір</p>
+                <div class="tiles three">
+                  @for (code of game()?.myPick ?? []; track code) {
+                    <div class="tile-mini">
+                      <span class="swatch" [style.background]="tile(code)"></span>
+                      <b>{{ title(code) }}</b>
+                    </div>
+                  }
+                </div>
+                @if (game()?.myNote) {
+                  <p class="quote">«{{ game()?.myNote }}»</p>
+                }
+                <p class="label top">Ваш здогад</p>
+                <p class="plain">{{ titles(game()?.myGuess) }}</p>
+              </section>
+              <aside class="panel soft">
+                <p class="label">{{ companionName() }}</p>
+                <p class="state" [class.done]="game()?.partnerPicked">
+                  <i></i>{{ game()?.partnerPicked ? 'обрав(-ла) предмети' : 'ще обирає предмети' }}
+                </p>
+                <p class="state" [class.done]="game()?.partnerGuessed">
+                  <i></i>{{ game()?.partnerGuessed ? 'зробив(-ла) здогад' : 'ще не вгадував(-ла)' }}
+                </p>
+                <p class="small">Набори відкриються одночасно, щойно ви обоє завершите. Ми надішлемо
+                  сповіщення — можна спокійно повернутися до чату.</p>
+                <a class="btn btn-outline btn-sm" [routerLink]="['/chats', chatId]">До чату</a>
+              </aside>
+            </div>
+          }
+
+          @case ('night') {
+            <ng-container *ngTemplateOutlet="reveal" />
+
+            @if (game()?.nightEvent; as event) {
+              <section class="night">
+                <span class="night-glow" aria-hidden="true"></span>
+                <div class="night-body">
+                  <span class="eyebrow">Ніч на острові</span>
+                  <h2>{{ event.prompt }}</h2>
+                  @if (game()?.myNightChoice === null) {
+                    <p class="night-sub">Вогонь майже згас. {{ companionName() }} теж не спить і теж обирає.
+                      Відповіді відкриються одночасно.</p>
+                    <div class="options">
+                      @for (text of event.options; track $index) {
+                        <button type="button" class="option" [class.on]="nightChoice() === $index"
+                                (click)="nightChoice.set($index)">
+                          <i>{{ letter($index) }}</i>{{ text }}
+                        </button>
+                      }
+                    </div>
+                    <button type="button" class="night-go" [disabled]="nightChoice() === null || busy()"
+                            (click)="submitNight()">Відповісти</button>
+                  } @else {
+                    <p class="night-sub">Ваша відповідь: <b>{{ option(game()?.myNightChoice) }}</b></p>
+                    <p class="night-wait">
+                      @if (game()?.partnerNightAnswered) {
+                        {{ companionName() }} теж відповів(-ла) — ще мить
+                      } @else {
+                        <span class="dots"><i></i><i></i><i></i></span> {{ companionName() }} ще думає
+                      }
+                    </p>
+                  }
+                </div>
+              </section>
+            }
+          }
+
+          @case ('shortlist') {
+            <div class="nights-met">
+              <span class="eyebrow dark">Уночі</span>
+              <p><b>Ви:</b> {{ option(game()?.myNightChoice) }}</p>
+              <p><b>{{ companionName() }}:</b> {{ option(game()?.partnerNightChoice) }}</p>
+            </div>
+
+            <div class="two-col wide-aside">
+              <div class="stack">
+                <section class="panel">
+                  <div class="panel-head">
+                    <p class="label">Спільний склад · залишити {{ game()?.keepCount }}</p>
+                    <b class="count">обрано {{ selected().length }} з {{ need() }}</b>
+                  </div>
+                  <div class="grid three-col">
+                    @for (code of gridItems(); track code) {
+                      <button type="button" class="card-item" [class.on]="isSelected(code)" (click)="toggle(code)">
+                        <span class="swatch" [style.background]="tile(code)"></span>
+                        <b>{{ title(code) }}</b>
+                        <small>
+                          @if ((game()?.myPick ?? []).includes(code) && (game()?.partnerPick ?? []).includes(code)) {
+                            обрали обоє
+                          } @else if ((game()?.myPick ?? []).includes(code)) {
+                            ваш вибір
+                          } @else {
+                            у наборі: {{ companionName() }}
+                          }
+                        </small>
+                      </button>
+                    }
+                  </div>
+                </section>
+
+                <section class="panel">
+                  <p class="label">Назва острова — разом, одним словом або фразою</p>
+                  <div class="name-row">
+                    <input type="text" class="name-input" maxlength="40" placeholder="Наприклад, «Сонячний Фламінго»"
+                           [value]="islandName()" (input)="onName($event)" />
+                    <button type="button" class="btn" [disabled]="!ready() || !islandName().trim() || busy()"
+                            (click)="submitProposal()">
+                      {{ matchesPartner() ? 'Погодитися' : (proposed() ? 'Оновити пропозицію' : 'Запропонувати') }}
+                    </button>
+                  </div>
+                </section>
+              </div>
+
+              <aside class="panel soft">
+                <p class="label">Домовленість</p>
+                @if (game()?.partnerProposal; as theirs) {
+                  <p class="small strong">{{ companionName() }} пропонує:</p>
+                  <p class="island-proposal">«{{ theirs.name }}»</p>
+                  <div class="chip-row">
+                    @for (code of theirs.items; track code) {
+                      <span class="isl-chip">{{ title(code) }}</span>
+                    }
+                  </div>
+                  @if (!matchesPartner()) {
+                    <button type="button" class="link-btn" (click)="takePartnerProposal()">Взяти цей варіант</button>
+                  }
+                } @else {
+                  <p class="small">{{ companionName() }} ще не запропонував(-ла) свій варіант.</p>
+                }
+
+                @if (game()?.myProposal) {
+                  <p class="state" [class.done]="game()?.itemsAgreed"><i></i>Предмети {{ game()?.itemsAgreed ? 'збігаються' : 'поки розходяться' }}</p>
+                  <p class="state" [class.done]="game()?.nameAgreed"><i></i>Назва {{ game()?.nameAgreed ? 'збігається' : 'поки різна' }}</p>
+                }
+                <p class="small">Острів з'явиться, щойно ваші пропозиції збіжуться. Сперечатися зручно в чаті.</p>
+                <a class="btn btn-outline btn-sm" [routerLink]="['/chats', chatId]">Обговорити в чаті</a>
+              </aside>
+            </div>
+          }
+
+          @case ('done') {
+            <section class="final">
+              <span class="night-glow" aria-hidden="true"></span>
+              <div class="final-body">
+                <div class="final-text">
+                  <span class="eyebrow">Наш острів</span>
+                  <h2>«{{ game()?.islandName }}»</h2>
+                  @if (game()?.pairCard; as card) {
+                    <div class="style-block">
+                      <span class="style-label">{{ card.rare ? 'Рідкісний стиль пари' : 'Стиль пари' }}</span>
+                      <b class="style-title" [class.rare]="card.rare">{{ card.styleTitle }}</b>
+                      @if (card.signatureTitle) {
+                        <span class="style-sign">{{ card.signatureTitle }}</span>
+                      }
+                      <p class="style-text">«{{ card.styleText }}»</p>
+                    </div>
+                  }
+                  <div class="chip-row light">
+                    @for (code of game()?.finalItems ?? []; track code) {
+                      <span class="isl-chip">{{ title(code) }}</span>
+                    }
+                  </div>
+                  @if (game()?.pairCard; as card) {
+                    <div class="roles">
+                      <span><small>Ви на острові</small><b>{{ card.myRole.title }}</b><i>{{ card.myRole.meaning }}</i></span>
+                      <span><small>{{ companionName() }} на острові</small><b>{{ card.partnerRole.title }}</b><i>{{ card.partnerRole.meaning }}</i></span>
+                    </div>
+                  }
+                  @if (game()?.partnerNote) {
+                    <p class="best">
+                      <small>Найкращий момент</small>
+                      {{ companionName() }} про свій вибір: «{{ game()?.partnerNote }}»
+                    </p>
+                  }
+                </div>
+                <div class="final-tiles" aria-hidden="true">
+                  @for (code of game()?.finalItems ?? []; track code) {
+                    <i [style.background]="tile(code)"></i>
+                  }
+                </div>
+              </div>
+            </section>
+            <p class="final-hint">Картка закріплена вгорі вашого чату.
+              @if (talkingPoint(); as code) {
+                Спитайте, чому саме «{{ title(code) }}», — з цього й почнеться розмова.
+              }
+            </p>
+            <div class="row-actions center">
+              <a class="btn" [routerLink]="['/chats', chatId]">До чату</a>
+            </div>
+            <ng-container *ngTemplateOutlet="reveal" />
+          }
+        }
+      </div>
+    </div>
+  }
+
+  <ng-template #picker let-intro="intro">
+    <div class="two-col">
+      <div>
+        <p class="intro">{{ intro }}</p>
+        <div class="grid">
+          @for (code of gridItems(); track code) {
+            <button type="button" class="card-item" [class.on]="isSelected(code)" (click)="toggle(code)"
+                    [attr.aria-pressed]="isSelected(code)">
+              <span class="swatch" [style.background]="tile(code)"></span>
+              <b>{{ title(code) }}</b>
+              <small>{{ trait(code) }}</small>
+            </button>
+          }
+        </div>
+      </div>
+
+      <aside class="stack">
+        @if (screen() === 'guess') {
+          <section class="panel ink">
+            <p class="label light">Ваш набір зафіксовано</p>
+            @for (code of game()?.myPick ?? []; track code) {
+              <span class="locked">{{ title(code) }}</span>
+            }
+            <p class="small light">Змінити вже не можна — так чесніше.</p>
+          </section>
+        }
+        <section class="panel">
+          <div class="panel-head">
+            <p class="label">{{ screen() === 'guess' ? 'Ваш здогад' : 'Ваш набір' }}</p>
+            <b class="count">{{ selected().length }} з 3</b>
+          </div>
+          <div class="slots">
+            @for (slot of slots(); track $index) {
+              <span class="slot" [class.filled]="slot">{{ slot ? title(slot) : 'Порожньо' }}</span>
+            }
+          </div>
+          @if (screen() === 'pick') {
+            <label class="note">
+              <span>Одне речення про найдивніший вибір</span>
+              <input type="text" maxlength="200" placeholder="Фламінго — бо виживати треба з гідністю"
+                     [value]="note()" (input)="onNote($event)" />
+            </label>
+            <button type="button" class="btn btn-block" [disabled]="!ready() || busy()" (click)="submitPick()">Готово</button>
+          } @else {
+            <button type="button" class="btn btn-block" [disabled]="!ready() || busy()" (click)="submitGuess()">Підтвердити здогад</button>
+          }
+        </section>
+        <section class="panel soft">
+          <p class="label">{{ companionName() }}</p>
+          <p class="state" [class.done]="screen() === 'pick' ? game()?.partnerPicked : game()?.partnerGuessed">
+            <i></i>
+            @if (screen() === 'pick') {
+              {{ game()?.partnerPicked ? 'вже обрав(-ла)' : 'обирає свої предмети' }}
+            } @else {
+              {{ game()?.partnerGuessed ? 'вже вгадав(-ла)' : 'ще не вгадував(-ла)' }}
+            }
+          </p>
+          <p class="small">
+            @if (secondsLeft() === 0) {
+              Таймер — лише підказка: оберіть, що першим спало на думку.
+            } @else {
+              Вибір партнера відкриється, коли обоє завершите.
+            }
+          </p>
+        </section>
+      </aside>
+    </div>
+  </ng-template>
+
+  <ng-template #reveal>
+    @if (game(); as g) {
+      <section class="reveal">
+        <div class="reveal-head">
+          <span class="eyebrow">Розкриття</span>
+          <h2>
+            @if ((g.sharedItems ?? []).length) {
+              Обоє взяли: {{ titles(g.sharedItems) }}
+            } @else {
+              Жодного збігу — тим цікавіше буде розмова
+            }
+          </h2>
+        </div>
+        <div class="sets">
+          <div class="set">
+            <p class="label">Ви</p>
+            <div class="tiles three">
+              @for (code of g.myPick ?? []; track code) {
+                <div class="tile-mini" [class.shared]="isShared(code)">
+                  <span class="swatch" [style.background]="tile(code)"></span>
+                  <b>{{ title(code) }}</b>
+                </div>
+              }
+            </div>
+            @if (g.myNote) {
+              <p class="quote">«{{ g.myNote }}»</p>
+            }
+          </div>
+          <div class="set accent">
+            <p class="label">{{ companionName() }}</p>
+            <div class="tiles three">
+              @for (code of g.partnerPick ?? []; track code) {
+                <div class="tile-mini" [class.shared]="isShared(code)">
+                  <span class="swatch" [style.background]="tile(code)"></span>
+                  <b>{{ title(code) }}</b>
+                </div>
+              }
+            </div>
+            @if (g.partnerNote) {
+              <p class="quote pink">«{{ g.partnerNote }}»</p>
+            }
+          </div>
+        </div>
+        <div class="guesses">
+          <p><b>Ваш здогад влучив:</b>
+            {{ myHits().length ? titles(myHits()) : 'цього разу нічого — буде що розпитати' }}</p>
+          <p><b>{{ companionName() }} вгадує про вас:</b>
+            {{ theirHits().length ? titles(theirHits()) : 'нічого — ви вмієте дивувати' }}</p>
+        </div>
+      </section>
+    }
+  </ng-template>
+</app-shell>

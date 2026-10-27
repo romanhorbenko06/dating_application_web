@@ -20,7 +20,6 @@
       <div class="skeleton skeleton-line" style="width: 55%"></div>
     </div>
   } @else if (profile(); as person) {
-    <!-- ── Банер метчу: з'являється рівно тоді, коли бекенд віддав фото ── -->
     @if (matched()) {
       <div class="match-bar enter">
         <div class="pair" aria-hidden="true">
@@ -49,7 +48,6 @@
     }
 
     <div class="layout">
-      <!-- ── Головна колонка ── -->
       <div class="col-main">
         <section class="card shot-card enter">
           <div class="shots">
@@ -184,11 +182,9 @@
         }
       </div>
 
-      <!-- ── Права колонка ── -->
       <aside class="col-side">
         <section class="card act-card enter" [class.matched]="matched()">
           @if (isAdmin()) {
-            <!-- Модератор дивиться анкету, а не знайомиться: ні симпатій, ні чату -->
             <p class="strip-label">Перегляд для модерації</p>
             <p class="act-note left">
               Ви відкрили анкету як адміністратор — фото доступні для перевірки.

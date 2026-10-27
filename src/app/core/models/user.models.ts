@@ -1,6 +1,5 @@
 import { ChildrenStatus, DatingGoal, EducationLevel, Gender, Temperament } from './enums';
 
-/** GET /api/users/me — власний профіль, єдине місце, де бекенд віддає email. */
 export interface UserResponse {
   userId: number;
   name: string;
@@ -15,10 +14,7 @@ export interface UserResponse {
   childrenStatus: ChildrenStatus | null;
 }
 
-/**
- * Тіло PUT /api/users/{id}. Це ПОВНА заміна анкети: поле, якого немає в запиті,
- * бекенд затирає в null. Тому форма редагування завжди надсилає всі поля одразу.
- */
+/** PUT — повна заміна анкети, тож форма завжди шле всі поля. */
 export interface UserUpdateRequest {
   name: string;
   gender: Gender;

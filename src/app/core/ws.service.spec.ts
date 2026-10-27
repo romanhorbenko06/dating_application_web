@@ -4,22 +4,14 @@ import { TestBed } from '@angular/core/testing';
 import { AuthService } from './auth.service';
 import { WsService } from './ws.service';
 
-/**
- * Heartbeat і перепідключення.
- *
- * Перевіряти це живим сокетом неможливо: половина сценаріїв — саме ті, де сокет
- * МОВЧИТЬ (обірваний TCP без FIN). Тому WebSocket підроблений, а час керований —
- * 25 секунд між ping'ами тест «проживає» миттєво.
- */
+/** Heartbeat і перепідключення: WebSocket підроблений, час керований. */
 describe('WsService', () => {
   const PING_INTERVAL = 25_000;
 
-  /** Підробка браузерного WebSocket: запам'ятовує надіслане, дає смикати події. */
   class FakeSocket {
     static instances: FakeSocket[] = [];
 
-    // Ті самі константи, що й у справжнього WebSocket: сервіс звіряє з ними
-    // readyState, і без них перевірка «сокет відкритий» ніколи не спрацює.
+    // Ті самі константи, що в справжнього WebSocket: сервіс звіряє з ними readyState.
     static readonly CONNECTING = 0;
     static readonly OPEN = 1;
     static readonly CLOSING = 2;
@@ -48,18 +40,15 @@ describe('WsService', () => {
       this.onclose?.();
     }
 
-    /** Сервер прийняв з'єднання. */
     accept(): void {
       this.readyState = 1;
       this.onopen?.();
     }
 
-    /** Сервер щось прислав. */
     deliver(payload: unknown): void {
       this.onmessage?.({ data: JSON.stringify(payload) });
     }
 
-    /** Обрив, який браузер помітив (на відміну від «зомбі»). */
     drop(): void {
       this.readyState = 3;
       this.onclose?.();
@@ -171,8 +160,7 @@ describe('WsService', () => {
     service.connect();
     latest().accept();
 
-    // кожна невдала спроба подовжує паузу; за 60 секунд їх має бути кілька,
-    // але точно не шістдесят — інакше вкладка в фоні довбала б сервер щосекунди
+    // Пауза росте: спроб кілька, але не шістдесят
     for (let i = 0; i < 5; i++) {
       latest().drop();
       vi.advanceTimersByTime(20_000);

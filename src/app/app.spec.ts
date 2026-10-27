@@ -7,7 +7,6 @@ describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      // Кореневий компонент містить <router-outlet>, тож без роутера він не збереться
       providers: [provideRouter([])],
     }).compileComponents();
   });

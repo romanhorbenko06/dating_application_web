@@ -1,7 +1,4 @@
-/**
- * Стани скарги. REJECTED і RESOLVED — РІЗНІ речі: resolved означає, що порушення
- * підтвердилось і вжито заходів, rejected — що скарга виявилась безпідставною (FR-21.2).
- */
+/** RESOLVED — порушення підтвердилось, REJECTED — скарга безпідставна. */
 export type ComplaintStatus = 'PENDING' | 'REVIEWED' | 'RESOLVED' | 'REJECTED';
 
 export interface ComplaintResponse {
@@ -15,7 +12,6 @@ export interface ComplaintResponse {
   createdAt: string;
 }
 
-/** Акаунт, забанений адміністратором. Розблокування не передбачено. */
 export interface BlockedUser {
   userId: number;
   name: string;

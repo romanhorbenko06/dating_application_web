@@ -1,10 +1,10 @@
 <div class="landing">
-  <!-- ── Шапка ── -->
   <header class="site-header">
     <a class="logo" routerLink="/about">znai<span>dy</span></a>
 
     <nav class="site-nav">
       <a href="#how" (click)="scrollTo($event, 'how')">Як це працює</a>
+      <a href="#island" (click)="scrollTo($event, 'island')">Гра після збігу</a>
       <a href="#why" (click)="scrollTo($event, 'why')">Чому інакше</a>
       <a href="#safety" (click)="scrollTo($event, 'safety')">Безпека</a>
       <a href="#faq" (click)="scrollTo($event, 'faq')">Питання</a>
@@ -22,7 +22,6 @@
     </div>
   </header>
 
-  <!-- ── Герой ── -->
   <section class="hero">
     <span class="blob one" aria-hidden="true"></span>
     <span class="blob two" aria-hidden="true"></span>
@@ -65,7 +64,6 @@
         </dl>
       </div>
 
-      <!-- Дві картки: та сама анкета до і після взаємності -->
       <div class="hero-visual" aria-hidden="true">
         <div class="card-before">
           <div class="shot locked">
@@ -110,7 +108,6 @@
     </div>
   </section>
 
-  <!-- ── Три принципи ── -->
   <section id="why" class="principles">
     <article>
       <span class="p-ico">
@@ -142,7 +139,6 @@
     </article>
   </section>
 
-  <!-- ── Як це працює ── -->
   <section id="how" class="how">
     <div class="how-head">
       <div>
@@ -190,8 +186,8 @@
         <b class="num">03</b>
         <h3>Симпатія стала взаємною</h3>
         <p>
-          Світлини відкриваються обом одночасно, а чат створюється сам.
-          Далі — тільки ваша розмова.
+          Світлини відкриваються обом одночасно, а чат створюється сам. Не знаєте, з чого
+          почати? Запросіть на «Острів на двох».
         </p>
         <div class="msg-row">
           <span class="msg-ava" aria-hidden="true"></span>
@@ -204,7 +200,67 @@
     </div>
   </section>
 
-  <!-- ── Теми ── -->
+  <section id="island" class="island">
+    <div class="island-text">
+      <p class="eyebrow">Після збігу</p>
+      <h2>Замість «привіт, як справи» — «Острів на двох»</h2>
+      <p>
+        Найважче в новому чаті — перше повідомлення. Тому після взаємної симпатії можна
+        зіграти в коротку гру: яхта потрапила в шторм, на берег викинуло 12 предметів,
+        і вам двом треба вижити.
+      </p>
+
+      <ol class="island-steps">
+        <li><b>Кожен обирає три предмети</b><small>і одним реченням пояснює найдивніший вибір</small></li>
+        <li><b>Вгадує вибір партнера</b><small>набори відкриваються обом одночасно — підлаштуватись не вийде</small></li>
+        <li><b>Переживає ніч на острові</b><small>несподівана подія показує, як ви реагуєте на сюрпризи</small></li>
+        <li><b>Разом лишає спільний список</b><small>і дає острову назву — тут і видно, як ви домовляєтесь</small></li>
+      </ol>
+
+      <p class="island-style-note">
+        Наприкінці — картка вашого острова зі <b>стилем пари</b>: кожен предмет тягне до однієї з
+        чотирьох ролей — Господар, Шукач, Затишок чи Іскра, — а з ролей обох складається один
+        із десяти стилів. Трапляються й рідкісні, наприклад «Фламінго-близнюки».
+      </p>
+
+      <div class="island-facts">
+        <span>3–4 хвилини</span>
+        <span>Без оцінок і відсотків</span>
+        <span>Необов'язково</span>
+        <span>Можна грати не одночасно</span>
+      </div>
+    </div>
+
+    <div class="island-visual" aria-hidden="true">
+      <div class="iv-invite">
+        <span class="iv-glow"></span>
+        <span class="iv-pill">Міні-гра · 3–4 хвилини</span>
+        <b class="iv-title">Марія запрошує на «Острів на двох»</b>
+        <span class="iv-tiles">
+          <i style="background: url('/island/items/matches.jpg') center / cover no-repeat, linear-gradient(150deg, #f3d9b8, #c99a5f)"></i>
+          <i style="background: url('/island/items/guitar.jpg') center / cover no-repeat, linear-gradient(150deg, #f0dcc4, #b98f63)"></i>
+          <i style="background: url('/island/items/flamingo.jpg') center / cover no-repeat, linear-gradient(150deg, #fbd0e0, #e07ca6)"></i>
+          <i style="background: url('/island/items/water-barrel.jpg') center / cover no-repeat, linear-gradient(150deg, #cfe3ea, #6f98a8)"></i>
+          <i style="background: url('/island/items/hammock.jpg') center / cover no-repeat, linear-gradient(150deg, #e6ddef, #9f8bb5)"></i>
+          <i style="background: url('/island/items/seeds.jpg') center / cover no-repeat, linear-gradient(150deg, #dbe8cf, #87a172)"></i>
+        </span>
+        <span class="iv-btns"><span class="iv-go">Зіграти разом</span><span class="iv-later">Не зараз</span></span>
+      </div>
+
+      <div class="iv-island">
+        <small class="iv-label">Наш острів · закріплено в чаті</small>
+        <b class="iv-name">«Сонячний Фламінго»</b>
+        <span class="iv-style"><b>Практики з душею</b> · сперечаєтесь, але з усмішкою</span>
+        <span class="iv-chips"><span>Сірники</span><span>Гітара</span><span>Фламінго</span><span>Вода</span></span>
+      </div>
+
+      <div class="iv-msg">
+        <span class="msg-ava"></span>
+        <span><b>Марія</b><small>Ну добре, чому саме фламінго? 😄</small></span>
+      </div>
+    </div>
+  </section>
+
   <section class="topics">
     <div class="topics-text">
       <p class="eyebrow">118 тем</p>
@@ -231,7 +287,6 @@
     </div>
   </section>
 
-  <!-- ── Безпека і питання ── -->
   <div class="split">
     <section id="safety" class="safety">
       <p class="eyebrow">Безпека</p>
@@ -276,6 +331,10 @@
           <small>Ні. До взаємної симпатії сервер віддає лише кількість світлин, а самі файли закриті перевіркою на взаємність.</small>
         </div>
         <div>
+          <b>Гра після збігу обов'язкова?</b>
+          <small>Ні. Писати можна одразу, а від запрошення можна відмовитись — чат від цього не зміниться.</small>
+        </div>
+        <div>
           <b>Скільки коштує?</b>
           <small>Знайомства, стрічка й чати безкоштовні. Платних «підвищень» у стрічці немає.</small>
         </div>
@@ -283,7 +342,6 @@
     </section>
   </div>
 
-  <!-- ── Фінальний заклик ── -->
   <section class="cta">
     <span class="glow" aria-hidden="true"></span>
     <div class="cta-inner">
@@ -305,7 +363,6 @@
     </div>
   </section>
 
-  <!-- ── Підвал ── -->
   <footer class="foot">
     <span class="foot-logo">
       <span class="logo">znai<span>dy</span></span>
@@ -314,6 +371,7 @@
     <nav class="foot-nav">
       <a href="#why" (click)="scrollTo($event, 'why')">Чому інакше</a>
       <a href="#how" (click)="scrollTo($event, 'how')">Як це працює</a>
+      <a href="#island" (click)="scrollTo($event, 'island')">Гра після збігу</a>
       <a href="#safety" (click)="scrollTo($event, 'safety')">Безпека</a>
       <a href="#faq" (click)="scrollTo($event, 'faq')">Питання</a>
     </nav>

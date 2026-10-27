@@ -5,25 +5,17 @@ import { Observable } from 'rxjs';
 import { ApiErrorBody } from './api-error';
 import { FeedFilters, PublicProfile } from './models/profile.models';
 
-/** Текст, яким бекенд позначає порожню стрічку (BusinessException → 400). */
 const NO_MORE_PROFILES = 'No more profiles';
 
 @Injectable({ providedIn: 'root' })
 export class FeedService {
   private http = inject(HttpClient);
 
-  /**
-   * Наступний профіль — по одному, як у Badoo. Кандидати вже відфільтровані бекендом
-   * (свої лайки, скіпи, блоки, адміни) і відсортовані за кількістю спільних тегів.
-   */
   getNext(filters: FeedFilters): Observable<PublicProfile> {
     return this.http.get<PublicProfile>('/api/users/next', { params: this.toParams(filters) });
   }
 
-  /**
-   * Кілька наступних анкет для смуги «далі у стрічці».
-   * Перший елемент дорівнює тому, що віддає getNext, тож у смузі показуємо з другого.
-   */
+  /** Перший елемент дорівнює getNext, тож у смузі показуємо з другого. */
   getUpcoming(filters: FeedFilters, limit = 5): Observable<PublicProfile[]> {
     return this.http.get<PublicProfile[]>('/api/users/feed', {
       params: this.toParams(filters).set('limit', limit),
@@ -42,10 +34,7 @@ export class FeedService {
     return params;
   }
 
-  /**
-   * «Стрічка закінчилась» приходить як звичайна 400 з конкретним текстом,
-   * а не окремим статусом — тож відрізняємо її саме за повідомленням.
-   */
+  /** Порожня стрічка — звичайна 400, тож розпізнаємо за текстом. */
   isFeedEmpty(err: unknown): boolean {
     return (
       err instanceof HttpErrorResponse &&

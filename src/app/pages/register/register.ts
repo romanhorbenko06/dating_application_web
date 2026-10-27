@@ -2,13 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
-
 import { fieldErrorsOf, messageOf } from '../../core/api-error';
 import { AuthService } from '../../core/auth.service';
 import { DATING_GOAL_OPTIONS, DatingGoal, GENDER_OPTIONS, Gender } from '../../core/models/enums';
 import { adultValidator, passwordsMatch } from '../../core/validators';
 
-/** Умови використання та політика конфіденційності (Google Drive). */
 const TERMS_URL =
   'https://drive.google.com/file/d/1oOsd3jnI8IZkpNruF8oAumBxWVccThRn/view?usp=sharing';
 
@@ -19,10 +17,6 @@ const TERMS_URL =
   styleUrl: './register.css',
 })
 export class Register {
-  /**
-   * Документ з умовами та політикою конфіденційності. Лежить окремо від застосунку,
-   * тож редакцію можна оновити, не перезбираючи фронт.
-   */
   readonly termsUrl = TERMS_URL;
 
   private fb = inject(FormBuilder);
@@ -32,8 +26,6 @@ export class Register {
   readonly genders = GENDER_OPTIONS;
   readonly goals = DATING_GOAL_OPTIONS;
 
-  // Обмеження дзеркалять анотації RegisterRequest на бекенді:
-  // помилку однаково зловить сервер, але показати її одразу — швидше й дешевше.
   readonly form = this.fb.nonNullable.group(
     {
       email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],

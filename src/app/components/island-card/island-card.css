@@ -1,0 +1,314 @@
+:host {
+  display: block;
+  flex: none;
+}
+
+.wrap {
+  padding: 0.8rem 1.05rem;
+}
+
+.isl-error {
+  margin: 0 0 0.5rem;
+  font: 600 0.72rem/1.4 var(--font-ui);
+  color: var(--error);
+}
+
+.invite-ink,
+.island-ink {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  border-radius: 20px;
+  background: linear-gradient(150deg, #1c1518, #4d1f31);
+  color: #fff;
+  text-decoration: none;
+}
+
+.invite-ink {
+  padding: 1.7rem 1.6rem;
+}
+
+.invite-ink.compact {
+  padding: 1.1rem 1.2rem;
+}
+
+.glow {
+  position: absolute;
+  width: 21rem;
+  height: 21rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(214 51 108 / 45%), transparent 70%);
+  top: -9.5rem;
+  left: 50%;
+  margin-left: -10.5rem;
+  pointer-events: none;
+  animation: isl-drift 15s ease-in-out infinite;
+}
+
+@keyframes isl-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(14px, -12px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow { animation: none; }
+}
+
+.ink-body {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.ink-body.center {
+  text-align: center;
+}
+
+.pill {
+  display: inline-flex;
+  padding: 0.32rem 0.75rem;
+  border-radius: var(--radius-pill);
+  background: rgb(255 255 255 / 10%);
+  border: 1px solid rgb(255 255 255 / 16%);
+  font: 700 0.62rem/1 var(--font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #f6b9cd;
+}
+
+.invite-ink h3 {
+  margin: 0.85rem 0 0.55rem;
+  font: 600 1.55rem/1.18 var(--font-display);
+  text-wrap: balance;
+}
+
+.invite-ink.compact h3 {
+  margin: 0.6rem 0 0.7rem;
+  font-size: 1.15rem;
+}
+
+.invite-ink p {
+  margin: 0 auto 1.25rem;
+  max-width: 25rem;
+  font: 400 0.84rem/1.7 var(--font-ui);
+  color: rgb(255 255 255 / 70%);
+  text-wrap: pretty;
+}
+
+.ink-actions {
+  display: flex;
+  gap: 0.55rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ink-primary,
+.ink-ghost {
+  padding: 0.8rem 1.4rem;
+  border-radius: 13px;
+  font: 700 0.84rem/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.ink-primary {
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 14px 28px -14px rgb(214 51 108 / 90%);
+}
+
+.ink-ghost {
+  border: 1px solid rgb(255 255 255 / 22%);
+  background: rgb(255 255 255 / 8%);
+  color: #fff;
+  font-weight: 600;
+}
+
+.ink-primary:disabled,
+.ink-ghost:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ink-hint {
+  display: block;
+  margin-top: 0.85rem;
+  font: 500 0.7rem/1.3 var(--font-ui);
+  color: rgb(255 255 255 / 45%);
+}
+
+.pin-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.55rem;
+  font: 700 0.6rem/1 var(--font-ui);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #b3a7a0;
+}
+
+.pin-label svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.island-ink {
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.2rem 1.35rem;
+  transition: transform 0.15s ease;
+}
+
+.island-ink:hover {
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.island-ink .glow {
+  left: auto;
+  right: -4rem;
+  margin: 0;
+  top: -10rem;
+}
+
+.eyebrow {
+  display: block;
+  font: 700 0.6rem/1 var(--font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c78ba4;
+}
+
+.island-name {
+  display: block;
+  margin: 0.45rem 0 0.35rem;
+  font: 600 1.35rem/1.15 var(--font-display);
+  overflow-wrap: anywhere;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.pair-style {
+  display: block;
+  margin-bottom: 0.65rem;
+}
+
+.pair-style b {
+  font: 600 0.82rem/1.3 var(--font-ui);
+  color: #f6b9cd;
+}
+
+.pair-style b.rare {
+  color: #ffd98a;
+}
+
+.pair-style small {
+  /* margin, бо пробіл між тегами Angular прибирає при компіляції */
+  margin-left: 0.3rem;
+  font: 500 0.74rem/1.3 var(--font-ui);
+  color: rgb(255 255 255 / 60%);
+}
+
+/* isl-, бо глобальний .chip перебиває колір і рамку */
+.isl-chip {
+  padding: 0.28rem 0.65rem;
+  border-radius: var(--radius-pill);
+  background: rgb(255 255 255 / 12%);
+  font: 600 0.7rem/1.35 var(--font-ui);
+}
+
+.mini-tiles {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 2.6rem);
+  gap: 0.35rem;
+  flex: none;
+}
+
+.mini-tiles i {
+  aspect-ratio: 1;
+  border-radius: 10px;
+}
+
+.strip {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #eee5df;
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--text);
+  text-decoration: none;
+}
+
+a.strip:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.strip.my-move {
+  background: var(--accent-soft);
+  border-color: #f6d8e3;
+}
+
+.strip-ico {
+  font-size: 1.15rem;
+  flex: none;
+}
+
+.strip-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.strip-text b {
+  display: block;
+  font: 600 0.8rem/1.25 var(--font-ui);
+}
+
+.strip-text small {
+  display: block;
+  font: 500 0.72rem/1.35 var(--font-ui);
+  color: var(--muted);
+}
+
+.strip-cta {
+  flex: none;
+  padding: 0.5rem 0.85rem;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font: 700 0.72rem/1 var(--font-ui);
+}
+
+.strip:not(.my-move) .strip-cta:not(.btn-like) {
+  background: var(--surface);
+  color: #2a2124;
+  border: 1px solid var(--border);
+}
+
+.btn-like {
+  border: 0;
+  cursor: pointer;
+}
+
+.btn-like:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 560px) {
+  .mini-tiles {
+    display: none;
+  }
+}

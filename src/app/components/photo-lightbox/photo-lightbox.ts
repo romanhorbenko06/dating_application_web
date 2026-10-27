@@ -18,13 +18,9 @@ import { PhotoVariants, ThumbnailService } from '../../core/thumbnail.service';
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 5;
-/** Масштаб за подвійним тапом або кліком. */
 const TAP_SCALE = 2.4;
-/** Зсув пальця, після якого рух вважається свайпом, а не тремтінням руки. */
 const SWIPE_THRESHOLD = 40;
-/** Проміжок між тапами, який ще рахується подвійним тапом. */
 const DOUBLE_TAP_MS = 300;
-/** Наскільки далеко можуть розійтись два тапи, щоб лишитись «подвійним». */
 const DOUBLE_TAP_SLOP = 32;
 
 interface Point {
@@ -32,13 +28,7 @@ interface Point {
   y: number;
 }
 
-/**
- * Повноекранний перегляд фотографій.
- *
- * Модель трансформації: `translate(offset) scale(scale)` з origin у центрі.
- * Саме тому зсув вимірюється в пікселях від центру — інакше межі знімка
- * не порахувати, і фото можна було б відтягнути в порожнечу.
- */
+/** Повноекранний перегляд фото. Трансформація translate(offset) scale(scale) з origin у центрі. */
 @Component({
   selector: 'app-photo-lightbox',
   imports: [DecimalPipe],
@@ -72,7 +62,6 @@ export class PhotoLightbox implements OnDestroy {
 
   private decoded = new Set<number>();
 
-  // Стан жестів
   private pinch: { dist: number; scale: number; offset: Point; anchor: Point } | null = null;
   private drag: { x: number; y: number; offset: Point } | null = null;
   private swipeStartX: number | null = null;
@@ -87,8 +76,7 @@ export class PhotoLightbox implements OnDestroy {
 
     effect(() => this.overlay()?.nativeElement.focus());
 
-    // Сусідні фото декодуємо заздалегідь: байти вже в пам'яті (base64 з API),
-    // але перетворення data-URI на бітмап відбувається при першому показі.
+    // Сусідні фото декодуємо заздалегідь, щоб не було затримки при гортанні.
     effect(() => this.preloadNeighbours(this.index()));
 
     document.body.style.overflow = 'hidden';
@@ -119,7 +107,6 @@ export class PhotoLightbox implements OnDestroy {
     this.index.set(i);
   }
 
-  /** Дрібні варіанти для смуги мініатюр — щоб плитка 58px не тягла повний знімок. */
   thumb(photo: PhotoContent): Signal<PhotoVariants | null> {
     return this.thumbnails.variants(photo, [128, 256]);
   }
@@ -129,10 +116,7 @@ export class PhotoLightbox implements OnDestroy {
     this.offset.set({ x: 0, y: 0 });
   }
 
-  // ── Миша ───────────────────────────────────────────────────
-
   onClick(event: MouseEvent): void {
-    // Клік, породжений дотиком, ігноруємо: там працює подвійний тап
     if (Date.now() < this.ignoreClickUntil) return;
 
     if (this.zoomed()) this.resetZoom();
@@ -160,8 +144,6 @@ export class PhotoLightbox implements OnDestroy {
     this.drag = null;
     this.dragging.set(false);
   }
-
-  // ── Дотик ──────────────────────────────────────────────────
 
   onTouchStart(event: TouchEvent): void {
     if (event.touches.length === 2) {
@@ -217,7 +199,6 @@ export class PhotoLightbox implements OnDestroy {
     this.drag = null;
     this.dragging.set(false);
 
-    // Щипок «до кінця назад» повертає фото у вихідний стан
     if (wasPinching && this.scale() <= 1.05) this.resetZoom();
 
     const touch = event.changedTouches[0];
@@ -226,7 +207,6 @@ export class PhotoLightbox implements OnDestroy {
       return;
     }
 
-    // Свайп має пріоритет: якщо палець проїхав далеко, це точно не тап
     if (this.swipeStartX !== null) {
       const delta = touch.clientX - this.swipeStartX;
       this.swipeStartX = null;
@@ -242,7 +222,6 @@ export class PhotoLightbox implements OnDestroy {
     this.handleTap(touch.clientX, touch.clientY);
   }
 
-  /** Подвійний тап наближає в точку тапу, ще один — повертає масштаб. */
   private handleTap(x: number, y: number): void {
     const now = Date.now();
     const previous = this.lastTap;
@@ -279,13 +258,8 @@ export class PhotoLightbox implements OnDestroy {
     }
   }
 
-  // ── Математика масштабу ────────────────────────────────────
-
   /**
-   * Масштабує до `target` так, щоб точка `anchor` на екрані лишилась на місці.
-   *
-   * Точка зображення u видима на екрані як center + t + s·u, тож із
-   * anchor = center + t₀ + s₀·u випливає t₁ = a − s₁·(a − t₀)/s₀,
+   * Масштабує до target, лишаючи anchor на місці: t₁ = a − s₁·(a − t₀)/s₀,
    * де a — anchor відносно центру кадру.
    */
   private zoomTo(
@@ -310,10 +284,7 @@ export class PhotoLightbox implements OnDestroy {
     });
   }
 
-  /**
-   * Не дає відтягнути знімок за його межі: коли збільшене зображення
-   * ширше за кадр, зсув обмежений половиною різниці; коли вужче — нулем.
-   */
+  /** Не дає відтягнути знімок за його межі. */
   private setOffset(value: Point): void {
     const image = this.image()?.nativeElement;
     const frame = this.frame()?.nativeElement;

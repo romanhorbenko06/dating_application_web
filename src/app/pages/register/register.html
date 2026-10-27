@@ -1,5 +1,4 @@
 <div class="split">
-  <!-- ── Ліва темна панель: навіщо це все ── -->
   <aside class="intro">
     <a class="logo" routerLink="/about">znai<span>dy</span></a>
 
@@ -17,7 +16,6 @@
     </div>
   </aside>
 
-  <!-- ── Права панель: форма ── -->
   <main class="form-pane">
     <div class="form-inner">
       <h2>Створити акаунт</h2>
@@ -112,7 +110,7 @@
           <input type="checkbox" formControlName="acceptTerms" />
           <span>
             Погоджуюсь з
-            <!-- stopPropagation: клік усередині <label> інакше ще й перемикав би галочку -->
+            <!-- stopPropagation, інакше клік у <label> перемикав би галочку -->
             <a class="terms-link" [href]="termsUrl" target="_blank" rel="noopener noreferrer"
                (click)="$event.stopPropagation()">умовами використання та політикою
               конфіденційності</a>

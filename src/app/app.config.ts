@@ -9,7 +9,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    // Інтерсептор реєструється тут один раз — далі він стоїть на КОЖНОМУ HTTP-запиті
     provideHttpClient(withInterceptors([authInterceptor])),
   ],
 };

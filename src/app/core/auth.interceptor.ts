@@ -5,13 +5,8 @@ import { catchError, throwError } from 'rxjs';
 
 import { AuthService } from './auth.service';
 
-/** Ендпоінти, які працюють БЕЗ токена — підставляти заголовок нема сенсу. */
 const PUBLIC_ENDPOINTS = ['/api/auth/login', '/api/auth/register', '/api/auth/verify'];
 
-/**
- * Єдине місце, де до запиту додається Authorization.
- * Завдяки цьому жоден сервіс і жоден компонент про токен не думає.
- */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -26,8 +21,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(request).pipe(
     catchError((error: unknown) => {
-      // 401 означає одне з трьох: токен протух (година життя), його відкликали
-      // через logout, або акаунт забанили. Реакція в усіх випадках однакова.
+      // Протух, відкликаний або бан — реакція однакова.
       if (error instanceof HttpErrorResponse && error.status === 401 && !isPublic) {
         auth.clearSession();
         router.navigate(['/login'], { queryParams: { expired: 1 } });

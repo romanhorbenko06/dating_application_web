@@ -12,26 +12,21 @@ export class NotificationService {
 
   static readonly PAGE_SIZE = 20;
 
-  /** Спільний лічильник: його показує значок у шапці на кожній сторінці. */
   readonly unreadCount = signal(0);
 
   constructor() {
     this.ws.events.subscribe((event) => {
       if (event.type !== 'NOTIFICATION') return;
 
-      // Навмисно перезапитуємо, а не робимо +1: сповіщення про повідомлення
-      // ЗГОРТАЮТЬСЯ — подія може бути оновленням наявного запису, і тоді
-      // непрочитаних не побільшало. Запит дешевий (SELECT COUNT).
+      // Перезапитуємо, а не +1: сповіщення згортаються, і подія може бути оновленням.
       this.refreshUnread();
     });
 
-    // Значок у шапці після обриву показував би застарілу цифру
     this.ws.reconnected.subscribe(() => this.refreshUnread());
   }
 
   list(page = 0, unreadOnly = false): Observable<NotificationResponse[]> {
-    // Пагінація ЗСУВОМ, не курсором: згортання NEW_MESSAGE оновлює createdAt
-    // і піднімає запис нагору, тобто порядок мінливий і курсор за id був би хибним.
+    // Зсувом, не курсором: згортання NEW_MESSAGE змінює порядок.
     const params = new HttpParams()
       .set('page', page)
       .set('size', NotificationService.PAGE_SIZE)

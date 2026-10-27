@@ -88,7 +88,6 @@
                   </span>
                 </div>
 
-                <!-- Дії доступні, поки скарга не дійшла до кінцевого стану -->
                 @if (complaint.status !== 'RESOLVED' && complaint.status !== 'REJECTED') {
                   <div class="row-actions">
                     @if (complaint.status === 'PENDING') {
@@ -150,7 +149,6 @@
     }
   }
 
-  <!-- ── Модалка бану ── -->
   @if (banTarget(); as target) {
     <div class="modal-overlay" (click)="closeModal()">
       <div class="modal-box" (click)="$event.stopPropagation()">
@@ -192,7 +190,6 @@
     </div>
   }
 
-  <!-- ── Модалка видалення ── -->
   @if (deleteTarget(); as target) {
     <div class="modal-overlay" (click)="closeModal()">
       <div class="modal-box" (click)="$event.stopPropagation()">

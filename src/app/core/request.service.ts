@@ -4,46 +4,32 @@ import { Observable, map } from 'rxjs';
 
 import { RequestResponse } from './models/request.models';
 
-/** Відповідь на прийняття симпатії: разом із метчем створюється чат. */
 export interface AcceptResponse {
   message: string;
   chatId: number;
 }
 
-/**
- * Симпатії (UC-08, UC-09). Уся робота з таблицею Request — і лайки зі стрічки,
- * і вхідні/надіслані списки — зібрана в одному місці.
- */
+/** Симпатії (UC-08, UC-09). */
 @Injectable({ providedIn: 'root' })
 export class RequestService {
   private http = inject(HttpClient);
 
-  /** Лайк створює PENDING-запит; метч виникає лише після accept з боку адресата. */
   send(toUserId: number, message?: string): Observable<RequestResponse> {
     return this.http.post<RequestResponse>('/api/requests/send', { toUserId, message });
   }
 
-  /** Пропуск прибирає профіль зі стрічки назавжди (лише для того, хто пропустив). */
   skip(userId: number): Observable<unknown> {
     return this.http.post(`/api/requests/skip/${userId}`, {});
   }
 
-  /** Кого користувач пропустив. Бекенд віддає лише id та ім'я. */
   skipped(): Observable<{ userId: number; name: string }[]> {
     return this.http.get<{ userId: number; name: string }[]>('/api/requests/skipped');
   }
 
-  /**
-   * Стільки просять екрани, яким треба ПОРАХУВАТИ симпатії, а не показати сторінку.
-   * Без явного розміру бекенд віддав би 50 — і лічильник тихо занижував би.
-   */
+  /** Розмір для підрахунку: з дефолтними 50 лічильник занижувався б. */
   static readonly ALL = 100;
 
-  /**
-   * Скільки людей вподобали вас ЗА ВЕСЬ ЧАС — для плитки в анкеті. Довжина списку
-   * тут не годиться: список посторінковий і містить лише тих, хто ще чекає відповіді,
-   * тож після відповіді на всі симпатії показував би нуль.
-   */
+  /** Накопичувальний лічильник: довжина списку після відповідей показувала б нуль. */
   incomingCount(): Observable<number> {
     return this.http
       .get<{ count: number }>('/api/requests/incoming/count')
@@ -59,7 +45,6 @@ export class RequestService {
     return this.http.get<RequestResponse[]>('/api/requests/sent');
   }
 
-  /** Саме тут виникає метч: створюється чат і відкриваються фотографії обох. */
   accept(requestId: number): Observable<AcceptResponse> {
     return this.http.post<AcceptResponse>(`/api/requests/${requestId}/accept`, {});
   }
